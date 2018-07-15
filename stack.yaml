@@ -1,0 +1,6 @@
+resolver: lts-12.0
+packages:
+  - .
+nix:
+  enable: true
+  shell-file: shell.nix
