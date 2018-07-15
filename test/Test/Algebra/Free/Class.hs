@@ -17,7 +17,7 @@ import           Algebra.Free.Class
     , FreeAlgebra (..)
     , foldF
     , natF
-    , mapF
+    , fmapF
     , joinF
     , bindF
     )
@@ -72,9 +72,9 @@ prop_foldF_nonempty = foldF_property
         (Sum <$> Gen.word32 (Range.linear 0 1024))
 
 -- |
--- @'mapF'@ should aggree with @'fmap'@ for types which satisfy @'Functor'@
+-- @'fmapF'@ should aggree with @'fmap'@ for types which satisfy @'Functor'@
 -- constraint.
-mapF_property
+fmapF_property
     :: ( FreeAlgebra f
        , AlgebraType f (f b)
        , Functor f
@@ -86,18 +86,18 @@ mapF_property
     => Gen (f a)
     -> (a -> b)
     -> Property
-mapF_property gen f = property $ do
+fmapF_property gen f = property $ do
     fa <- H.forAll gen
-    mapF f fa === fmap f fa
+    fmapF f fa === fmap f fa
 
-prop_mapF_list :: Property
-prop_mapF_list = mapF_property
+prop_fmapF_list :: Property
+prop_fmapF_list = fmapF_property
     ((Gen.list $ Range.linear 0 100)
         (Gen.integral $ Range.linear 0 1024))
     (\x -> x^2 + 2 * x + 1)
 
-prop_mapF_nonempty :: Property
-prop_mapF_nonempty = mapF_property
+prop_fmapF_nonempty :: Property
+prop_fmapF_nonempty = fmapF_property
     ((Gen.nonEmpty $ Range.linear 0 100)
         (Gen.integral $ Range.linear 0 1024))
     (\x -> 2 * x + 1)
