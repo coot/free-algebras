@@ -15,40 +15,40 @@ import qualified Hedgehog.Range as Range
 import           Algebra.Free.Class
     ( AlgebraType
     , FreeAlgebra (..)
-    , foldF
-    , natF
-    , fmapF
-    , joinF
-    , bindF
+    , foldFree
+    , natFree
+    , fmapFree
+    , joinFree
+    , bindFree
     )
 
-natF_property
+natFree_property
     :: ( FreeAlgebra f
        , AlgebraType f (f a)
        , Eq (f a)
        , Show (f a)
        )
     => Gen (f a) -> Property
-natF_property gen = property $ do
+natFree_property gen = property $ do
     fa <- H.forAll gen
-    natF fa === fa
+    natFree fa === fa
 
-prop_natF_list :: Property
-prop_natF_list = natF_property
+prop_natFree_list :: Property
+prop_natFree_list = natFree_property
     $ Gen.list (Range.linear 0 100) Gen.alpha
 
 prop_nafF_nonempty :: Property
-prop_nafF_nonempty = natF_property
+prop_nafF_nonempty = natFree_property
     $ Gen.nonEmpty (Range.linear 0 100) Gen.alpha
 
 -- |
--- Check that @'foldF' is @'fold'@ for @f@ which are @'Foldable'@ and @a@ which
+-- Check that @'foldFree' is @'fold'@ for @f@ which are @'Foldable'@ and @a@ which
 -- are @'Monoid' a.
-foldF_property
+foldFree_property
     :: ( FreeAlgebra f
        , AlgebraType f (f a)
        , AlgebraType f a
-       , Monoid a   -- fold brings this constraint, @'foldF'@ is free of it!
+       , Monoid a   -- fold brings this constraint, @'foldFree'@ is free of it!
        , Foldable f
        , Eq a
        , Eq (f a)
@@ -57,24 +57,24 @@ foldF_property
        )
     => Gen (f a)
     -> Property
-foldF_property gen = property $ do
+foldFree_property gen = property $ do
     fa <- H.forAll gen
-    foldF fa === fold fa
+    foldFree fa === fold fa
 
-prop_foldF_list :: Property
-prop_foldF_list = foldF_property 
+prop_foldFree_list :: Property
+prop_foldFree_list = foldFree_property 
     $ (Gen.list $ Range.linear 0 100)
         (Sum <$> Gen.word32 (Range.linear 0 1024))
 
-prop_foldF_nonempty :: Property
-prop_foldF_nonempty = foldF_property
+prop_foldFree_nonempty :: Property
+prop_foldFree_nonempty = foldFree_property
     $ (Gen.nonEmpty $ Range.linear 0 100)
         (Sum <$> Gen.word32 (Range.linear 0 1024))
 
 -- |
--- @'fmapF'@ should aggree with @'fmap'@ for types which satisfy @'Functor'@
+-- @'fmapFree'@ should aggree with @'fmap'@ for types which satisfy @'Functor'@
 -- constraint.
-fmapF_property
+fmapFree_property
     :: ( FreeAlgebra f
        , AlgebraType f (f b)
        , Functor f
@@ -86,25 +86,25 @@ fmapF_property
     => Gen (f a)
     -> (a -> b)
     -> Property
-fmapF_property gen f = property $ do
+fmapFree_property gen f = property $ do
     fa <- H.forAll gen
-    fmapF f fa === fmap f fa
+    fmapFree f fa === fmap f fa
 
-prop_fmapF_list :: Property
-prop_fmapF_list = fmapF_property
+prop_fmapFree_list :: Property
+prop_fmapFree_list = fmapFree_property
     ((Gen.list $ Range.linear 0 100)
         (Gen.integral $ Range.linear 0 1024))
     (\x -> x^2 + 2 * x + 1)
 
-prop_fmapF_nonempty :: Property
-prop_fmapF_nonempty = fmapF_property
+prop_fmapFree_nonempty :: Property
+prop_fmapFree_nonempty = fmapFree_property
     ((Gen.nonEmpty $ Range.linear 0 100)
         (Gen.integral $ Range.linear 0 1024))
     (\x -> 2 * x + 1)
 
 -- |
--- @'joinF'@ should be equal to @'join'@ for monads.
-joinF_property
+-- @'joinFree'@ should be equal to @'join'@ for monads.
+joinFree_property
     :: ( FreeAlgebra m
        , AlgebraType m (m a)
        , Monad m
@@ -115,25 +115,25 @@ joinF_property
        )
     => Gen (m (m a))
     -> Property
-joinF_property gen = property $ do
+joinFree_property gen = property $ do
     mma <- H.forAll gen
-    joinF mma === join mma
+    joinFree mma === join mma
 
-prop_joinF_list :: Property
-prop_joinF_list =
+prop_joinFree_list :: Property
+prop_joinFree_list =
     let gen = Gen.list (Range.linear 0 100)
                 (Gen.list (Range.linear 0 10) Gen.alpha)
-    in joinF_property gen
+    in joinFree_property gen
 
-prop_joinF_nonempty :: Property
-prop_joinF_nonempty =
+prop_joinFree_nonempty :: Property
+prop_joinFree_nonempty =
     let gen = Gen.nonEmpty (Range.linear 0 100)
                 (Gen.nonEmpty (Range.linear 0 10) Gen.alpha)
-    in joinF_property gen
+    in joinFree_property gen
 
 -- |
--- @'bindF'@ should be equal to @'>>='@ for monads.
-bindF_property
+-- @'bindFree'@ should be equal to @'>>='@ for monads.
+bindFree_property
     :: ( FreeAlgebra m
        , AlgebraType m (m a)
        , AlgebraType m (m b)
@@ -147,23 +147,23 @@ bindF_property
     => Gen (m a)
     -> (a -> m b)
     -> Property
-bindF_property gen f = property $ do
+bindFree_property gen f = property $ do
     ma <- H.forAll gen
-    bindF ma f === (ma >>= f)
+    bindFree ma f === (ma >>= f)
 
-prop_bindF_list :: Property
-prop_bindF_list =
+prop_bindFree_list :: Property
+prop_bindFree_list =
     let gen = Gen.list
             (Range.linear 0 10)
             (Gen.integral $ Range.linear 0 1024)
-    in bindF_property gen (\x -> [x^2, 2 * x, 1])
+    in bindFree_property gen (\x -> [x^2, 2 * x, 1])
 
-prop_bindF_nonempty :: Property
-prop_bindF_nonempty =
+prop_bindFree_nonempty :: Property
+prop_bindFree_nonempty =
     let gen = Gen.nonEmpty
             (Range.linear 0 10)
             (Gen.integral $ Range.linear 0 1024)
-    in bindF_property gen (\x -> x^2 :| [2 * x, 1])
+    in bindFree_property gen (\x -> x^2 :| [2 * x, 1])
 
 tests :: IO Bool
 tests = H.checkParallel $$(H.discover)

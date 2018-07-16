@@ -20,5 +20,5 @@ instance Monoid m => Pointed m where
 
 type instance AlgebraType Maybe m = Pointed m
 instance FreeAlgebra Maybe where
-    returnF = Just
-    foldMapF f (Just a) = f a
+    returnFree = Just
+    foldMapFree f (Just a) = f a
