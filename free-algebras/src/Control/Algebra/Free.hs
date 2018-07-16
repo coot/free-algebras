@@ -1,5 +1,5 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-module Algebra.Free.Class1
+module Control.Algebra.Free
     ( AlgebraType1
     , FreeAlgebra1 (..)
     , foldFree1
@@ -23,7 +23,7 @@ import           Data.Functor.Day (Day (..))
 import qualified Data.Functor.Day as Day
 import           Data.Functor.Coyoneda (Coyoneda (..), liftCoyoneda)
 
-import           Algebra.Free.Class (AlgebraType)
+import           Data.Algebra.Free (AlgebraType)
 
 -- |
 -- The constraint that will be imposed on the generator type of kind (* -> *).

@@ -1,4 +1,4 @@
-module Algebra.Free.Class
+module Data.Algebra.Free
     ( -- * Algebra type
       AlgebraType
       -- * FreeAlgebra class

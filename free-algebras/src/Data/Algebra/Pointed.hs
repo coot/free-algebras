@@ -1,11 +1,11 @@
 {-# LANGUAGE UndecidableInstances #-}
-module Algebra.Pointed
+module Data.Algebra.Pointed
     ( Pointed (..)
     , AlgebraType
     ) where
 
 
-import           Algebra.Free.Class (AlgebraType, FreeAlgebra (..))
+import           Data.Algebra.Free (AlgebraType, FreeAlgebra (..))
 
 -- |
 -- Class of pointed sets

@@ -2,13 +2,12 @@ name:                free-algebras
 version:             0.1.0.0
 github:              "git@github.com:coot/free-algebras"
 license:             MPL-2.0
-license-file:        LICENSE
+license-file:        ../LICENSE
 author:              "Marcin Szamotulski"
 maintainer:          "profunctor@pm.me"
 copyright:           "BSD"
 
 extra-source-files:
-  - README.md
   - ChangeLog.md
 
 # Metadata used when publishing your package
@@ -42,6 +41,7 @@ dependencies:
   - base >= 4.7 && < 5
   - free
   - kan-extensions
+  - mtl
 
 library:
   source-dirs: src

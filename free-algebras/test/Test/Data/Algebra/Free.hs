@@ -1,5 +1,5 @@
 {-# LANGUAGE TemplateHaskell #-}
-module Test.Algebra.Free.Class
+module Test.Data.Algebra.Free
     ( tests
     ) where
 
@@ -12,7 +12,7 @@ import qualified Hedgehog as H
 import qualified Hedgehog.Gen as Gen
 import qualified Hedgehog.Range as Range
 
-import           Algebra.Free.Class
+import           Data.Algebra.Free
     ( AlgebraType
     , FreeAlgebra (..)
     , foldFree

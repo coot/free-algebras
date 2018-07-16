@@ -1,6 +1,6 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE LambdaCase      #-}
-module Test.Algebra.Free.Class1
+module Test.Control.Algebra.Free
     ( tests
     ) where
 
@@ -19,8 +19,8 @@ import qualified Hedgehog as H
 import qualified Hedgehog.Gen as Gen
 import qualified Hedgehog.Range as Range
 
-import           Algebra.Free.Class ( AlgebraType )
-import           Algebra.Free.Class1
+import           Data.Algebra.Free ( AlgebraType )
+import           Control.Algebra.Free
     ( AlgebraType1
     , FreeAlgebra1 (..)
     , fmapFree1

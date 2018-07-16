@@ -5,8 +5,8 @@ module Spec
 import           Control.Monad (unless)
 import           System.Exit (exitFailure)
 
-import qualified Test.Algebra.Free.Class (tests)
-import qualified Test.Algebra.Free.Class1 (tests)
+import qualified Test.Data.Algebra.Free (tests)
+import qualified Test.Control.Algebra.Free (tests)
 
 runTests :: [IO Bool] -> IO ()
 runTests tests = do
@@ -17,6 +17,6 @@ runTests tests = do
 main :: IO ()
 main = do
     runTests
-        [ Test.Algebra.Free.Class.tests
-        , Test.Algebra.Free.Class1.tests
+        [ Test.Data.Algebra.Free.tests
+        , Test.Control.Algebra.Free.tests
         ]
