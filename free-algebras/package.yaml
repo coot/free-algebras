@@ -41,10 +41,12 @@ dependencies:
   - base >= 4.7 && < 5
   - free
   - kan-extensions
-  - mtl
 
 library:
   source-dirs: src
+  ghc-options:
+    - -Wall
+    - -Werror
 
 tests:
   algebra-test:
