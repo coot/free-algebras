@@ -19,6 +19,8 @@ import           Data.List.NonEmpty (NonEmpty (..))
 import           Data.Monoid (Monoid (..))
 import           Data.Semigroup (Semigroup, (<>))
 
+import           Data.Algebra.Pointed (Pointed (..))
+
 type family AlgebraType (a :: k) (b :: l) :: Constraint
 
 class FreeAlgebra (m :: Type -> Type)  where
@@ -43,6 +45,12 @@ type instance AlgebraType [] m = Monoid m
 instance FreeAlgebra [] where
     returnFree a = [a]
     foldMapFree = foldMap
+
+type instance AlgebraType Maybe m = Pointed m
+instance FreeAlgebra Maybe where
+    returnFree = Just
+    foldMapFree _ Nothing  = point
+    foldMapFree f (Just a) = f a
 
 -- |
 -- All types which satisfy @'FreeAlgebra'@ constraint are foldable.  You can

@@ -4,7 +4,7 @@ module Control.Algebra.Free
     , FreeAlgebra1 (..)
     , foldFree1
     , hoistFree1
-    , hoistHH
+    , hoistFreeH
     , fmapFree1
     , joinFree1
     , bindFree1
@@ -18,6 +18,10 @@ import           Control.Applicative.Free (Ap)
 import qualified Control.Applicative.Free as Ap
 import           Control.Monad.Free (Free)
 import qualified Control.Monad.Free as Free
+import           Control.Monad.State.Class (MonadState (..))
+import qualified Control.Monad.State.Strict as S (StateT (..))
+import qualified Control.Monad.State.Lazy as L (StateT (..))
+import           Control.Monad.Trans (lift)
 import           Data.Kind (Constraint)
 import           Data.Functor.Day (Day (..))
 import qualified Data.Functor.Day as Day
@@ -85,8 +89,13 @@ hoistFree1 :: forall m f g a .
 hoistFree1 nat = foldMapFree1 (returnFree1 . nat) id
 
 -- |
--- prop> hoistHH . hoistHH = hoistHH
-hoistHH :: forall m n f a .
+--
+-- prop> hoistFreeH . hoistFreeH = hoistFreeH
+--
+-- and when @'FreeAlgebra1' m ~ 'FreeAlgebra1' n@:
+--
+-- prop> hoistFreeH . hoistFreeH = id
+hoistFreeH :: forall m n f a .
            ( AlgebraType m (n f)
            , AlgebraType1 m f
            , AlgebraType1 n f
@@ -95,7 +104,7 @@ hoistHH :: forall m n f a .
            )
         => m f a
         -> n f a
-hoistHH = foldMapFree1 returnFree1 id
+hoistFreeH = foldMapFree1 returnFree1 id
 
 -- |
 -- @'FreeAlgebraH' m@ implies that @m f@ is a functor.
@@ -124,7 +133,7 @@ joinFree1 = foldFree1
 
 -- |
 -- Bind operator for the @'joinH'@ monad
-bindFree1 :: forall m f g a b .
+bindFree1 :: forall m f g a .
              ( FreeAlgebra1 m
              , AlgebraType m (m g)
              , AlgebraType m (m (m g))
@@ -152,6 +161,8 @@ assocFree1 = foldMapFree1 f g
 
         g :: m f a -> f a
         g = foldFree1
+
+-- Instances
 
 type instance AlgebraType  Coyoneda g = Functor g
 type instance AlgebraType1 Coyoneda g = ()
@@ -184,16 +195,16 @@ instance FreeAlgebra1 Ap where
         = fmap f $ foldMapFree1 nat id apxa <*> nat fx
 
 -- |
--- @Day f f@ newtype wrapper.  It is isomorphic with @Ap f@ for applicative
+-- @'Day' f f@ newtype wrapper.  It is isomorphic with @'Ap' f@ for applicative
 -- functors @f@ via @'dayToAp'@ (and @'dayToAp'@).
 newtype DayF f a = DayF { runDayF :: Day f f a}
     deriving (Functor, Applicative)
 
 dayToAp :: Applicative f => Day f f a -> Ap f a
-dayToAp =  hoistHH . DayF
+dayToAp =  hoistFreeH . DayF
 
 apToDay :: Applicative f => Ap f a -> Day f f a
-apToDay = runDayF . hoistHH
+apToDay = runDayF . hoistFreeH
 
 type instance AlgebraType  DayF g = Applicative g
 type instance AlgebraType1 DayF g = Functor g
@@ -225,3 +236,58 @@ instance FreeAlgebra1 Free where
                  -> Free f a
                  -> d b
     foldMapFree1 nat f ff = f <$> Free.foldFree nat ff
+
+type instance AlgebraType  (S.StateT s) m = ( Monad m, MonadState s m )
+type instance AlgebraType1 (S.StateT s) m = Monad m
+
+-- |
+-- Strict @'S.StateT'@ monad transformer is a free algebra in the class of
+-- monads which satisfy the @'MonadState'@ constraint.  Note that this instance
+-- captures that `StateT s` is a monad transformer:
+--
+-- prop> returnFree1 = lift
+instance FreeAlgebra1 (S.StateT s) where
+    returnFree1 :: Monad m => m a -> S.StateT s m a
+    returnFree1 = lift
+
+    foldMapFree1 :: forall m d a b .
+                    ( Monad m
+                    , MonadState s d
+                    )
+                 => (forall x . m x -> d x)
+                 -> (a -> b)
+                 -> S.StateT s m a
+                 -> d b
+    foldMapFree1 nat f ma = do
+        (a, s) <- get >>= S.runStateT (natS ma)
+        put s
+        return (f a)
+        where
+            natS :: S.StateT s m a -> S.StateT s d a
+            natS (S.StateT g) = S.StateT $ \s -> nat (g s)
+
+type instance AlgebraType  (L.StateT s) m = ( Monad m, MonadState s m )
+type instance AlgebraType1 (L.StateT s) m = Monad m
+
+-- |
+-- Lazy @'L.StateT'@ monad transformer is also a free algebra, thus @'hoistFreeH'@
+-- is an isomorphism between the strict and lazy versions.
+instance FreeAlgebra1 (L.StateT s) where
+    returnFree1 :: Monad m => m a -> L.StateT s m a
+    returnFree1 = lift
+
+    foldMapFree1 :: forall m d a b .
+                    ( Monad m
+                    , MonadState s d
+                    )
+                 => (forall x . m x -> d x)
+                 -> (a -> b)
+                 -> L.StateT s m a
+                 -> d b
+    foldMapFree1 nat f ma = do
+        (a, s) <- get >>= L.runStateT (natS ma)
+        put s
+        return (f a)
+        where
+            natS :: L.StateT s m a -> L.StateT s d a
+            natS (L.StateT g) = L.StateT $ \s -> nat (g s)
