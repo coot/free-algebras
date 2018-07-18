@@ -9,6 +9,7 @@ module Control.Algebra.Free
     , joinFree1
     , bindFree1
     , assocFree1
+    , iterFree1
     , DayF (..)
     , dayToAp
     , apToDay
@@ -171,6 +172,22 @@ assocFree1 = foldMapFree1 f g
 
         g :: m f a -> f a
         g = foldFree1
+
+-- |
+-- Specialization of @'foldMapFree1' \@_ \@'Identity'@, e.g.
+--
+-- * @\\_ -> 'runIdentity' . 'Data.Functor.Coyoneda.lowerCoyoneda'@
+-- * @'Control.Applicative.Free.iterAp' :: 'Functor' g => (g a -> a) -> 'Ap' g a -> a@
+-- * @'Control.Monad.Free.iter' :: 'Functor' f => (f a -> a) -> 'Free' f a -> a@
+iterFree1 :: forall m f a .
+             ( FreeAlgebra1 m 
+             , AlgebraType1 m f
+             , AlgebraType m Identity
+             )
+          => (forall x . f x -> x)
+          -> m f a
+          -> a
+iterFree1 f = runIdentity . foldMapFree1 @_ @Identity (Identity . f) id
 
 -- Instances
 
