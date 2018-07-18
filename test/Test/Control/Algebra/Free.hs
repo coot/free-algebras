@@ -26,7 +26,16 @@ import           Control.Algebra.Free
     , fmapFree1
     , foldFree1
     , hoistFree1
+    , iterFree1
     )
+
+genIntToInt :: Integral n => Gen (n -> n)
+genIntToInt = do
+    x <- Gen.integral $ Range.linear (-100) 100
+    return (+x)
+
+showIntToInt :: (Integral n, Show n) => (n -> n) -> String
+showIntToInt f = "(+"++ show (f 0) ++ ")"
 
 -- |
 -- Generate a @Coyoneda f@ given a constructor of @f@.
@@ -50,16 +59,33 @@ toOdd x = if x `mod` 2 == 0
 -- Generated `Ap Maybe` with arbitrary depth.
 genAp :: forall f x . Show x
       => Gen x
-      -> (x -> x)
+      -> Gen (x -> x)
       -> Gen (Ap Maybe x)
-genAp gen f = Gen.sized $ \s -> go s
+genAp gen genf = Gen.sized $ \s -> go s
     where
     go (Range.Size 0) = Gen.maybe gen >>= \case
         Just x  -> return $ Ap.Pure x
         Nothing -> return $ Ap.Ap Nothing (Ap.Pure id)
     go s = do
         ap <- go (s - 1)
+        f <- genf
         return $ Ap.Pure f <*> ap
+
+genApIdentity
+    :: forall f x . Show x
+    => Gen x
+    -> Gen (x -> x)
+    -> Gen (Ap Identity x)
+genApIdentity gen genf = Gen.sized $ \s -> go s
+    where
+    go (Range.Size 0) = do
+        x <- gen
+        return $ Ap.Ap (Identity x) (Ap.Pure id)
+    go s = do
+        ap <- go (s - 1)
+        f <- genf
+        return $ Ap.Pure f <*> ap
+
 
 -- |
 -- Generate  @Free Maybe@ of arbitrary depth.
@@ -69,6 +95,14 @@ genFree gen = Gen.sized go
     where
     go (Range.Size 0) = Free.Pure <$> gen
     go s = Free.Free <$> Gen.maybe (go (s - 1))
+
+genFreeIdentity
+    :: Gen x
+    -> Gen (Free Identity x)
+genFreeIdentity gen = Gen.sized go
+    where
+    go (Range.Size 0) = Free.Pure <$> gen
+    go s = Free.Free . Identity <$> go (s - 1)
 
 fmapFree1_property
     :: forall m f a b
@@ -81,10 +115,11 @@ fmapFree1_property
     => Gen (m f a)
     -> (m f a -> String)
     -> (m f b -> m f b -> Bool)
-    -> (a -> b)
+    -> Gen (a -> b)
     -> Property
-fmapFree1_property gen show_mfa eq_mfa f = property $ do
+fmapFree1_property gen show_mfa eq_mfa genf = property $ do
     mfa <- H.forAllWith show_mfa gen
+    f <- H.forAllWith (\_ -> "(a -> b)") genf
     H.assert (fmapFree1 f mfa `eq_mfa` fmap f mfa)
 
 prop_fmapFree1_coyoneda_maybe :: Property
@@ -93,15 +128,15 @@ prop_fmapFree1_coyoneda_maybe =
         (genCoyoneda toOdd)
         show
         (==)
-        (\x -> 2*x + 1)
+        genIntToInt
 
 prop_fmapFree1_ap :: Property
 prop_fmapFree1_ap =
     fmapFree1_property
-        (genAp (Gen.word8 (Range.linear 0 254)) (\x -> 2 * x + 1))
+        (genAp (Gen.word8 (Range.linear 0 254)) genIntToInt)
         (show . Ap.retractAp)
         (\a b -> Ap.retractAp a == Ap.retractAp b)
-        (+1)
+        genIntToInt
 
 prop_fmapFree1_free :: Property
 prop_fmapFree1_free =
@@ -109,7 +144,7 @@ prop_fmapFree1_free =
         (genFree $ Gen.word8 (Range.linear 0 254))
         show
         (==)
-        (\x -> 2*x + 1)
+        genIntToInt
 
 foldFree1_property
     :: forall m f a
@@ -133,7 +168,7 @@ prop_foldFree1_coyoneda =
 
 prop_foldFree1_ap :: Property
 prop_foldFree1_ap = foldFree1_property
-    (H.forAllWith (show . Ap.retractAp) $ genAp (Gen.integral $ Range.linear 0 100) (+1))
+    (H.forAllWith (show . Ap.retractAp) $ genAp (Gen.integral $ Range.linear 0 100) genIntToInt)
     Ap.retractAp
 
 prop_foldFree1_free :: Property
@@ -171,7 +206,7 @@ prop_hoistFree1_coyoneda = hoistFree1_property
 
 prop_hoistFree1_ap :: Property
 prop_hoistFree1_ap = hoistFree1_property
-    (genAp (Gen.int $ Range.linear 0 1000) (+1))
+    (genAp (Gen.int $ Range.linear 0 1000) genIntToInt)
     (show . Ap.retractAp)
     (\x y -> Ap.retractAp x == Ap.retractAp y)
     (maybe (Left ()) Right)
@@ -184,6 +219,48 @@ prop_hoistFree1_free = hoistFree1_property
     (==)
     (maybe (Left ()) Right)
     Free.hoistFree
+
+iterFree1_property
+    :: forall m f a
+    .  ( FreeAlgebra1 m
+       , AlgebraType m f
+       , AlgebraType1 m f
+       , AlgebraType m Identity
+       , AlgebraType1 m Identity
+       , Eq a
+       , Show a
+       )
+    => Gen (m f a)
+    -> (m f a -> String)
+    -> (forall x. f x -> x)
+    -> ((forall x . f x -> x) -> m f a -> a)
+    -- ^ reference implementation
+    -> Property
+iterFree1_property gen show_mfa nat refImpl = property $ do
+    mfa <- H.forAllWith show_mfa gen
+    iterFree1 nat mfa === refImpl nat mfa
+
+prop_iterFree1_coyoneda :: Property
+prop_iterFree1_coyoneda = iterFree1_property
+    (genCoyoneda Identity)
+    show
+    runIdentity
+    (\_ -> runIdentity . lowerCoyoneda)
+
+prop_iterFree1_free :: Property
+prop_iterFree1_free = iterFree1_property
+    (genFreeIdentity (Gen.int $ Range.linear 0 1000))
+    show
+    runIdentity
+    Free.iter
+
+prop_iterFree1_ap :: Property
+prop_iterFree1_ap = iterFree1_property
+    (genApIdentity (Gen.int $ Range.linear 0 1000) genIntToInt)
+    (show . Ap.retractAp)
+    runIdentity
+    Ap.iterAp
+    where
 
 tests :: IO Bool
 tests = H.checkParallel $$(H.discover)
