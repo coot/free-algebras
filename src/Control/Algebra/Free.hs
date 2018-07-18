@@ -177,29 +177,14 @@ assocFree1 = foldMapFree1 f g
 type instance AlgebraType  Coyoneda g = Functor g
 type instance AlgebraType1 Coyoneda g = ()
 instance FreeAlgebra1 Coyoneda where
-    returnFree1 :: f a -> Coyoneda f a
     returnFree1 = liftCoyoneda
-
-    foldMapFree1 :: Functor g
-                 => (forall x. f x -> g x)
-                 -> (a -> b)
-                 -> Coyoneda f a
-                 -> g b
     foldMapFree1 nat f (Coyoneda ba fx) = fmap f ba <$> nat fx
 
 type instance AlgebraType  Ap g = Applicative g
 type instance AlgebraType1 Ap g = Functor g
 instance FreeAlgebra1 Ap where
-    returnFree1 :: Functor f => f a -> Ap f a
     returnFree1 = Ap.liftAp
 
-    foldMapFree1 :: forall (d :: * -> *) f a b .
-                    ( Functor f
-                    , Applicative d
-                    )
-                 => (forall x. f x -> d x)
-                 -> (a -> b)
-                 -> (Ap f a -> d b)
     foldMapFree1 _   f (Ap.Pure a) = pure $ f a
     foldMapFree1 nat f (Ap.Ap fx apxa)
         = fmap f $ foldMapFree1 nat id apxa <*> nat fx
@@ -220,16 +205,7 @@ type instance AlgebraType  DayF g = Applicative g
 type instance AlgebraType1 DayF g = Functor g
 
 instance FreeAlgebra1 DayF where
-    returnFree1 :: Functor f => f a -> DayF f a
     returnFree1 fa = DayF $ Day fa fa const
-
-    foldMapFree1 :: ( Functor f
-                    , Applicative d
-                    )
-                 => (forall x. f x -> d x)
-                 -> (a -> b)
-                 -> DayF f a
-                 -> d b
     foldMapFree1 nat f (DayF day)
         = fmap f $ Day.dap . Day.trans2 nat . Day.trans1 nat $ day
 
@@ -237,14 +213,7 @@ type instance AlgebraType  Free m = Monad m
 type instance AlgebraType1 Free f = Functor f
 
 instance FreeAlgebra1 Free where
-    returnFree1 :: Functor f => f a -> Free f a
     returnFree1 = Free.liftF
-
-    foldMapFree1 :: (Functor f, Monad d)
-                 => (forall x. f x -> d x)
-                 -> (a -> b)
-                 -> Free f a
-                 -> d b
     foldMapFree1 nat f ff = f <$> Free.foldFree nat ff
 
 type instance AlgebraType  (L.StateT s) m = ( MonadState s m )
@@ -258,21 +227,11 @@ type instance AlgebraType1 (L.StateT s) m = Monad m
 --
 -- This is also true for all the other monad transformers.
 instance FreeAlgebra1 (L.StateT s) where
-    returnFree1 :: Monad m => m a -> L.StateT s m a
     returnFree1 = lift
-
-    foldMapFree1 :: forall m d a b . MonadState s d
-                 => (forall x . m x -> d x)
-                 -> (a -> b)
-                 -> L.StateT s m a
-                 -> d b
     foldMapFree1 nat f ma = do
         (a, s) <- get >>= L.runStateT (natS ma)
         put s
         return (f a)
-        where
-            natS :: L.StateT s m a -> L.StateT s d a
-            natS (L.StateT g) = L.StateT $ \s -> nat (g s)
 
 type instance AlgebraType  (S.StateT s) m = ( MonadState s m )
 type instance AlgebraType1 (S.StateT s) m = Monad m
@@ -282,19 +241,10 @@ type instance AlgebraType1 (S.StateT s) m = Monad m
 instance FreeAlgebra1 (S.StateT s) where
     returnFree1 :: Monad m => m a -> S.StateT s m a
     returnFree1 = lift
-
-    foldMapFree1 :: forall m d a b . MonadState s d
-                 => (forall x . m x -> d x)
-                 -> (a -> b)
-                 -> S.StateT s m a
-                 -> d b
     foldMapFree1 nat f ma = do
         (a, s) <- get >>= S.runStateT (natS ma)
         put s
         return (f a)
-        where
-            natS :: S.StateT s m a -> S.StateT s d a
-            natS (S.StateT g) = S.StateT $ \s -> nat (g s)
 
 type instance AlgebraType  (L.WriterT w) m = ( MonadWriter w m )
 type instance AlgebraType1 (L.WriterT w) m = ( Monad m, Monoid w )
@@ -302,12 +252,6 @@ type instance AlgebraType1 (L.WriterT w) m = ( Monad m, Monoid w )
 -- Lazy @'L.WriterT'@ is free for algebras of type @'MonadWriter'@.
 instance FreeAlgebra1 (L.WriterT w) where
     returnFree1 = lift
-
-    foldMapFree1 :: forall m d a b . MonadWriter w d
-                 => (forall x . m x -> d x)
-                 -> (a -> b)
-                 -> L.WriterT w m a
-                 -> d b
     foldMapFree1 nat f (L.WriterT m) = do
         (a, w) <- nat m
         writer (f a, w)
@@ -319,29 +263,16 @@ type instance AlgebraType1 (S.WriterT w) m = ( Monad m, Monoid w )
 -- @'MonadWriter'@s.
 instance FreeAlgebra1 (S.WriterT w) where
     returnFree1 = lift
-
-    foldMapFree1 :: forall m d a b . MonadWriter w d
-                 => (forall x . m x -> d x)
-                 -> (a -> b)
-                 -> S.WriterT w m a
-                 -> d b
     foldMapFree1 nat f (S.WriterT m) = do
         (a, w) <- nat m
         writer (f a, w)
 
 type instance AlgebraType  (ReaderT r) m = ( MonadReader r m )
 type instance AlgebraType1 (ReaderT r) m = ( Monad m )
-
 -- |
 -- @'ReaderT'@ is a free monad in the class of all @'MonadReader'@ monads.
 instance FreeAlgebra1 (ReaderT r) where
     returnFree1 = lift
-
-    foldMapFree1 :: forall m d a b . MonadReader r d
-                 => (forall x . m x -> d x)
-                 -> (a -> b)
-                 -> ReaderT r m a
-                 -> d b
     foldMapFree1 nat f (ReaderT g) =
         ask >>= fmap f . nat . g
 
@@ -351,12 +282,6 @@ type instance AlgebraType1 (ExceptT e) m = ( Monad m )
 -- @'ExceptT' e@ is a free algebra among all @'MonadError' e@ monads.
 instance FreeAlgebra1 (ExceptT e) where
     returnFree1 = lift
-
-    foldMapFree1 :: forall m d a b . MonadError e d
-                 => (forall x . m x -> d x)
-                 -> (a -> b)
-                 -> ExceptT e m a
-                 -> d b
     foldMapFree1 nat f (ExceptT m) = do
         ea <- nat m
         case ea of
@@ -375,12 +300,6 @@ type instance AlgebraType  (S.RWST r w s) m = MonadRWS r w s m
 type instance AlgebraType1 (S.RWST r w s) m = ( Monad m, Monoid w )
 instance FreeAlgebra1 (S.RWST r w s) where
     returnFree1 = lift
-
-    foldMapFree1 :: forall m d a b . MonadRWS r w s d
-                 => (forall x . m x -> d x)
-                 -> (a -> b)
-                 -> S.RWST r w s m a
-                 -> d b
     foldMapFree1 nat f (S.RWST fn) = do
         r <- ask
         s <- get
@@ -398,12 +317,6 @@ type instance AlgebraType1 (L.RWST r w s) m = ( Monad m, Monoid w )
 
 instance FreeAlgebra1 (L.RWST r w s) where
     returnFree1 = lift
-
-    foldMapFree1 :: forall m d a b . MonadRWS r w s d
-                 => (forall x . m x -> d x)
-                 -> (a -> b)
-                 -> L.RWST r w s m a
-                 -> d b
     foldMapFree1 nat f (L.RWST fn) = do
         r <- ask
         s <- get
@@ -417,12 +330,6 @@ type instance AlgebraType1 ListT f = ( Monad f )
 
 instance FreeAlgebra1 ListT where
     returnFree1 = lift
-
-    foldMapFree1 :: forall m d a b . MonadList d
-                 => (forall x . m x -> d x)
-                 -> (a -> b)
-                 -> ListT m a
-                 -> d b
     foldMapFree1 nat f (ListT mas) = do
         as <- nat mas
         empty <- mempty1

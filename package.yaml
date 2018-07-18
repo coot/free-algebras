@@ -48,6 +48,9 @@ library:
   source-dirs: src
   ghc-options:
     - -Wall
+    - -Wincomplete-record-updates
+    - -Wincomplete-uni-patterns
+    - -Wredundant-constraints
     - -Werror
     - -Wno-deprecations
 
