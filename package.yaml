@@ -49,6 +49,7 @@ library:
   ghc-options:
     - -Wall
     - -Werror
+    - -Wno-deprecations
 
 tests:
   algebra-test:
