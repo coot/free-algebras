@@ -2,6 +2,7 @@
 module Control.Algebra.Free
     ( AlgebraType1
     , FreeAlgebra1 (..)
+    -- * Combinators
     , foldFree1
     , hoistFree1
     , hoistFreeH
@@ -10,10 +11,13 @@ module Control.Algebra.Free
     , bindFree1
     , assocFree1
     , iterFree1
+    -- * Day convolution
     , DayF (..)
     , dayToAp
     , apToDay
+    -- * Various classes (higher algebra types)
     , MonadList (..)
+    , MonadMaybe (..)
     ) where
 
 import           Control.Applicative.Free (Ap)
@@ -31,6 +35,7 @@ import           Control.Monad.State.Class (MonadState (..))
 import qualified Control.Monad.State.Lazy as L (StateT (..))
 import qualified Control.Monad.State.Strict as S (StateT (..))
 import           Control.Monad.Trans (lift)
+import           Control.Monad.Trans.Maybe (MaybeT (..))
 import           Control.Monad.Writer.Class (MonadWriter (..))
 import qualified Control.Monad.Writer.Lazy as L (WriterT (..))
 import qualified Control.Monad.Writer.Strict as S (WriterT (..))
@@ -181,7 +186,7 @@ assocFree1 = foldMapFree1 f g
 -- * @'Control.Applicative.Free.iterAp' :: 'Functor' g => (g a -> a) -> 'Ap' g a -> a@
 -- * @'Control.Monad.Free.iter' :: 'Functor' f => (f a -> a) -> 'Free' f a -> a@
 iterFree1 :: forall m f a .
-             ( FreeAlgebra1 m 
+             ( FreeAlgebra1 m
              , AlgebraType1 m f
              , AlgebraType m Identity
              )
@@ -389,4 +394,20 @@ instance FreeAlgebra1 ListT where
 -- $monadContT
 --
 -- @'ContT' r m@ is not functorial in @m@, so there is no chance it can admit
--- an instance of @'FreeAlgebra1'@.
+-- an instance of @'FreeAlgebra1'@
+
+-- |
+-- A higher version @'Data.Algebra.Pointed'@ class.
+--
+-- With @'QuantifiedConstraints'@ this class will be redundant.
+class MonadMaybe m where
+    point :: forall a. m a
+
+type instance AlgebraType  MaybeT m = ( Monad m, MonadMaybe m )
+type instance AlgebraType1 MaybeT m = ( Monad m )
+instance FreeAlgebra1 MaybeT where
+    returnFree1 = lift
+    foldMapFree1 nat f (MaybeT mma) =
+        nat mma >>= \ma -> case ma of
+            Nothing -> point
+            Just a  -> return (f a)

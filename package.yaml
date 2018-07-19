@@ -42,6 +42,7 @@ dependencies:
   - base >= 4.7 && < 5
   - free
   - kan-extensions
+  - transformers
   - mtl
 
 library:
