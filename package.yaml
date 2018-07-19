@@ -1,6 +1,7 @@
 name:                free-algebras
 version:             0.1.0.0
 github:              "git@github.com:coot/free-algebras"
+homepage:            "https://github.com/coot/free-algebras#readme"
 license:             MPL-2.0
 license-file:        LICENSE
 author:              "Marcin Szamotulski"
@@ -18,7 +19,7 @@ extra-source-files:
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description:         Please see the README on GitHub at <https://github.com/coot/algebra#readme>
+description:         Please see the README on GitHub at <https://github.com/coot/free-algebras#readme>
 
 default-extensions:
   ConstraintKinds
@@ -42,8 +43,8 @@ dependencies:
   - base >= 4.7 && < 5
   - free
   - kan-extensions
-  - transformers
   - mtl
+  - transformers
 
 library:
   source-dirs: src
