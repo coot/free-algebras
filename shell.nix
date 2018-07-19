@@ -1,17 +1,11 @@
-{ nixpkgs ? import <nixpkgs> {}, compiler ? "ghc842", doBenchmark ? false }:
+{ nixpkgs ? import <nixpkgs> {}
+, compiler ? "ghc842"
+, haddock ? true
+, test ? true
+, benchmarks ? false
+}:
 
-let
-
-  inherit (nixpkgs) pkgs;
-
-  haskellPackages = if compiler == "default"
-                       then pkgs.haskellPackages
-                       else pkgs.haskell.packages.${compiler};
-
-  variant = if doBenchmark then pkgs.haskell.lib.doBenchmark else pkgs.lib.id;
-
-  drv = variant (haskellPackages.callPackage (import ./free-algebras.nix) {});
-
-in
-
-  if pkgs.lib.inNixShell then drv.env else drv
+let build = import ./default.nix {inherit nixpkgs compiler haddock test;};
+in if nixpkgs.lib.inNixShell
+  then build.free-algebras.env
+  else build.free-algebras
