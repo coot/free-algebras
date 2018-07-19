@@ -1,6 +1,8 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 module Control.Algebra.Free
-    ( AlgebraType1
+    (
+    -- * Classes
+      AlgebraType0
     , FreeAlgebra1 (..)
     -- * Combinators
     , foldFree1
@@ -47,22 +49,49 @@ import           Data.Kind (Constraint)
 import           Data.Algebra.Free (AlgebraType)
 
 -- |
--- The constraint that will be imposed on the generator type of kind (* -> *).
-type family AlgebraType1 (m :: k) (b :: * -> *) :: Constraint
+-- A lawful instance for this type family must guarantee that the constraint
+-- @'AlgebraType0' m f@ is implied by the @'AlgebraType' m f@ constraint.
+--
+-- This guaranees that there exists a forgetful functor from the category of
+-- types of kind @* -> *@ which satisfy @'AlgebraType' m@
+-- constrain to the category of types of kind @* -> *@ which satisfy the
+-- @'AlgebraType0 m@ constraint.
+type family AlgebraType0 (m :: k) (b :: * -> *) :: Constraint
 
 -- |
 -- Higher kinded version of @'FreeAlgebra'@.  Instances includes free functors,
--- free applicative functors and free monads.
+-- free applicative functors, free monads, state monads etc.
+--
+-- A lawful instance should guarantee that the two morphisms are inverses of
+-- each other:
+--
+-- @
+--  free1 :: ( 'AlgebraType' m d, 'AlgebraType' m f ) -> (forall x . f x -> d x) -> (m f a -> d a)
+--  free1 nat = 'foldMapFree1' nat id
+--
+--  unFree1 :: ( 'AlgebraType' m d, 'AlgebraType' m f ) -> (forall x . m f x -> d x) -> (f a -> d a)
+--  unFree1 nat = nat . 'returnFree1'
+-- @
+--
+-- This guaranties that @m@ is a left adjoint functor from the category of
+-- types of kind @* -> *@ which satisfy @'AlgebraType0' m@ constraint, to the
+-- category of types of kind @* -> *@ which satisfy the @'AlgebraType' m@
+-- constraint.  This functor is left afjoin to the forgetful functor (which is
+-- well defined if the laws on @'AlgebraType0'@ family are satisfied.  This in
+-- turn guarantess that @m@ componsed with this forgetful functor is a monad.
+-- In result we get the monadic combinators: @'returnFree1'@ (@'return'@ of
+-- this monad) and @'bindFree1'@ (its @'bind'@) and @'joinFree1'@ - its
+-- @'join'@ operator.
 class FreeAlgebra1 (m :: (* -> *) -> * -> *) where
     -- | Natural transformation that embeds generators into @m@.
-    returnFree1 :: AlgebraType1 m f => f a -> m f a
+    returnFree1 :: AlgebraType0 m f => f a -> m f a
 
     -- | The freeness property.  It is generalised to allow change of
     -- coefficients with a map (@a -> b@).
     foldMapFree1
         :: forall (d :: * -> *) f a b .
            ( AlgebraType m d
-           , AlgebraType1 m f
+           , AlgebraType0 m f
            )
         => (forall x. f x -> d x)
         -- ^ natural transformation which embeds generators of @m@ into @d@
@@ -80,7 +109,7 @@ class FreeAlgebra1 (m :: (* -> *) -> * -> *) where
 -- * @'Control.Monad.Free.foldFree' :: 'Monad' m => (forall x. f x -> m x) -> 'Free' f a -> m a@
 foldFree1 :: ( FreeAlgebra1 m
              , AlgebraType m f
-             , AlgebraType1 m f
+             , AlgebraType0 m f
              )
           => m f a
           -> f a
@@ -97,8 +126,8 @@ foldFree1 = foldMapFree1 id id
 hoistFree1 :: forall m f g a .
               ( FreeAlgebra1 m
               , AlgebraType m (m g)
-              , AlgebraType1 m f
-              , AlgebraType1 m g
+              , AlgebraType0 m f
+              , AlgebraType0 m g
               )
            => (forall x. f x -> g x) -- ^ a natural transformation @f ~> g@
            -> m f a
@@ -114,8 +143,8 @@ hoistFree1 nat = foldMapFree1 (returnFree1 . nat) id
 -- prop> hoistFreeH . hoistFreeH = id
 hoistFreeH :: forall m n f a .
            ( AlgebraType m (n f)
-           , AlgebraType1 m f
-           , AlgebraType1 n f
+           , AlgebraType0 m f
+           , AlgebraType0 n f
            , FreeAlgebra1 m
            , FreeAlgebra1 n
            )
@@ -128,7 +157,7 @@ hoistFreeH = foldMapFree1 returnFree1 id
 fmapFree1 :: forall m f a b .
          ( FreeAlgebra1 m
          , AlgebraType m (m f)
-         , AlgebraType1 m f
+         , AlgebraType0 m f
          )
       => (a -> b)
       -> m f a
@@ -142,7 +171,7 @@ fmapFree1 f mfa = foldMapFree1 returnFree1 f mfa
 joinFree1 :: forall m f a .
              ( FreeAlgebra1 m
              , AlgebraType m (m f)
-             , AlgebraType1 m (m f)
+             , AlgebraType0 m (m f)
              )
           => m (m f) a
           -> m f a
@@ -154,8 +183,8 @@ bindFree1 :: forall m f g a .
              ( FreeAlgebra1 m
              , AlgebraType m (m g)
              , AlgebraType m (m (m g))
-             , AlgebraType1 m (m g)
-             , AlgebraType1 m f
+             , AlgebraType0 m (m g)
+             , AlgebraType0 m f
              )
           => m f a
           -> (forall x . f x -> m g x) -- ^ natural transformation @f ~> m g@
@@ -166,8 +195,8 @@ assocFree1 :: forall m f a .
               ( FreeAlgebra1 m
               , AlgebraType m f
               , AlgebraType m (m (m f))
-              , AlgebraType1 m f
-              , AlgebraType1 m (m f)
+              , AlgebraType0 m f
+              , AlgebraType0 m (m f)
               )
            => m f (m f a)
            -> m (m f) (f a)
@@ -187,7 +216,7 @@ assocFree1 = foldMapFree1 f g
 -- * @'Control.Monad.Free.iter' :: 'Functor' f => (f a -> a) -> 'Free' f a -> a@
 iterFree1 :: forall m f a .
              ( FreeAlgebra1 m
-             , AlgebraType1 m f
+             , AlgebraType0 m f
              , AlgebraType m Identity
              )
           => (forall x . f x -> x)
@@ -200,7 +229,7 @@ iterFree1 f = runIdentity . foldMapFree1 @_ @Identity (Identity . f) id
 -- |
 -- Algebras of the same type as @'Coyoneda'@ are all functors.
 type instance AlgebraType  Coyoneda g = Functor g
-type instance AlgebraType1 Coyoneda g = ()
+type instance AlgebraType0 Coyoneda g = ()
 instance FreeAlgebra1 Coyoneda where
     returnFree1 = liftCoyoneda
     foldMapFree1 nat f (Coyoneda ba fx) = fmap f ba <$> nat fx
@@ -208,7 +237,7 @@ instance FreeAlgebra1 Coyoneda where
 -- |
 -- Algebras of the same type as @'Ap'@ are the applicative functors.
 type instance AlgebraType  Ap g = Applicative g
-type instance AlgebraType1 Ap g = Functor g
+type instance AlgebraType0 Ap g = Functor g
 -- |
 -- @'Ap'@ is a free in the class of applicative functors, over any functor
 -- (@'Ap' f@ is applicative whenever @f@ is a functor)
@@ -234,7 +263,7 @@ apToDay = runDayF . hoistFreeH
 -- |
 -- Algebras of the same type as @'DayF'@ are all the applicative functors.
 type instance AlgebraType  DayF g = Applicative g
-type instance AlgebraType1 DayF g = Functor g
+type instance AlgebraType0 DayF g = Functor g
 -- |
 -- @'DayF'@, as @'Ap'@ is a free applicative functor, but over applicative functors
 -- (@'DayF' f@ is applicative if @f@ is an applicative functor).
@@ -246,7 +275,7 @@ instance FreeAlgebra1 DayF where
 -- |
 -- Algebras of the same type as @'Free'@ monad is the class of all monads.
 type instance AlgebraType  Free m = Monad m
-type instance AlgebraType1 Free f = Functor f
+type instance AlgebraType0 Free f = Functor f
 -- |
 -- @'Free'@ monad is free in the class of monad over the class of functors.
 instance FreeAlgebra1 Free where
@@ -257,7 +286,7 @@ instance FreeAlgebra1 Free where
 -- Algebras of the same type as @'L.StateT'@ monad is the class of all state
 -- monads.
 type instance AlgebraType  (L.StateT s) m = ( MonadState s m )
-type instance AlgebraType1 (L.StateT s) m = Monad m
+type instance AlgebraType0 (L.StateT s) m = Monad m
 -- |
 -- Lazy @'L.StateT'@ monad transformer is a free algebra in the class of monads
 -- which satisfy the @'MonadState'@ constraint.  Note that this instance
@@ -279,7 +308,7 @@ instance FreeAlgebra1 (L.StateT s) where
 -- Algebras of the same type as @'S.StateT'@ monad is the class of all state
 -- monads.
 type instance AlgebraType  (S.StateT s) m = ( MonadState s m )
-type instance AlgebraType1 (S.StateT s) m = Monad m
+type instance AlgebraType0 (S.StateT s) m = Monad m
 -- |
 -- Strict @'S.StateT'@ monad transformer is also a free algebra, thus @'hoistFreeH'@
 -- is an isomorphism between the strict and lazy versions.
@@ -295,7 +324,7 @@ instance FreeAlgebra1 (S.StateT s) where
 -- Algebras of the same type as @'L.WriterT'@ monad is the class of all writer
 -- monads.
 type instance AlgebraType  (L.WriterT w) m = ( MonadWriter w m )
-type instance AlgebraType1 (L.WriterT w) m = ( Monad m, Monoid w )
+type instance AlgebraType0 (L.WriterT w) m = ( Monad m, Monoid w )
 -- |
 -- Lazy @'L.WriterT'@ is free for algebras of type @'MonadWriter'@.
 instance FreeAlgebra1 (L.WriterT w) where
@@ -308,7 +337,7 @@ instance FreeAlgebra1 (L.WriterT w) where
 -- Algebras of the same type as @'S.WriterT'@ monad is the class of all writer
 -- monads.
 type instance AlgebraType  (S.WriterT w) m = ( MonadWriter w m )
-type instance AlgebraType1 (S.WriterT w) m = ( Monad m, Monoid w )
+type instance AlgebraType0 (S.WriterT w) m = ( Monad m, Monoid w )
 -- |
 -- Strict @'S.WriterT'@ monad transformer is a free algebra among all
 -- @'MonadWriter'@s.
@@ -322,7 +351,7 @@ instance FreeAlgebra1 (S.WriterT w) where
 -- Algebras of the same type as @'L.ReaderT'@ monad is the class of all reader
 -- monads.
 type instance AlgebraType  (ReaderT r) m = ( MonadReader r m )
-type instance AlgebraType1 (ReaderT r) m = ( Monad m )
+type instance AlgebraType0 (ReaderT r) m = ( Monad m )
 -- |
 -- @'ReaderT'@ is a free monad in the class of all @'MonadReader'@ monads.
 instance FreeAlgebra1 (ReaderT r) where
@@ -334,7 +363,7 @@ instance FreeAlgebra1 (ReaderT r) where
 -- Algebras of the same type as @'S.ReaderT'@ monad is the class of all reader
 -- monads.
 type instance AlgebraType  (ExceptT e) m = ( MonadError e m )
-type instance AlgebraType1 (ExceptT e) m = ( Monad m )
+type instance AlgebraType0 (ExceptT e) m = ( Monad m )
 -- |
 -- @'ExceptT' e@ is a free algebra among all @'MonadError' e@ monads.
 instance FreeAlgebra1 (ExceptT e) where
@@ -346,7 +375,7 @@ instance FreeAlgebra1 (ExceptT e) where
             Right a -> return $ f a
 
 type instance AlgebraType  (L.RWST r w s) m = MonadRWS r w s m
-type instance AlgebraType1 (L.RWST r w s) m = ( Monad m, Monoid w )
+type instance AlgebraType0 (L.RWST r w s) m = ( Monad m, Monoid w )
 instance FreeAlgebra1 (L.RWST r w s) where
     returnFree1 = lift
     foldMapFree1 nat f (L.RWST fn) = do
@@ -358,7 +387,7 @@ instance FreeAlgebra1 (L.RWST r w s) where
         return $ f a
 
 type instance AlgebraType  (S.RWST r w s) m = MonadRWS r w s m
-type instance AlgebraType1 (S.RWST r w s) m = ( Monad m, Monoid w )
+type instance AlgebraType0 (S.RWST r w s) m = ( Monad m, Monoid w )
 instance FreeAlgebra1 (S.RWST r w s) where
     returnFree1 = lift
     foldMapFree1 nat f (S.RWST fn) = do
@@ -382,7 +411,7 @@ instance Monad m => MonadList (ListT m) where
     mappend1 (ListT ma) (ListT mb) = ListT $ mappend <$> ma <*> mb
 
 type instance AlgebraType  ListT m = ( MonadList m )
-type instance AlgebraType1 ListT f = ( Monad f )
+type instance AlgebraType0 ListT f = ( Monad f )
 instance FreeAlgebra1 ListT where
     returnFree1 = lift
     foldMapFree1 nat f (ListT mas) = do
@@ -404,7 +433,7 @@ class MonadMaybe m where
     point :: forall a. m a
 
 type instance AlgebraType  MaybeT m = ( Monad m, MonadMaybe m )
-type instance AlgebraType1 MaybeT m = ( Monad m )
+type instance AlgebraType0 MaybeT m = ( Monad m )
 instance FreeAlgebra1 MaybeT where
     returnFree1 = lift
     foldMapFree1 nat f (MaybeT mma) =

@@ -23,6 +23,18 @@ import           Data.Algebra.Pointed (Pointed (..))
 
 type family AlgebraType (a :: k) (b :: l) :: Constraint
 
+-- |
+-- A lawful instance has to satisfy that
+-- 
+-- @
+--   unFold :: (FreeAlgebra m, AlgebraType m a) => (m a -> d) -> (a -> d)
+--   unFold g = g . 'returnFree'
+-- @
+-- is an inverse of @'foldMapFree'@.  This guaranties that @m@ is a left adjoint
+-- functor from Hask to algebras of type @'AlgebraType m'@.  The right adjoint
+-- is the forgetful functor.  The composition of left adjoin and the right one
+-- is always a monad, this is why we will be able to build monad instance for
+-- @m@.
 class FreeAlgebra (m :: Type -> Type)  where
     -- | Injective map that embeds generators @a@ into @m@.
     returnFree :: a -> m a

@@ -21,7 +21,7 @@ import qualified Hedgehog.Range as Range
 
 import           Data.Algebra.Free ( AlgebraType )
 import           Control.Algebra.Free
-    ( AlgebraType1
+    ( AlgebraType0
     , FreeAlgebra1 (..)
     , fmapFree1
     , foldFree1
@@ -107,7 +107,7 @@ genFreeIdentity gen = Gen.sized go
 fmapFree1_property
     :: forall m f a b
     .  ( FreeAlgebra1 m
-       , AlgebraType1 m f
+       , AlgebraType0 m f
        , AlgebraType m f
        , AlgebraType m (m f)
        , Functor (m f)
@@ -150,7 +150,7 @@ foldFree1_property
     :: forall m f a
     .  ( FreeAlgebra1 m
        , AlgebraType m f
-       , AlgebraType1 m f
+       , AlgebraType0 m f
        , Eq (f a)
        , Show (f a)
        )
@@ -181,9 +181,9 @@ hoistFree1_property
     .  ( FreeAlgebra1 m
        , AlgebraType m f
        , AlgebraType m (m g)
-       , AlgebraType1 m f
+       , AlgebraType0 m f
        , AlgebraType m g
-       , AlgebraType1 m g
+       , AlgebraType0 m g
        )
     => Gen (m f a)
     -> (m f a -> String)
@@ -224,9 +224,9 @@ iterFree1_property
     :: forall m f a
     .  ( FreeAlgebra1 m
        , AlgebraType m f
-       , AlgebraType1 m f
+       , AlgebraType0 m f
        , AlgebraType m Identity
-       , AlgebraType1 m Identity
+       , AlgebraType0 m Identity
        , Eq a
        , Show a
        )
