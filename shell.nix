@@ -1,25 +1,17 @@
-let
-  nixpkgs = import <nixpkgs> {};
-  /* 
-    nix-prefetch-git git@github.com:NixOs/nixpkgs --rev 5568c7c04b70f388bbcd412abc6f6e39ff1821c1 > nixpkgs.json
-  */
-  pref = builtins.fromJSON(builtins.readFile ./nixpkgs.json);
-  pinned  = nixpkgs.fetchFromGitHub({
-    owner  = "NixOS";
-    repo   = "nixpkgs";
-    rev    = pref.rev;
-    sha256 = pref.sha256;
-  }); 
+{ nixpkgs ? import <nixpkgs> {}, compiler ? "ghc842", doBenchmark ? false }:
 
-  pkgs = import pinned {};
-  /* ghc843 */
-  ghc = pkgs.haskellPackages.ghc;
-  # ghc861 = pkgs.haskell.compiler.ghc861;
+let
+
+  inherit (nixpkgs) pkgs;
+
+  haskellPackages = if compiler == "default"
+                       then pkgs.haskellPackages
+                       else pkgs.haskell.packages.${compiler};
+
+  variant = if doBenchmark then pkgs.haskell.lib.doBenchmark else pkgs.lib.id;
+
+  drv = variant (haskellPackages.callPackage (import ./free-algebras.nix) {});
+
 in
-  {
-    free-algebras = pkgs.haskell.lib.buildStackProject {
-      name = "free-algebras";
-      buildInputs = [ pkgs.zlib ];
-      inherit ghc;
-    };
-  }
+
+  if pkgs.lib.inNixShell then drv.env else drv
