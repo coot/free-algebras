@@ -6,6 +6,7 @@ module Control.Algebra.Free
     , FreeAlgebra1 (..)
     -- * Combinators
     , foldFree1
+    , unFoldFree1
     , hoistFree1
     , hoistFreeH
     , fmapFree1
@@ -63,12 +64,7 @@ type family AlgebraType0 (m :: k) (b :: * -> *) :: Constraint
 -- free applicative functors, free monads, state monads etc.
 --
 -- A lawful instance should guarantee that @'foldMapFree1'@ is an isomorphism
--- with inversese:
---
--- @
---  unFree1 :: ( 'AlgebraType' m d, 'AlgebraType' m f ) -> (forall x . m f x -> d x) -> (f a -> d a)
---  unFree1 nat = nat . 'returnFree1'
--- @
+-- with inversese @'unFoldFree1'@.
 --
 -- This guaranties that @m@ is a left adjoint functor from the category of
 -- types of kind @* -> *@ which satisfy @'AlgebraType0' m@ constraint, to the
@@ -96,7 +92,20 @@ class FreeAlgebra1 (m :: (* -> *) -> * -> *) where
         -- ^ a homomorphism from @m@ to @d@
 
 -- |
--- @'FreeAlgebraH' m@ implies that @m f@ is a foldable:
+-- @'unFold1'@ is an inverse of @'foldMapFree1'@
+unFoldFree1
+    :: ( FreeAlgebra1 m
+       , AlgebraType0 m f
+       )
+    => (forall x . m f x -> d x)
+    -> f a -> d a
+unFoldFree1 nat = nat . returnFree1
+
+-- |
+-- @'FreeAlgebraH' m@ implies that @m f@ is a foldable.
+--
+-- prop> foldFree1 . returnFree1 == id :: f a -> f a
+--
 -- It can be specialized to:
 --
 -- * @'Data.Functor.Coyoneda.lowerCoyoneda' :: 'Functor' f => 'Coyoneda' f a -> f a@
@@ -130,7 +139,6 @@ hoistFree1 :: forall m f g a .
 hoistFree1 nat = foldMapFree1 (returnFree1 . nat)
 
 -- |
---
 -- prop> hoistFreeH . hoistFreeH = hoistFreeH
 --
 -- and when @'FreeAlgebra1' m ~ 'FreeAlgebra1' n@:

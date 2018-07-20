@@ -16,6 +16,7 @@ import           Data.Algebra.Free
     ( AlgebraType
     , FreeAlgebra (..)
     , foldFree
+    , unFoldFree
     , natFree
     , fmapFree
     , joinFree
@@ -70,6 +71,45 @@ prop_foldFree_nonempty :: Property
 prop_foldFree_nonempty = foldFree_property
     $ (Gen.nonEmpty $ Range.linear 0 100)
         (Sum <$> Gen.word32 (Range.linear 0 1024))
+
+-- |
+-- @'fmapFoldFree'@ is inverse of @'unFoldFree'@
+foldMapFree_property
+    :: forall f d a .
+       ( FreeAlgebra f
+       , AlgebraType f d
+       , Show (f a)
+       , Show a
+       , Show d
+       , Eq d
+       )
+    => Gen (f a)
+    -> Gen a
+    -> (f a -> d)
+    -> (a -> d)
+    -> Property
+foldMapFree_property gen_fa gen fad ad = property $ do
+    fa <- H.forAll gen_fa
+    a  <- H.forAll gen
+    unFoldFree (foldMapFree @f ad) a === ad a
+    foldMapFree (unFoldFree @f fad) fa === fad fa
+
+prop_foldMapFree_list :: Property
+prop_foldMapFree_list
+    = foldMapFree_property @[] @(Sum Int) @Int
+        ((Gen.list $ Range.linear 0 100)
+            (Gen.integral $ Range.linear 0 1024))
+        (Gen.integral $ Range.linear 0 1024)
+        (Sum . sum)
+        Sum
+
+prop_foldMapFree_nonempty :: Property
+    = foldMapFree_property @NonEmpty @(Sum Int) @Int
+        ((Gen.nonEmpty $ Range.linear 0 100)
+            (Gen.integral $ Range.linear 0 1024))
+        (Gen.integral $ Range.linear 0 1024)
+        (Sum . sum)
+        Sum
 
 -- |
 -- @'fmapFree'@ should aggree with @'fmap'@ for types which satisfy @'Functor'@

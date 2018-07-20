@@ -4,6 +4,7 @@ module Data.Algebra.Free
       -- * FreeAlgebra class
     , FreeAlgebra (..)
       -- * Combinators
+    , unFoldFree
     , foldFree
     , natFree
     , fmapFree
@@ -24,17 +25,13 @@ import           Data.Algebra.Pointed (Pointed (..))
 type family AlgebraType (a :: k) (b :: l) :: Constraint
 
 -- |
--- A lawful instance has to satisfy that
+-- A lawful instance has to guarantee that @'unFoldFree'@ is an inverse of
+-- @'foldMapFree'@.
 -- 
--- @
---   unFold :: (FreeAlgebra m, AlgebraType m a) => (m a -> d) -> (a -> d)
---   unFold g = g . 'returnFree'
--- @
--- is an inverse of @'foldMapFree'@.  This guaranties that @m@ is a left adjoint
--- functor from Hask to algebras of type @'AlgebraType m'@.  The right adjoint
--- is the forgetful functor.  The composition of left adjoin and the right one
--- is always a monad, this is why we will be able to build monad instance for
--- @m@.
+-- This in turn guaranties that @m@ is a left adjoint functor from Hask to
+-- algebras of type @'AlgebraType m'@.  The right adjoint is the forgetful
+-- functor.  The composition of left adjoin and the right one is always
+-- a monad, this is why we will be able to build monad instance for @m@.
 class FreeAlgebra (m :: Type -> Type)  where
     -- | Injective map that embeds generators @a@ into @m@.
     returnFree :: a -> m a
@@ -43,7 +40,7 @@ class FreeAlgebra (m :: Type -> Type)  where
         :: forall d a
          .  AlgebraType m d
         => (a -> d)   -- ^ map generators of @m@ into @d@
-        -> (m a -> d) -- ^ returns a homomorphism from @m@ to @d@
+        -> (m a -> d) -- ^ returns a homomorphism from @m a@ to @d@
 
 type instance AlgebraType NonEmpty m = Semigroup m
 instance FreeAlgebra NonEmpty where
@@ -65,8 +62,18 @@ instance FreeAlgebra Maybe where
     foldMapFree f (Just a) = f a
 
 -- |
+-- Inverse of @'foldMapFree'@
+unFoldFree
+    :: FreeAlgebra m
+    => (m a -> d)
+    -> (a -> d)
+unFoldFree f = f . returnFree
+
+-- |
 -- All types which satisfy @'FreeAlgebra'@ constraint are foldable.  You can
 -- use this map to build a @'Foldable'@ instance.
+--
+-- prop> foldFree . returnFree == id
 foldFree
     :: ( FreeAlgebra m
        , AlgebraType m a
@@ -120,7 +127,8 @@ joinFree :: ( FreeAlgebra m
 joinFree = foldFree
 
 -- |
--- The monadic @'bind'@ operator.  You can use @'returnF'
+-- The monadic @'bind'@ operator.  @'returnFree'@ is the corresponding
+-- @'return'@ for this monad.
 bindFree :: ( FreeAlgebra m
             , AlgebraType m (m b)
             , AlgebraType m (m (m b))
