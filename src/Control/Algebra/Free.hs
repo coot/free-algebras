@@ -5,6 +5,7 @@ module Control.Algebra.Free
       AlgebraType0
     , FreeAlgebra1 (..)
     -- * Combinators
+    , wrapFree
     , foldFree1
     , unFoldFree1
     , hoistFree1
@@ -30,7 +31,7 @@ import qualified Control.Applicative.Free.Fast as Fast
 import qualified Control.Applicative.Free.Final as Final
 import           Control.Alternative.Free (Alt (..))
 import qualified Control.Alternative.Free as Alt
-import           Control.Monad (foldM)
+import           Control.Monad (foldM, join)
 import           Control.Monad.Except (ExceptT (..), MonadError (..))
 import           Control.Monad.Free (Free)
 import qualified Control.Monad.Free as Free
@@ -96,6 +97,24 @@ class FreeAlgebra1 (m :: (* -> *) -> * -> *) where
         -- ^ natural transformation which embeds generators of @m@ into @d@
         -> (m f a -> d a)
         -- ^ a homomorphism from @m@ to @d@
+
+-- |
+-- Anything that carries @'FreeAlgebra1'@ constraint is also an instance of
+-- @'Control.Monad.Free.Class.MonadFree'@, but not vice versa. You can use
+-- @'wrap'@ to define the a @'Contorl.Monad.Free.Class.MonadFree'@ instance.
+-- @'ContT'@ is an example of a monad which does have an  @'FreeAlgebra1'@
+-- instance, but has an @'MonadFree'@ instance.
+--
+-- The @'Monad'@ constrain will be satisfied for many monads through the
+-- @'AlgebraType m'@ constraint.
+wrapFree
+    :: ( FreeAlgebra1 m
+       , AlgebraType0 m f
+       , Monad (m f)
+       )
+    => f (m f a)
+    -> m f a
+wrapFree = join . returnFree1
 
 -- |
 -- @'unFold1'@ is an inverse of @'foldMapFree1'@
