@@ -23,12 +23,18 @@ module Control.Algebra.Free
     , MonadMaybe (..)
     ) where
 
+import           Control.Applicative (Alternative)
 import           Control.Applicative.Free (Ap)
 import qualified Control.Applicative.Free as Ap
+import qualified Control.Applicative.Free.Fast as Fast
+import qualified Control.Applicative.Free.Final as Final
+import           Control.Alternative.Free (Alt (..))
+import qualified Control.Alternative.Free as Alt
 import           Control.Monad (foldM)
 import           Control.Monad.Except (ExceptT (..), MonadError (..))
 import           Control.Monad.Free (Free)
 import qualified Control.Monad.Free as Free
+import qualified Control.Monad.Free.Church as Church
 import           Control.Monad.List (ListT (..))
 import           Control.Monad.Reader (MonadReader (..), ReaderT (..))
 import           Control.Monad.RWS.Class (MonadRWS)
@@ -248,11 +254,20 @@ type instance AlgebraType0 Ap g = Functor g
 -- @'Ap'@ is a free in the class of applicative functors, over any functor
 -- (@'Ap' f@ is applicative whenever @f@ is a functor)
 instance FreeAlgebra1 Ap where
-    returnFree1 = Ap.liftAp
+    returnFree1  = Ap.liftAp
+    foldMapFree1 = Ap.runAp
 
-    foldMapFree1 _   (Ap.Pure a) = pure a
-    foldMapFree1 nat (Ap.Ap fx apxa)
-        = foldMapFree1 nat apxa <*> nat fx
+type instance AlgebraType  Fast.Ap g = Applicative g
+type instance AlgebraType0 Fast.Ap g = Functor g
+instance FreeAlgebra1 Fast.Ap where
+    returnFree1  = Fast.liftAp
+    foldMapFree1 = Fast.runAp
+
+type instance AlgebraType  Final.Ap g = Applicative g
+type instance AlgebraType0 Final.Ap g = Functor g
+instance FreeAlgebra1 Final.Ap where
+    returnFree1  = Final.liftAp
+    foldMapFree1 = Final.runAp
 
 -- |
 -- @'Day' f f@ newtype wrapper.  It is isomorphic with @'Ap' f@ for applicative
@@ -287,6 +302,19 @@ type instance AlgebraType0 Free f = Functor f
 instance FreeAlgebra1 Free where
     returnFree1 = Free.liftF
     foldMapFree1 nat ff = Free.foldFree nat ff
+
+type instance AlgebraType  Church.F m = Monad m
+type instance AlgebraType0 Church.F f = Functor f
+instance FreeAlgebra1 Church.F where
+    returnFree1  = Church.liftF
+    foldMapFree1 = Church.foldF
+
+
+type instance AlgebraType  Alt m = Alternative m
+type instance AlgebraType0 Alt f = Functor f
+instance FreeAlgebra1 Alt where
+    returnFree1  = Alt.liftAlt
+    foldMapFree1 = Alt.runAlt
 
 -- |
 -- Algebras of the same type as @'L.StateT'@ monad is the class of all state
