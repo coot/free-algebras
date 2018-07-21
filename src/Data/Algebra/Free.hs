@@ -42,25 +42,6 @@ class FreeAlgebra (m :: Type -> Type)  where
         => (a -> d)   -- ^ map generators of @m@ into @d@
         -> (m a -> d) -- ^ returns a homomorphism from @m a@ to @d@
 
-type instance AlgebraType NonEmpty m = Semigroup m
-instance FreeAlgebra NonEmpty where
-    returnFree a = a :| []
-    -- @'foldMap'@ requires @'Monoid' d@ constraint which we don't need to
-    -- satisfy here
-    foldMapFree f (a :| []) = f a
-    foldMapFree f (a :| (b : bs)) = f a <> foldMapFree f (b :| bs)
-
-type instance AlgebraType [] m = Monoid m
-instance FreeAlgebra [] where
-    returnFree a = [a]
-    foldMapFree = foldMap
-
-type instance AlgebraType Maybe m = Pointed m
-instance FreeAlgebra Maybe where
-    returnFree = Just
-    foldMapFree _ Nothing  = point
-    foldMapFree f (Just a) = f a
-
 -- |
 -- Inverse of @'foldMapFree'@
 unFoldFree
@@ -137,3 +118,22 @@ bindFree :: ( FreeAlgebra m
          -> (a -> m b)
          -> m b
 bindFree ma f = joinFree $ fmapFree f ma
+
+type instance AlgebraType NonEmpty m = Semigroup m
+instance FreeAlgebra NonEmpty where
+    returnFree a = a :| []
+    -- @'foldMap'@ requires @'Monoid' d@ constraint which we don't need to
+    -- satisfy here
+    foldMapFree f (a :| []) = f a
+    foldMapFree f (a :| (b : bs)) = f a <> foldMapFree f (b :| bs)
+
+type instance AlgebraType [] m = Monoid m
+instance FreeAlgebra [] where
+    returnFree a = [a]
+    foldMapFree = foldMap
+
+type instance AlgebraType Maybe m = Pointed m
+instance FreeAlgebra Maybe where
+    returnFree = Just
+    foldMapFree _ Nothing  = point
+    foldMapFree f (Just a) = f a
