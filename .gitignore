@@ -1,5 +1,2 @@
-.stack-work/
 *.cabal
 *~
-/result
-/dist
