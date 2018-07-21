@@ -1,5 +1,5 @@
 { nixpkgs ? import <nixpkgs> {}
-, compiler ? "ghc842"
+, compiler ? "ghc843"
 , haddock ? true
 , test ? true
 , benchmarks ? false
