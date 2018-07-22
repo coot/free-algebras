@@ -34,9 +34,14 @@ data Transport_F msg a
 -- |
 -- Run transport layer in @'IO'@
 runTransportIO
-    :: forall msg a. Binary msg
+    :: forall msg a m.
+       ( Binary msg
+       , FreeAlgebra1 m
+       , AlgebraType m IO
+       , AlgebraType0 m (Transport_F msg)
+       )
     => Socket
-    -> Free (Transport_F msg) a
+    -> m (Transport_F msg) a
     -> IO a
 runTransportIO sock = foldNatFree f
     where
@@ -103,9 +108,13 @@ data TCP_F msg a
 -- |
 -- Interpret the @'TCP_F'@ functor in the free monad @'Free' 'Transport_F'@.
 interpTCP
-    :: (Binary msg, Show msg)
+    :: ( FreeAlgebra1 m
+       , AlgebraType0 m (Transport_F (TcpMsg msg))
+       , Monad (m (Transport_F (TcpMsg msg)))
+       , Binary msg
+       , Show msg)
     => TCP_F msg a
-    -> Free (Transport_F (TcpMsg msg)) a
+    -> m (Transport_F (TcpMsg msg)) a
 interpTCP (Handshake cont) = do
     liftFree (Send Syn ())
     merr <- liftFree $ Recv 1 $ \msg ->
@@ -165,17 +174,39 @@ interpTCP (RecvMsg max cont) = do
 -- Use @'bindFree1'@ to run @'Free' 'TCP_F'@ monad in @'Free' 'Transport_F'@
 -- monad.
 runTCP
-    :: (Binary msg, Show msg)
-    => Free (TCP_F msg) a
-    -> Free (Transport_F (TcpMsg msg)) a
+    :: ( FreeAlgebra1 m
+       , AlgebraType m (m (Transport_F (TcpMsg msg)))
+       , AlgebraType m (m (m (Transport_F (TcpMsg msg))))
+       , AlgebraType0 m (Transport_F (TcpMsg msg))
+       , AlgebraType0 m (m (Transport_F (TcpMsg msg)))
+       , AlgebraType0 m (m (m (Transport_F (TcpMsg msg))))
+       , AlgebraType0 m (TCP_F msg)
+       , Monad (m (Transport_F (TcpMsg msg)))
+       , Binary msg
+       , Show msg
+       )
+    => m (TCP_F msg) a
+    -> m (Transport_F (TcpMsg msg)) a
 runTCP tcp = tcp `bindFree1` interpTCP
 
 -- |
--- Run @'Free 'TCP_F'@ monad in @'IO'@
+-- Run @'Free' 'TCP_F'@ monad in @'IO'@ (or any other free monad).
 runTCP_IO
-    :: forall msg a. (Binary msg, Show msg)
+    :: forall msg m a.
+       ( FreeAlgebra1 m
+       , AlgebraType m (m (Transport_F (TcpMsg msg)))
+       , AlgebraType m (m (m (Transport_F (TcpMsg msg))))
+       , AlgebraType m IO
+       , AlgebraType0 m (Transport_F (TcpMsg msg))
+       , AlgebraType0 m (m (Transport_F (TcpMsg msg)))
+       , AlgebraType0 m (m (m (Transport_F (TcpMsg msg))))
+       , AlgebraType0 m (TCP_F msg)
+       , Monad (m (Transport_F (TcpMsg msg)))
+       , Binary msg
+       , Show msg
+       )
     => Socket
-    -> Free (TCP_F msg) a
+    -> m (TCP_F msg) a
     -> IO a
 runTCP_IO sock = runTransportIO @(TcpMsg msg) sock . runTCP
 

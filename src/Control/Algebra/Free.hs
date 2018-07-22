@@ -3,6 +3,7 @@ module Control.Algebra.Free
     (
     -- * Classes
       AlgebraType0
+    , AlgebraType
     , FreeAlgebra1 (..)
     -- * Combinators
     , wrapFree
