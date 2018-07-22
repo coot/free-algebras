@@ -24,7 +24,7 @@ import           Data.Algebra.Free ( AlgebraType )
 import           Control.Algebra.Free
     ( AlgebraType0
     , FreeAlgebra1 (..)
-    , unFoldFree1
+    , unFoldNatFree
     , fmapFree1
     , foldFree1
     , hoistFree1
@@ -134,16 +134,16 @@ foldMapFree1_property gen_mfa gen_fa fd mfd
           -> (forall x. f x -> d x)
     fd_id _ nat =
         let nat' :: forall a . m f a -> d a
-            nat' = foldMapFree1 nat
-        in unFoldFree1 nat'
+            nat' = foldNatFree nat
+        in unFoldNatFree nat'
 
     mfd_id :: forall a
            .  (forall x. m f x -> d x)
            -> (forall x. m f x -> d x)
     mfd_id nat =
         let nat' :: forall a . f a -> d a
-            nat' = unFoldFree1 nat
-        in foldMapFree1 nat'
+            nat' = unFoldNatFree nat
+        in foldNatFree nat'
 
 prop_foldMapFree1_coyoneda :: Property
 prop_foldMapFree1_coyoneda

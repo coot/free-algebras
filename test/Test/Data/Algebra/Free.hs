@@ -16,7 +16,7 @@ import           Data.Algebra.Free
     ( AlgebraType
     , FreeAlgebra (..)
     , foldFree
-    , unFoldFree
+    , unFoldMapFree
     , natFree
     , fmapFree
     , joinFree
@@ -73,7 +73,7 @@ prop_foldFree_nonempty = foldFree_property
         (Sum <$> Gen.word32 (Range.linear 0 1024))
 
 -- |
--- @'fmapFoldFree'@ is inverse of @'unFoldFree'@
+-- @'fmapFoldFree'@ is inverse of @'unFoldMapFree'@
 foldMapFree_property
     :: forall f d a .
        ( FreeAlgebra f
@@ -91,8 +91,8 @@ foldMapFree_property
 foldMapFree_property gen_fa gen fad ad = property $ do
     fa <- H.forAll gen_fa
     a  <- H.forAll gen
-    unFoldFree (foldMapFree @f ad) a === ad a
-    foldMapFree (unFoldFree @f fad) fa === fad fa
+    unFoldMapFree (foldMapFree @f ad) a === ad a
+    foldMapFree (unFoldMapFree @f fad) fa === fad fa
 
 prop_foldMapFree_list :: Property
 prop_foldMapFree_list

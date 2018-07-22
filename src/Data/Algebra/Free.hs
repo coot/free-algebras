@@ -4,7 +4,7 @@ module Data.Algebra.Free
       -- * FreeAlgebra class
     , FreeAlgebra (..)
       -- * Combinators
-    , unFoldFree
+    , unFoldMapFree
     , foldFree
     , natFree
     , fmapFree
@@ -44,11 +44,11 @@ class FreeAlgebra (m :: Type -> Type)  where
 
 -- |
 -- Inverse of @'foldMapFree'@
-unFoldFree
+unFoldMapFree
     :: FreeAlgebra m
     => (m a -> d)
     -> (a -> d)
-unFoldFree f = f . returnFree
+unFoldMapFree f = f . returnFree
 
 -- |
 -- All types which satisfy @'FreeAlgebra'@ constraint are foldable.  You can

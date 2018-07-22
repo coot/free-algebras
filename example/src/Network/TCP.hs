@@ -38,7 +38,7 @@ runTransportIO
     => Socket
     -> Free (Transport_F msg) a
     -> IO a
-runTransportIO sock = foldMapFree1 f
+runTransportIO sock = foldNatFree f
     where
     f :: Transport_F msg x -> IO x
     f (Send msg a) =
@@ -107,8 +107,8 @@ interpTCP
     => TCP_F msg a
     -> Free (Transport_F (TcpMsg msg)) a
 interpTCP (Handshake cont) = do
-    returnFree1 (Send Syn ())
-    merr <- returnFree1 $ Recv 1 $ \msg ->
+    liftFree (Send Syn ())
+    merr <- liftFree $ Recv 1 $ \msg ->
         case msg of
             Left e
                 -> Just e
@@ -117,14 +117,14 @@ interpTCP (Handshake cont) = do
             Right msg
                 -> Just $ TCPProtocolError ("Expected SynAck message but received: " ++ show msg)
     case merr of
-        Nothing  -> returnFree1 (Send SynAck $ cont Nothing)
+        Nothing  -> liftFree (Send SynAck $ cont Nothing)
         Just err -> return (cont $ Just err)
 interpTCP (SendMsg msg a) =
-    returnFree1 (Send (TcpMsg msg) a)
+    liftFree (Send (TcpMsg msg) a)
 interpTCP (CloseConnection cont) = do
-    returnFree1 (Send Fin ())
+    liftFree (Send Fin ())
     merr <- runExceptT $ do
-        ExceptT $ returnFree1 $ Recv 1 $ \msg ->
+        ExceptT $ liftFree $ Recv 1 $ \msg ->
             case msg of
                 Left e
                     -> Left e
@@ -132,7 +132,7 @@ interpTCP (CloseConnection cont) = do
                     -> Right ()
                 Right msg
                     -> Left $ TCPProtocolError ("Expected FinAck message but received: " ++ show msg)
-        ExceptT $ returnFree1 $ Recv 1 $ \msg ->
+        ExceptT $ liftFree $ Recv 1 $ \msg ->
             case msg of
                 Left e
                     -> Left e
@@ -140,18 +140,18 @@ interpTCP (CloseConnection cont) = do
                     -> Right ()
                 Right msg
                     -> Left $ TCPProtocolError ("Expected Fin message but received: " ++ show msg)
-        ExceptT $ returnFree1 $ Send FinAck2 (Right ())
+        ExceptT $ liftFree $ Send FinAck2 (Right ())
     case merr of
         Left err -> return $ cont (Just err)
         Right () -> return $ cont Nothing
 interpTCP (RecvMsg max cont) = do
-    msg <- returnFree1 $ Recv max id
+    msg <- liftFree $ Recv max id
     case msg of
         Left err  -> return (cont $ Left err)
-        Right Syn -> returnFree1 (Send SynAck (cont $ Right Syn))
+        Right Syn -> liftFree (Send SynAck (cont $ Right Syn))
         Right SynAck
-                  -> returnFree1 (Send Ack (cont $ Right SynAck))
-        Right Fin -> returnFree1 (Send FinAck1 (cont $ Right Fin))
+                  -> liftFree (Send Ack (cont $ Right SynAck))
+        Right Fin -> liftFree (Send FinAck1 (cont $ Right Fin))
         Right FinAck1
                   -> return (cont $ Right FinAck1)
         Right FinAck2
