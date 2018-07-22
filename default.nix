@@ -12,17 +12,16 @@ let
   };
   nixpkgs = import src {};
 
-  lib = import ./lib.nix { inherit nixpkgs; };
   pkgs = nixpkgs.haskell.packages;
+  lib = nixpkgs.haskell.lib;
 
   doHaddock = if haddock then lib.doHaddock else lib.dontHaddock;
   doTest = if test then lib.doCheck else lib.dontCheck;
   doBench = if benchmarks then lib.doBenchmark else nixpkgs.lib.id;
 
-  free-algebras = pkgs.${compiler}.callPackage ./free-algebras.nix { inherit nixpkgs; };
-  example = pkgs.${compiler}.callPackage ./example/example.nix { inherit free-algebras nixpkgs; };
+  free-algebras = doHaddock(doTest(doBench(
+    pkgs.${compiler}.callPackage ./free-algebras.nix { inherit nixpkgs; })));
+  example = doHaddock(doTest(doBench(
+    pkgs.${compiler}.callPackage ./example/example.nix { inherit free-algebras nixpkgs; })));
 in
-{ 
-  free-algebras = doHaddock(doTest(doBench(lib.disableSeparateDocOutput(free-algebras))));
-  example = doHaddock(doTest(doBench(lib.disableSeparateDocOutput(example))));
-}
+{ inherit free-algebras example; }

@@ -1,4 +1,4 @@
-name:                free-algebras
+name:                free-algebras-example
 version:             0.0.1.0
 github:              "git@github.com:coot/free-algebras"
 homepage:            "https://github.com/coot/free-algebras#readme"
@@ -7,10 +7,6 @@ license-file:        LICENSE
 author:              "Marcin Szamotulski"
 maintainer:          "profunctor@pm.me"
 copyright:           "(c) 2018 Marcin Szamotulski"
-
-extra-source-files:
-  - ChangeLog.md
-  - README.md
 
 # Metadata used when publishing your package
 # synopsis:            Short description of your package
@@ -41,9 +37,12 @@ default-extensions:
 
 dependencies:
   - base >= 4.7 && < 5
+  - binary
+  - bytestring
   - free
-  - kan-extensions
+  - free-algebras
   - mtl
+  - network
   - transformers
 
 library:
@@ -55,17 +54,3 @@ library:
     - -Wredundant-constraints
     - -Werror
     - -Wno-deprecations
-
-tests:
-  free-algebras-test:
-    main:                Spec.hs
-    source-dirs:         test
-    ghc-options:
-      - -threaded
-      - -rtsopts
-      - -with-rtsopts=-N
-      - -main-is Spec
-    dependencies:
-      - containers
-      - free-algebras
-      - hedgehog
