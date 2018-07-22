@@ -1,10 +1,11 @@
-{ mkDerivation, base, containers, free, hedgehog, hpack
+{ nixpkgs, mkDerivation, base, containers, free, hedgehog, hpack
 , kan-extensions, mtl, stdenv, transformers
 }:
 mkDerivation {
   pname = "free-algebras";
   version = "0.1.0.0";
-  src = ./.;
+  src = nixpkgs.lib.sourceFilesBySuffices ./.
+    [ ".hs" "package.yaml" "LICENSE" "ChangeLog.md" "cabal.project" ];
   libraryHaskellDepends = [
     base free kan-extensions mtl transformers
   ];

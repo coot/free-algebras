@@ -1,4 +1,5 @@
 packages:       free-algebras.cabal
+                example/example.cabal
 jobs:           $ncpus
 documentation:  true
 haddock-hyperlink-source: true

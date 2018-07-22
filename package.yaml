@@ -57,7 +57,7 @@ library:
     - -Wno-deprecations
 
 tests:
-  algebra-test:
+  free-algebras-test:
     main:                Spec.hs
     source-dirs:         test
     ghc-options:

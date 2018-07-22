@@ -1,4 +1,4 @@
 #!/bin/bash
 
 hpack
-cabal2nix --compiler ghc843 --hpack . > ./free-algebras.nix
+cabal2nix --hpack . > ./free-algebras.nix
