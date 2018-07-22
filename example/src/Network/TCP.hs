@@ -3,12 +3,9 @@
 module Network.TCP where
 
 import           Control.Algebra.Free
-import           Control.Monad.Free (Free (..))
 import           Control.Exception (IOException, try)
-import           Control.Monad.Trans.Class (lift)
 import           Control.Monad.Except (ExceptT (..), runExceptT)
-import           Data.Bifunctor (bimap, first)
-import           Data.ByteString.Lazy as LBS
+import           Data.Bifunctor (bimap)
 import           Data.Binary (Binary (..), encode, decodeOrFail)
 import qualified Data.Binary as Binary
 import           Data.Functor (($>))
@@ -43,13 +40,13 @@ runTransportIO
     => Socket
     -> m (Transport_F msg) a
     -> IO a
-runTransportIO sock = foldNatFree f
+runTransportIO sock = foldNatFree nat
     where
-    f :: Transport_F msg x -> IO x
-    f (Send msg a) =
+    nat :: Transport_F msg x -> IO x
+    nat (Send msg a) =
         send sock (encode msg) $> a
-    f (Recv max cont) = do
-        ebs <- try $ recv sock max
+    nat (Recv len cont) = do
+        ebs <- try $ recv sock len
         case ebs of
             Left ioerr -> return $ cont (Left (IOTransportException ioerr))
             Right bs   ->
@@ -106,19 +103,18 @@ data TCP_F msg a
     deriving Functor
 
 -- |
--- Interpret the @'TCP_F'@ functor in the free monad @'Free' 'Transport_F'@.
+-- Interpret the @'TCP_F'@ functor in @'Free' 'Transport_F'@ (or any other free monad).
 interpTCP
     :: ( FreeAlgebra1 m
        , AlgebraType0 m (Transport_F (TcpMsg msg))
        , Monad (m (Transport_F (TcpMsg msg)))
-       , Binary msg
        , Show msg)
     => TCP_F msg a
     -> m (Transport_F (TcpMsg msg)) a
 interpTCP (Handshake cont) = do
     liftFree (Send Syn ())
-    merr <- liftFree $ Recv 1 $ \msg ->
-        case msg of
+    merr <- liftFree $ Recv 1 $ \mmsg ->
+        case mmsg of
             Left e
                 -> Just e
             Right SynAck
@@ -133,16 +129,16 @@ interpTCP (SendMsg msg a) =
 interpTCP (CloseConnection cont) = do
     liftFree (Send Fin ())
     merr <- runExceptT $ do
-        ExceptT $ liftFree $ Recv 1 $ \msg ->
-            case msg of
+        ExceptT $ liftFree $ Recv 1 $ \mmsg ->
+            case mmsg of
                 Left e
                     -> Left e
                 Right FinAck1
                     -> Right ()
                 Right msg
                     -> Left $ TCPProtocolError ("Expected FinAck message but received: " ++ show msg)
-        ExceptT $ liftFree $ Recv 1 $ \msg ->
-            case msg of
+        ExceptT $ liftFree $ Recv 1 $ \mmsg ->
+            case mmsg of
                 Left e
                     -> Left e
                 Right Fin
@@ -153,13 +149,14 @@ interpTCP (CloseConnection cont) = do
     case merr of
         Left err -> return $ cont (Just err)
         Right () -> return $ cont Nothing
-interpTCP (RecvMsg max cont) = do
-    msg <- liftFree $ Recv max id
-    case msg of
+interpTCP (RecvMsg len cont) = do
+    mmsg <- liftFree $ Recv len id
+    case mmsg of
         Left err  -> return (cont $ Left err)
         Right Syn -> liftFree (Send SynAck (cont $ Right Syn))
         Right SynAck
                   -> liftFree (Send Ack (cont $ Right SynAck))
+        Right Ack -> return (cont $ Right Ack)
         Right Fin -> liftFree (Send FinAck1 (cont $ Right Fin))
         Right FinAck1
                   -> return (cont $ Right FinAck1)
@@ -179,10 +176,8 @@ runTCP
        , AlgebraType m (m (m (Transport_F (TcpMsg msg))))
        , AlgebraType0 m (Transport_F (TcpMsg msg))
        , AlgebraType0 m (m (Transport_F (TcpMsg msg)))
-       , AlgebraType0 m (m (m (Transport_F (TcpMsg msg))))
        , AlgebraType0 m (TCP_F msg)
        , Monad (m (Transport_F (TcpMsg msg)))
-       , Binary msg
        , Show msg
        )
     => m (TCP_F msg) a
@@ -199,7 +194,6 @@ runTCP_IO
        , AlgebraType m IO
        , AlgebraType0 m (Transport_F (TcpMsg msg))
        , AlgebraType0 m (m (Transport_F (TcpMsg msg)))
-       , AlgebraType0 m (m (m (Transport_F (TcpMsg msg))))
        , AlgebraType0 m (TCP_F msg)
        , Monad (m (Transport_F (TcpMsg msg)))
        , Binary msg
