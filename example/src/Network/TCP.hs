@@ -108,7 +108,8 @@ interpTCP
     :: ( FreeAlgebra1 m
        , AlgebraType0 m (Transport_F (TcpMsg msg))
        , Monad (m (Transport_F (TcpMsg msg)))
-       , Show msg)
+       , Show msg
+       )
     => TCP_F msg a
     -> m (Transport_F (TcpMsg msg)) a
 interpTCP (Handshake cont) = do
