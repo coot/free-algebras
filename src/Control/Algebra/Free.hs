@@ -87,8 +87,7 @@ class FreeAlgebra1 (m :: (* -> *) -> * -> *) where
     -- | Natural transformation that embeds generators into @m@.
     liftFree :: AlgebraType0 m f => f a -> m f a
 
-    -- | The freeness property.  It is generalised to allow change of
-    -- coefficients with a map (@a -> b@).
+    -- | The freeness property.
     foldNatFree
         :: forall (d :: * -> *) f a .
            ( AlgebraType m d
@@ -202,9 +201,9 @@ fmapFree1 :: forall m f a b .
 fmapFree1 f mfa = f <$> foldNatFree liftFree mfa
 
 -- |
--- @'joinH'@ makes @m@ a monad in some subcatgory of types of kind @* -> *@
+-- @'joinFree1'@ makes @m@ a monad in some subcatgory of types of kind @* -> *@
 -- (usually the end-functor category of @Hask@).  It is just a specialization
--- of @'foldH'@.
+-- of @'foldFree1'@.
 joinFree1 :: forall m f a .
              ( FreeAlgebra1 m
              , AlgebraType m (m f)
@@ -215,7 +214,7 @@ joinFree1 :: forall m f a .
 joinFree1 = foldFree1
 
 -- |
--- Bind operator for the @'joinH'@ monad
+-- Bind operator for the @'joinFree1'@ monad
 bindFree1 :: forall m f g a .
              ( FreeAlgebra1 m
              , AlgebraType m (m g)
