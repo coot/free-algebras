@@ -38,7 +38,7 @@ class FreeAlgebra (m :: Type -> Type)  where
     -- | The freeness property.
     foldMapFree
         :: forall d a
-         .  AlgebraType m d
+         . AlgebraType m d
         => (a -> d)   -- ^ map generators of @m@ into @d@
         -> (m a -> d) -- ^ returns a homomorphism from @m a@ to @d@
 

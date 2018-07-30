@@ -43,6 +43,7 @@ dependencies:
   - base >= 4.11 && < 5
   - containers
   - free
+  - groups
   - kan-extensions
   - mtl
   - natural-numbers
