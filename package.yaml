@@ -40,10 +40,12 @@ default-extensions:
   TypeFamilies
 
 dependencies:
-  - base >= 4.7 && < 5
+  - base >= 4.11 && < 5
+  - containers
   - free
   - kan-extensions
   - mtl
+  - natural-numbers
   - transformers
 
 library:
