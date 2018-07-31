@@ -20,8 +20,8 @@ let
   doBench = if benchmarks then lib.doBenchmark else nixpkgs.lib.id;
 
   free-algebras = doHaddock(doTest(doBench(
-    pkgs.${compiler}.callPackage ./free-algebras.nix { inherit nixpkgs; })));
+    pkgs.${compiler}.callPackage ./pkg.nix { inherit nixpkgs; })));
   example = doHaddock(doTest(doBench(
-    pkgs.${compiler}.callPackage ./example/example.nix { inherit free-algebras nixpkgs; })));
+    pkgs.${compiler}.callPackage ./example/pkg.nix { inherit free-algebras nixpkgs; })));
 in
 { inherit free-algebras example; }

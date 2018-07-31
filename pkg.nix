@@ -1,11 +1,21 @@
 { nixpkgs, mkDerivation, base, containers, free, groups, hedgehog
 , hpack , kan-extensions, mtl, natural-numbers, stdenv, transformers
 }:
+let
+  lib = nixpkgs.lib;
+  srcFilter = src: path: type:
+    let relPath = lib.removePrefix (toString src + "/") (toString path);
+    in 
+       lib.hasPrefix "src" relPath
+    || lib.hasPrefix "test" relPath
+    || lib.any
+        (a: a == relPath)
+        [ "Setup.hs" "cabal.project" "ChangeLog.md" "package.yaml" "LICENSE"];
+in
 mkDerivation {
   pname = "free-algebras";
   version = "0.0.1.0";
-  src = nixpkgs.lib.sourceFilesBySuffices ./.
-    [ ".hs" "package.yaml" "LICENSE" "ChangeLog.md" "cabal.project" ];
+  src = lib.cleanSourceWith { filter = srcFilter ./.; src = ./.; };
   libraryHaskellDepends = [
     base free groups kan-extensions mtl natural-numbers transformers
   ];
