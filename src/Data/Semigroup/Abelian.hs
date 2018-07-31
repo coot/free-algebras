@@ -32,8 +32,6 @@ instance Num a => AbelianSemigroup (Product a)
 
 instance Num a => AbelianSemigroup (Sum a)
 
-instance AbelianSemigroup a => AbelianSemigroup (IO a)
-
 instance Ord a => AbelianSemigroup (Set a)
 
 instance AbelianSemigroup IntSet
