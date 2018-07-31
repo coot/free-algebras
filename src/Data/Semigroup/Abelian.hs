@@ -13,15 +13,27 @@ import           Data.Void (Void)
 class Semigroup m => AbelianSemigroup m
 
 instance AbelianSemigroup Void
+
 instance AbelianSemigroup ()
+
 instance AbelianSemigroup All
+
 instance AbelianSemigroup Any
+
 instance AbelianSemigroup a => AbelianSemigroup (Dual a)
+
 instance Ord a => AbelianSemigroup (Max a)
+
 instance Ord a => AbelianSemigroup (Min a)
+
 instance AbelianSemigroup a => AbelianSemigroup (Option a)
+
 instance Num a => AbelianSemigroup (Product a)
+
 instance Num a => AbelianSemigroup (Sum a)
+
 instance AbelianSemigroup a => AbelianSemigroup (IO a)
+
 instance Ord a => AbelianSemigroup (Set a)
+
 instance AbelianSemigroup IntSet
