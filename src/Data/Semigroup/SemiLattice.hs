@@ -1,5 +1,5 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-module Data.Semigroup.Free.SemiLattice
+module Data.Semigroup.SemiLattice
     ( FreeSemiLattice
     , fromNonEmpty
     , toNonEmpty
@@ -31,7 +31,7 @@ instance SemiLattice IntSet
 -- |
 -- @'FreeSemiLattice'@ is a non empty set.
 newtype FreeSemiLattice a = FreeSemiLattice { runFreeSemiLattice :: Set a }
-    deriving (Semigroup, Ord, Eq, Show)
+    deriving (Ord, Eq, Show, Semigroup)
 
 fromNonEmpty :: Ord a => NonEmpty a -> FreeSemiLattice a
 fromNonEmpty = FreeSemiLattice . Set.fromList . NE.toList

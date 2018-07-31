@@ -1,4 +1,4 @@
-module Data.Monoid.Abelian.Free
+module Data.Monoid.Abelian
     ( FreeAbelianMonoid (..)
     ) where
 
