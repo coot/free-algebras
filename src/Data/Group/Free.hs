@@ -5,6 +5,7 @@ module Data.Group.Free
     , normalize
     ) where
 
+import           Control.Monad (ap)
 import           Data.Group (Group (..))
 import           Data.Semigroup (Semigroup (..))
 
@@ -25,6 +26,14 @@ newtype FreeGroup a = FreeGroup { runFreeGroup :: [Either a a] }
 
 instance Functor FreeGroup where
     fmap f (FreeGroup as) = FreeGroup $ map (either (Left . f) (Right . f)) as
+
+instance Applicative FreeGroup where
+    pure  = returnFree
+    (<*>) = ap
+
+instance Monad FreeGroup where
+    return a = FreeGroup [Right a]
+    FreeGroup as >>= f = FreeGroup $ concatMap (runFreeGroup . either f f) as
 
 -- |
 -- Normalize a list, i.e. remove adjusten inverses from a word, i.e.

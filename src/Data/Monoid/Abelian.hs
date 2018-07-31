@@ -14,6 +14,7 @@ import           Data.Semigroup.Abelian (AbelianSemigroup)
 -- Free abelian monoid.  Note that `FreeAbelianMonoid () ≅ Natural` as
 -- expected.
 newtype FreeAbelianMonoid a = FreeAbelianMonoid (Map a Natural)
+    deriving (Eq, Ord, Show)
 
 instance Ord a => Semigroup (FreeAbelianMonoid a) where
     (FreeAbelianMonoid a) <> (FreeAbelianMonoid b) = FreeAbelianMonoid $ Map.unionWith (+) a b
