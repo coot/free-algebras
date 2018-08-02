@@ -10,13 +10,13 @@ import           Data.Algebra.Pointed (Pointed (point))
 import           Data.Algebra.Free (FreeAlgebra, foldFree)
 
 -- |
--- A monad action is an `m`-algebra parametrized over a functor `f`.
--- This is direct translation of a monoid action in the monoidal category of
+-- A /monad action/ is an `m`-algebra parametrized over a functor `f`.
+-- This is direct translation of a /monoid action/ in the monoidal category of
 -- endofunctors with monoidal product: functor composition.
 --
--- @'mact'@ should be associative:
+-- @'mact'@ should be /associative/:
 -- prop> 'mact' . 'mact' = 'mact' . 'join'
--- and unital:
+-- and /unital/:
 -- prop> mact . return = id
 --
 -- There are monads which do not have any (safe) instances, like @'IO'@.
@@ -35,10 +35,12 @@ instance (Pointed r, Functor f) => MAction ((->) r) f where
 -- |
 -- Every algebra @d@ which satisfies the constraint @'AlgebraType' m d@ lifts
 -- to an action on the constant functor @'Const' d@.  This is the same as to
--- say that @d@ is an @m@-algebra (as of f-algebras in category theory).
+-- say that @d@ is an @m@-algebra (as of /f-algebras/ in category theory).
 instance (Monad m, FreeAlgebra m, AlgebraType m d) => MAction m (Const d) where
     mact mca = Const $ foldFree $ getConst <$> mca
 
+-- |
+-- Free algebra associated with the @'MAction' constraint.
 newtype FreeMAction m f a = FreeMAction { runFreeMAction :: m (f a) }
     deriving (Show, Eq, Ord, Functor)
 

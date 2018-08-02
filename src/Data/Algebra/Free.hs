@@ -67,8 +67,8 @@ foldFree = foldMapFree id
 
 -- |
 -- The canonical quotient map from a free algebra of a wider class to a free
--- algebra of a narrower class, e.g. from a free non-associative semigroup to
--- free associative semigroup, from a free monoid to free commutative monoid,
+-- algebra of a narrower class, e.g. from a free semigroup to
+-- free monoid, or from a free monoid to free commutative monoid,
 -- etc.
 --
 -- prop> natFree . natFree == natFree
@@ -101,7 +101,7 @@ fmapFree :: forall m a b .
 fmapFree f ma = foldMapFree (returnFree . f) ma
 
 -- |
--- @'FreeAlgebra'@ constraint imply monad.
+-- @'FreeAlgebra'@ constraint implies @Monad@ constrain.
 joinFree :: ( FreeAlgebra m
             , AlgebraType m (m a)
             )
@@ -123,16 +123,16 @@ bindFree ma f = joinFree $ fmapFree f ma
 
 -- |
 -- @'Fix' m@ is the initial algebra in the category of algebras of type
--- @'AlgebraType' m@, whenever it exists.
+-- @'AlgebraType' m@, whenever it /exists/.
 --
 -- Another way of puting this is observing that @'Fix' m@ is isomorphic to @m
--- Void@ where @m@ is the free algebra.  This isomorphisms is given by
+-- Void@ where @m@ is the /free algebra/.  This isomorphisms is given by
 -- @
 --   fixToFree :: (FreeAlgebra m, AlgebraType m (m Void), Functor m) => Fix m -> m Void
 --   fixToFree = cataFree
 -- @
--- For monoids the inverse is given by @'Data.Fix.ana' (\_ -> [])@.
--- For semigroups the initial algebra does not exists, e.g. @NonEmpty Void@.
+-- For monoids the inverse is given by @'Data.Fix.ana' (\_ -> [])@.  The
+-- category of semigroups, however,  does not have the initial object.
 cataFree :: ( FreeAlgebra m
             , AlgebraType m a
             , Functor m
