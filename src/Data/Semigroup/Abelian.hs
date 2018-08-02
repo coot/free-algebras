@@ -11,10 +11,25 @@ import qualified Data.List.NonEmpty as NE
 import           Data.Map (Map)
 import qualified Data.Map as Map
 import           Data.Set (Set)
-import           Data.Semigroup (Semigroup, All, Any, Dual, Max, Min, Option, Product, Sum)
+import           Data.Semigroup
+    ( Semigroup
+    , All
+    , Any
+    , Dual
+    , Max
+    , Min
+    , Option
+    , Product
+    , Sum
+    )
 import           Data.Void (Void)
 
-import           Data.Algebra.Free (AlgebraType, FreeAlgebra (..))
+import           Data.Algebra.Free
+    ( AlgebraType
+    , AlgebraType0
+    , FreeAlgebra (..)
+    , Proof (..)
+    )
 
 -- |
 -- Class of commutative monoids, e.g. with additional law:
@@ -69,7 +84,10 @@ fromNonEmpty = fmap (FreeAbelianSemigroup . Map.fromList) . go . NE.toList
 instance Ord a => Semigroup (FreeAbelianSemigroup a) where
     (FreeAbelianSemigroup a) <> (FreeAbelianSemigroup b) = FreeAbelianSemigroup $ Map.unionWith (+) a b
 
-type instance AlgebraType FreeAbelianSemigroup a = AbelianSemigroup a
+instance Ord a => AbelianSemigroup (FreeAbelianSemigroup a)
+
+type instance AlgebraType0 FreeAbelianSemigroup a = Ord a
+type instance AlgebraType  FreeAbelianSemigroup a = AbelianSemigroup a
 instance FreeAlgebra FreeAbelianSemigroup where
     returnFree a = FreeAbelianSemigroup $ Map.singleton a 1
     foldMapFree f (FreeAbelianSemigroup as) = foldMapFree f (toNonEmpty_ as)
@@ -81,3 +99,5 @@ instance FreeAlgebra FreeAbelianSemigroup where
 
         toNonEmpty_ :: Map a Integer -> NonEmpty a
         toNonEmpty_ = NE.fromList . concat . map (uncurry replicate_) . Map.toList
+
+    proof = Proof

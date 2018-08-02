@@ -36,7 +36,7 @@ instance (Pointed r, Functor f) => MAction ((->) r) f where
 -- Every algebra @d@ which satisfies the constraint @'AlgebraType' m d@ lifts
 -- to an action on the constant functor @'Const' d@.  This is the same as to
 -- say that @d@ is an @m@-algebra (as of /f-algebras/ in category theory).
-instance (Monad m, FreeAlgebra m, AlgebraType m d) => MAction m (Const d) where
+instance (Monad m, FreeAlgebra m, AlgebraType m d, AlgebraType0 m d) => MAction m (Const d) where
     mact mca = Const $ foldFree $ getConst <$> mca
 
 -- |

@@ -56,8 +56,8 @@ import           Data.Functor.Coyoneda (Coyoneda (..), liftCoyoneda)
 import           Data.Functor.Day (Day (..))
 import qualified Data.Functor.Day as Day
 import           Data.Functor.Identity (Identity (..))
-import           Data.Kind (Constraint)
-import           Data.Algebra.Free (AlgebraType)
+
+import           Data.Algebra.Free (AlgebraType, AlgebraType0)
 
 -- |
 -- A lawful instance for this type family must guarantee that the constraint
@@ -67,7 +67,7 @@ import           Data.Algebra.Free (AlgebraType)
 -- types of kind @* -> *@ which satisfy @'AlgebraType' m@
 -- constrain to the category of types of kind @* -> *@ which satisfy the
 -- @'AlgebraType0 m@ constraint.
-type family AlgebraType0 (m :: k) (b :: * -> *) :: Constraint
+-- type family AlgebraType0 (m :: k) (b :: * -> *) :: Constraint
 
 -- |
 -- Higher kinded version of @'FreeAlgebra'@.  Instances includes free functors,

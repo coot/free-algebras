@@ -13,7 +13,12 @@ import           Data.Set (Set)
 import qualified Data.Set as Set
 import           Data.Void (Void)
 
-import           Data.Algebra.Free (AlgebraType, FreeAlgebra (..))
+import           Data.Algebra.Free
+    ( AlgebraType
+    , AlgebraType0
+    , FreeAlgebra (..)
+    , Proof (..)
+    )
 import           Data.Semigroup.Abelian (AbelianSemigroup)
 
 -- |
@@ -33,13 +38,20 @@ instance SemiLattice IntSet
 newtype FreeSemiLattice a = FreeSemiLattice { runFreeSemiLattice :: Set a }
     deriving (Ord, Eq, Show, Semigroup)
 
+instance Ord a => AbelianSemigroup (FreeSemiLattice a)
+
+instance Ord a => SemiLattice (FreeSemiLattice a)
+
 fromNonEmpty :: Ord a => NonEmpty a -> FreeSemiLattice a
 fromNonEmpty = FreeSemiLattice . Set.fromList . NE.toList
 
 toNonEmpty :: FreeSemiLattice a -> NonEmpty a
 toNonEmpty (FreeSemiLattice as) = NE.fromList $ Set.toList as
 
-type instance AlgebraType FreeSemiLattice a = SemiLattice a
+type instance AlgebraType0 FreeSemiLattice a = Ord a
+type instance AlgebraType  FreeSemiLattice a = SemiLattice a
 instance FreeAlgebra FreeSemiLattice where
     returnFree a = FreeSemiLattice $ Set.singleton a
     foldMapFree f (FreeSemiLattice as) = sconcat $ fmap f $ NE.fromList $ Set.toList as
+
+    proof = Proof

@@ -1,5 +1,17 @@
-{ nixpkgs, mkDerivation, base, containers, data-fix, free, groups, hedgehog
-, hpack , kan-extensions, mtl, natural-numbers, stdenv, transformers
+{ mkDerivation
+, base
+, containers
+, data-fix
+, free
+, groups
+, hedgehog 
+, hpack 
+, kan-extensions
+, mtl
+, natural-numbers
+, nixpkgs
+, stdenv
+, transformers
 }:
 let
   lib = nixpkgs.lib;
@@ -17,11 +29,24 @@ mkDerivation {
   version = "0.0.1.0";
   src = lib.cleanSourceWith { filter = srcFilter ./.; src = ./.; };
   libraryHaskellDepends = [
-    base data-fix free groups kan-extensions mtl natural-numbers transformers
+    base
+    data-fix
+    free
+    groups
+    kan-extensions
+    mtl
+    natural-numbers
+    transformers
   ];
   libraryToolDepends = [ hpack ];
   testHaskellDepends = [
-    base containers free hedgehog kan-extensions mtl transformers
+    base
+    containers
+    free
+    hedgehog
+    kan-extensions
+    mtl
+    transformers
   ];
   preConfigure = "hpack";
   homepage = "https://github.com/coot/free-algebras#readme";

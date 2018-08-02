@@ -14,6 +14,7 @@ import qualified Hedgehog.Range as Range
 
 import           Data.Algebra.Free
     ( AlgebraType
+    , AlgebraType0
     , FreeAlgebra (..)
     , foldFree
     , unFoldMapFree
@@ -24,8 +25,9 @@ import           Data.Algebra.Free
     )
 
 natFree_property
-    :: ( FreeAlgebra f
-       , AlgebraType f (f a)
+    :: ( FreeAlgebra  f
+       , AlgebraType0 f a
+       , AlgebraType  f (f a)
        , Eq (f a)
        , Show (f a)
        )
@@ -46,9 +48,9 @@ prop_nafF_nonempty = natFree_property
 -- Check that @'foldFree' is @'fold'@ for @f@ which are @'Foldable'@ and @a@ which
 -- are @'Monoid' a.
 foldFree_property
-    :: ( FreeAlgebra f
-       , AlgebraType f (f a)
-       , AlgebraType f a
+    :: ( FreeAlgebra  f
+       , AlgebraType0 f a
+       , AlgebraType  f a
        , Monoid a   -- fold brings this constraint, @'foldFree'@ is free of it!
        , Foldable f
        , Eq a
@@ -76,8 +78,10 @@ prop_foldFree_nonempty = foldFree_property
 -- @'fmapFoldFree'@ is inverse of @'unFoldMapFree'@
 foldMapFree_property
     :: forall f d a .
-       ( FreeAlgebra f
-       , AlgebraType f d
+       ( FreeAlgebra  f
+       , AlgebraType0 f d
+       , AlgebraType0 f a
+       , AlgebraType  f d
        , Show (f a)
        , Show a
        , Show d
@@ -115,8 +119,10 @@ prop_foldMapFree_nonempty :: Property
 -- @'fmapFree'@ should aggree with @'fmap'@ for types which satisfy @'Functor'@
 -- constraint.
 fmapFree_property
-    :: ( FreeAlgebra f
-       , AlgebraType f (f b)
+    :: forall f a b .
+       ( FreeAlgebra  f
+       , AlgebraType0 f a
+       , AlgebraType0 f b
        , Functor f
        , Show (f a)
        , Eq (f a)
@@ -131,7 +137,7 @@ fmapFree_property gen f = property $ do
     fmapFree f fa === fmap f fa
 
 prop_fmapFree_list :: Property
-prop_fmapFree_list = fmapFree_property
+prop_fmapFree_list = fmapFree_property @[] @Integer @Integer
     ((Gen.list $ Range.linear 0 100)
         (Gen.integral $ Range.linear 0 1024))
     (\x -> x^2 + 2 * x + 1)
@@ -140,13 +146,15 @@ prop_fmapFree_nonempty :: Property
 prop_fmapFree_nonempty = fmapFree_property
     ((Gen.nonEmpty $ Range.linear 0 100)
         (Gen.integral $ Range.linear 0 1024))
-    (\x -> 2 * x + 1)
+    (\x -> x^2 + 2 * x + 1)
 
 -- |
 -- @'joinFree'@ should be equal to @'join'@ for monads.
 joinFree_property
-    :: ( FreeAlgebra m
-       , AlgebraType m (m a)
+    :: ( FreeAlgebra  m
+       , AlgebraType0 m a
+       , AlgebraType0 m (m a)
+       , AlgebraType  m (m a)
        , Monad m
        , Show (m (m a))
        , Eq (m (m a))
@@ -174,10 +182,13 @@ prop_joinFree_nonempty =
 -- |
 -- @'bindFree'@ should be equal to @'>>='@ for monads.
 bindFree_property
-    :: ( FreeAlgebra m
-       , AlgebraType m (m a)
-       , AlgebraType m (m b)
-       , AlgebraType m (m (m b))
+    :: ( FreeAlgebra  m
+       , AlgebraType0 m a
+       , AlgebraType0 m b
+       , AlgebraType0 m (m b)
+       , AlgebraType  m (m a)
+       , AlgebraType  m (m b)
+       , AlgebraType  m (m (m b))
        , Monad m
        , Show (m a)
        , Eq (m a)

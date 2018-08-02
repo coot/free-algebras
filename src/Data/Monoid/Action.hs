@@ -21,7 +21,7 @@ import           Data.Ord (Down)
 import           Data.Set (Set)
 import qualified Data.Set as Set
 
-import           Data.Algebra.Free (AlgebraType, FreeAlgebra (..), bindFree)
+import           Data.Algebra.Free (AlgebraType, AlgebraType0, FreeAlgebra (..), Proof (..), bindFree)
 
 -- |
 -- Lawful instance should satisfy:
@@ -149,7 +149,10 @@ instance Monoid m => Monad (FreeAction m) where
 instance Monoid m => Action m (FreeAction m a) where
     act m (FreeAction (h, a)) = FreeAction $ (m <> h, a)
 
-type instance AlgebraType (FreeAction m) a = Action m a
+type instance AlgebraType  (FreeAction m) a = Action m a
+type instance AlgebraType0 (FreeAction m) a = ()
 instance Monoid m => FreeAlgebra (FreeAction m) where
     returnFree a = FreeAction (mempty, a)
     foldMapFree f (FreeAction (m, a)) = act m (f a)
+
+    proof = Proof
