@@ -42,6 +42,7 @@ default-extensions:
 dependencies:
   - base >= 4.11 && < 5
   - containers
+  - data-fix
   - free
   - groups
   - kan-extensions

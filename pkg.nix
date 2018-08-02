@@ -1,4 +1,4 @@
-{ nixpkgs, mkDerivation, base, containers, free, groups, hedgehog
+{ nixpkgs, mkDerivation, base, containers, data-fix, free, groups, hedgehog
 , hpack , kan-extensions, mtl, natural-numbers, stdenv, transformers
 }:
 let
@@ -17,7 +17,7 @@ mkDerivation {
   version = "0.0.1.0";
   src = lib.cleanSourceWith { filter = srcFilter ./.; src = ./.; };
   libraryHaskellDepends = [
-    base free groups kan-extensions mtl natural-numbers transformers
+    base data-fix free groups kan-extensions mtl natural-numbers transformers
   ];
   libraryToolDepends = [ hpack ];
   testHaskellDepends = [

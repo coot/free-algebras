@@ -10,11 +10,13 @@ module Data.Algebra.Free
     , fmapFree
     , joinFree
     , bindFree
+    , cataFree
     )
     where
 
 import           Prelude
 
+import           Data.Fix (Fix, cata)
 import           Data.Kind (Constraint, Type)
 import           Data.List.NonEmpty (NonEmpty (..))
 import           Data.Monoid (Monoid (..))
@@ -118,6 +120,26 @@ bindFree :: ( FreeAlgebra m
          -> (a -> m b)
          -> m b
 bindFree ma f = joinFree $ fmapFree f ma
+
+-- |
+-- @'Fix' m@ is the initial algebra in the category of algebras of type
+-- @'AlgebraType' m@, whenever it exists.
+--
+-- Another way of puting this is observing that @'Fix' m@ is isomorphic to @m
+-- Void@ where @m@ is the free algebra.  This isomorphisms is given by
+-- @
+--   fixToFree :: (FreeAlgebra m, AlgebraType m (m Void), Functor m) => Fix m -> m Void
+--   fixToFree = cataFree
+-- @
+-- For monoids the inverse is given by @'Data.Fix.ana' (\_ -> [])@.
+-- For semigroups the initial algebra does not exists, e.g. @NonEmpty Void@.
+cataFree :: ( FreeAlgebra m
+            , AlgebraType m a
+            , Functor m
+            )
+         => Fix m
+         -> a
+cataFree = cata foldFree
 
 type instance AlgebraType NonEmpty m = Semigroup m
 instance FreeAlgebra NonEmpty where

@@ -16,6 +16,7 @@ module Control.Algebra.Free
     , bindFree1
     , assocFree1
     , iterFree1
+    , cataFree1
     -- * Day convolution
     , DayF (..)
     , dayToAp
@@ -50,6 +51,7 @@ import           Control.Monad.Trans.Maybe (MaybeT (..))
 import           Control.Monad.Writer.Class (MonadWriter (..))
 import qualified Control.Monad.Writer.Lazy as L (WriterT (..))
 import qualified Control.Monad.Writer.Strict as S (WriterT (..))
+import           Data.Fix (Fix, cataM)
 import           Data.Functor.Coyoneda (Coyoneda (..), liftCoyoneda)
 import           Data.Functor.Day (Day (..))
 import qualified Data.Functor.Day as Day
@@ -244,6 +246,20 @@ assocFree1 = fmap g <$> foldNatFree f
 
         g :: m f a -> f a
         g = foldFree1
+
+-- |
+-- @'Fix' (m f)@ is the initial /algebra/ of type @'AlgebraType' m@ and
+-- @'AlgebraType0' f@ (whenever it /exists/).
+cataFree1 :: forall m f a .
+             ( FreeAlgebra1 m
+             , AlgebraType m f
+             , AlgebraType0 m f
+             , Monad f
+             , Traversable (m f)
+             )
+          => Fix (m f)
+          -> f a
+cataFree1 = cataM foldFree1
 
 -- |
 -- Specialization of @'foldNatFree' \@_ \@'Identity'@, e.g.
