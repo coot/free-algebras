@@ -5,7 +5,12 @@ module Control.Monad.Action where
 import           Control.Monad (join)
 import           Data.Functor.Const (Const (..))
 
-import           Control.Algebra.Free (AlgebraType0, AlgebraType, FreeAlgebra1 (..))
+import           Control.Algebra.Free
+    ( AlgebraType0
+    , AlgebraType
+    , FreeAlgebra1 (..)
+    , Proof1 (..)
+    )
 import           Data.Algebra.Pointed (Pointed (point))
 import           Data.Algebra.Free (FreeAlgebra, foldFree)
 
@@ -52,4 +57,4 @@ type instance AlgebraType0 (FreeMAction m) f = Functor f
 instance Monad m => FreeAlgebra1 (FreeMAction m) where
     liftFree = FreeMAction . return
     foldNatFree nat (FreeMAction mfa) = mact $ nat <$> mfa
-
+    proof1 = Proof1
