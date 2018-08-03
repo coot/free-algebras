@@ -1,5 +1,22 @@
 {-# LANGUAGE ExplicitForAll #-}
-{-# LANGUAGE GADTs #-}
+{-# LANGUAGE GADTs          #-}
+{- An example implementation of TCP protocol over Send / Receive primitives.
+ - There are two layers: first DSL can only know how to send and receive
+ - messagse (through a socket).  On top of this there is a TCP DSL which can
+ - establish connection, send messages, handles ACKs and tear the connection
+ - down.
+ -
+ -  The first DSL is desribed by a functor `Transport_F`.  It also has an
+ -  interpration in `IO`, via `runTransportIO` function.
+ -
+ -  The second DSL is defined by a functor `TCP_F` and we interpret it in `m
+ -  Transport_F` where `m` satisifies `FreeAlgebra1 m` constraint (e.g.
+ -  a @'Free'@ monad).
+ -
+ -  @'runTCP'@ and @'runTCP_IO'@ let you interpret the tcp dsl in
+ -  @'FreeAlgebra1' m => m 'Transport_F'@ (e.g. @'Free' 'Transport_F'@ monad)
+ -  and @'IO'@.
+ -}
 module Network.TCP where
 
 import           Control.Algebra.Free
@@ -29,7 +46,8 @@ data Transport_F msg a
     deriving (Functor)
 
 -- |
--- Run transport layer in @'IO'@
+-- Run transport layer in @'IO'@, @m@  is any `FreeAlgebra1 m` for which @IO@
+-- has the same type.  This allows you to plug any `Free` monad as @m@.
 runTransportIO
     :: forall msg a m.
        ( Binary msg

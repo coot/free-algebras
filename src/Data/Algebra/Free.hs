@@ -1,6 +1,4 @@
 {-# LANGUAGE GADTs #-}
-{-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE TypeInType #-}
 module Data.Algebra.Free
     ( -- * Algebra type
       AlgebraType
