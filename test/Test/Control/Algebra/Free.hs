@@ -25,7 +25,6 @@ import           Control.Algebra.Free
     ( AlgebraType0
     , FreeAlgebra1 (..)
     , unFoldNatFree
-    , fmapFree1
     , foldFree1
     , hoistFree1
     , iterFree1
@@ -167,48 +166,6 @@ prop_foldMapFree1_free
         (Gen.maybe $ Gen.word8 (Range.linear 0 254))
         id
         foldFree1
-
-fmapFree1_property
-    :: forall m f a b
-    .  ( FreeAlgebra1 m
-       , AlgebraType0 m f
-       , AlgebraType m f
-       , AlgebraType m (m f)
-       , Functor (m f)
-       )
-    => Gen (m f a)
-    -> (m f a -> String)
-    -> (m f b -> m f b -> Bool)
-    -> Gen (a -> b)
-    -> Property
-fmapFree1_property gen show_mfa eq_mfa genf = property $ do
-    mfa <- H.forAllWith show_mfa gen
-    f <- H.forAllWith (\_ -> "(a -> b)") genf
-    H.assert (fmapFree1 f mfa `eq_mfa` fmap f mfa)
-
-prop_fmapFree1_coyoneda_maybe :: Property
-prop_fmapFree1_coyoneda_maybe =
-    fmapFree1_property
-        (genCoyoneda toOdd)
-        show
-        (==)
-        genIntToInt
-
-prop_fmapFree1_ap :: Property
-prop_fmapFree1_ap =
-    fmapFree1_property
-        (genAp (Gen.word8 (Range.linear 0 254)) genIntToInt)
-        (show . Ap.retractAp)
-        (\a b -> Ap.retractAp a == Ap.retractAp b)
-        genIntToInt
-
-prop_fmapFree1_free :: Property
-prop_fmapFree1_free =
-    fmapFree1_property
-        (genFree $ Gen.word8 (Range.linear 0 254))
-        show
-        (==)
-        genIntToInt
 
 foldFree1_property
     :: forall m f a

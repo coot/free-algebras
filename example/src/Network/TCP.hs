@@ -34,7 +34,7 @@ runTransportIO
     :: forall msg a m.
        ( Binary msg
        , FreeAlgebra1 m
-       , AlgebraType m IO
+       , AlgebraType  m IO
        , AlgebraType0 m (Transport_F msg)
        )
     => Socket
@@ -173,10 +173,7 @@ interpTCP (RecvMsg len cont) = do
 -- monad.
 runTCP
     :: ( FreeAlgebra1 m
-       , AlgebraType m (m (Transport_F (TcpMsg msg)))
-       , AlgebraType m (m (m (Transport_F (TcpMsg msg))))
        , AlgebraType0 m (Transport_F (TcpMsg msg))
-       , AlgebraType0 m (m (Transport_F (TcpMsg msg)))
        , AlgebraType0 m (TCP_F msg)
        , Monad (m (Transport_F (TcpMsg msg)))
        , Show msg
@@ -190,12 +187,9 @@ runTCP tcp = tcp `bindFree1` interpTCP
 runTCP_IO
     :: forall msg m a.
        ( FreeAlgebra1 m
-       , AlgebraType m (m (Transport_F (TcpMsg msg)))
-       , AlgebraType m (m (m (Transport_F (TcpMsg msg))))
-       , AlgebraType m IO
        , AlgebraType0 m (Transport_F (TcpMsg msg))
-       , AlgebraType0 m (m (Transport_F (TcpMsg msg)))
        , AlgebraType0 m (TCP_F msg)
+       , AlgebraType  m IO
        , Monad (m (Transport_F (TcpMsg msg)))
        , Binary msg
        , Show msg
