@@ -31,8 +31,17 @@ import           Data.Algebra.Pointed (Pointed (..))
 
 -- |
 -- Type family which for each free algebra @m@ returns a type level lambda from
--- types to constraints.  It is describe the class of algebras for which this free algebra is free.
+-- types to constraints.  It is describe the class of algebras for which this
+-- free algebra is free. 
+--
+-- A lawful instance for this type family must guarantee
+-- that the constraint @'AlgebraType0' m f@ is implied by the @'AlgebraType'
+-- m f@ constraint.  This guaranees that there exists a forgetful functor from
+-- the category of types of kind @* -> *@ which satisfy @'AlgebraType' m@
+-- constrain to the category of types of kind @* -> *@ which satisfy the
+-- @'AlgebraType0 m@ constraint.
 type family AlgebraType  (f :: k) (a :: l) :: Constraint
+
 -- |
 -- Type family which limits Hask to its full subcategory which satisfies
 -- a given constraints.  Some free algebras, like free groups, or free abelian
