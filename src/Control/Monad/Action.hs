@@ -9,8 +9,7 @@ import           Control.Algebra.Free
     ( AlgebraType0
     , AlgebraType
     , FreeAlgebra1 (..)
-    , Proof0 (..)
-    , Proof1 (..)
+    , Proof (..)
     )
 import           Data.Algebra.Pointed (Pointed (point))
 import           Data.Algebra.Free (FreeAlgebra, foldFree)
@@ -42,7 +41,12 @@ instance (Pointed r, Functor f) => MAction ((->) r) f where
 -- Every algebra @d@ which satisfies the constraint @'AlgebraType' m d@ lifts
 -- to an action on the constant functor @'Const' d@.  This is the same as to
 -- say that @d@ is an @m@-algebra (as of /f-algebras/ in category theory).
-instance (Monad m, FreeAlgebra m, AlgebraType m d, AlgebraType0 m d) => MAction m (Const d) where
+instance ( Monad m
+         , FreeAlgebra  m
+         , AlgebraType  m d
+         , AlgebraType0 m d
+         )
+         => MAction m (Const d) where
     mact mca = Const $ foldFree $ getConst <$> mca
 
 -- |
@@ -58,5 +62,5 @@ type instance AlgebraType0 (FreeMAction m) f = Functor f
 instance Monad m => FreeAlgebra1 (FreeMAction m) where
     liftFree = FreeMAction . return
     foldNatFree nat (FreeMAction mfa) = mact $ nat <$> mfa
-    proof0 = Proof0
-    proof1 = Proof1
+    proof0 = Proof
+    proof1 = Proof

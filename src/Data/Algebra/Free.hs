@@ -50,8 +50,8 @@ type family AlgebraType0 (f :: k) (a :: l) :: Constraint
 
 -- |
 -- Proof that @a@ is an algebra of type @'AlgebraType' m a@.
-data Proof (m :: Type -> Type) (a :: Type) where
-    Proof :: AlgebraType m a => Proof m a
+data Proof (c :: Constraint) (f :: k) (a :: l) where
+    Proof :: c => Proof c f a
 
 -- |
 -- A lawful instance has to guarantee that @'unFoldFree'@ is an inverse of
@@ -75,7 +75,7 @@ class FreeAlgebra (m :: Type -> Type)  where
 
     -- | Proof that @'AlgebraType' m (m a)@ holds, e.g. if @m ~ []@
     -- then @[a]@ is a monoid for all @a@.
-    proof :: forall a. AlgebraType0 m a => Proof m (m a)
+    proof :: forall a. AlgebraType0 m a => Proof (AlgebraType m (m a)) m a
 
 -- |
 -- Inverse of @'foldMapFree'@
@@ -134,9 +134,9 @@ fmapFree :: forall m a b .
          => (a -> b)
          -> m a
          -> m b
-fmapFree = go (proof :: Proof m (m b))
+fmapFree = go (proof :: Proof (AlgebraType m (m b)) m b)
     where
-    go :: Proof m (m b) -> (a -> b) -> m a -> m b
+    go :: Proof (AlgebraType m (m b)) m b -> (a -> b) -> m a -> m b
     go p f ma = case p of Proof -> foldMapFree (returnFree . f) ma
     {-# INLINE go #-}
 
@@ -149,9 +149,9 @@ joinFree :: forall m a .
           )
          => m (m a)
          -> m a
-joinFree = go (proof :: Proof m (m a))
+joinFree = go (proof :: Proof (AlgebraType m (m a)) m a)
     where
-    go :: Proof m (m a) -> m (m a) -> m a
+    go :: Proof (AlgebraType m (m a)) m a -> m (m a) -> m a
     go p mma = case p of Proof -> foldFree mma
     {-# INLINE go #-}
 
