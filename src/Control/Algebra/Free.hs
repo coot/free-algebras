@@ -53,6 +53,7 @@ import           Control.Monad.Trans.Maybe (MaybeT (..))
 import           Control.Monad.Writer.Class (MonadWriter (..))
 import qualified Control.Monad.Writer.Lazy as L (WriterT (..))
 import qualified Control.Monad.Writer.Strict as S (WriterT (..))
+import           Data.Kind (Type)
 import           Data.Fix (Fix, cataM)
 import           Data.Functor.Coyoneda (Coyoneda (..), liftCoyoneda)
 import           Data.Functor.Day (Day (..))
@@ -61,17 +62,13 @@ import           Data.Functor.Identity (Identity (..))
 
 import           Data.Algebra.Free (AlgebraType, AlgebraType0)
 
-data Proof0 (m :: (* -> *) -> * -> *) (f :: * -> *) where
-    Proof0 :: ( FreeAlgebra1 m
-              , AlgebraType0 m (m f)
-              )
-           => Proof0 m f
+-- | A proof that @'AlgebraType0' m f@ holds.
+data Proof0 (m :: (Type -> Type) -> Type -> Type) (f :: Type -> Type) where
+    Proof0 :: AlgebraType0 m f => Proof0 m f
 
-data Proof1 (m :: (* -> *) -> * -> *) (f :: * -> *) where
-    Proof1 :: ( FreeAlgebra1 m
-              , AlgebraType m (m f)
-              )
-           => Proof1 m f
+-- | A proof that @'AlgebraType' m f@ holds.
+data Proof1 (m :: (Type -> Type) -> Type -> Type) (f :: Type -> Type) where
+    Proof1 :: AlgebraType m f => Proof1 m f
 
 -- |
 -- Higher kinded version of @'FreeAlgebra'@.  Instances includes free functors,
@@ -81,31 +78,35 @@ data Proof1 (m :: (* -> *) -> * -> *) (f :: * -> *) where
 -- with inversese @'unFoldNatFree'@.
 --
 -- This guaranties that @m@ is a left adjoint functor from the category of
--- types of kind @* -> *@ which satisfy @'AlgebraType0' m@ constraint, to the
--- category of types of kind @* -> *@ which satisfy the @'AlgebraType' m@
+-- types of kind @Type -> Type@ which satisfy @'AlgebraType0' m@ constraint, to the
+-- category of types of kind @Type -> Type@ which satisfy the @'AlgebraType' m@
 -- constraint.  This functor is left afjoin to the forgetful functor (which is
 -- well defined if the laws on @'AlgebraType0'@ family are satisfied.  This in
 -- turn guarantess that @m@ componsed with this forgetful functor is a monad.
 -- In result we get the monadic combinators: @'liftFree'@ (@'return'@ of
 -- this monad) and @'bindFree1'@ (its @'bind'@) and @'joinFree1'@ - its
 -- @'join'@ operator.
-class FreeAlgebra1 (m :: (* -> *) -> * -> *) where
+class FreeAlgebra1 (m :: (Type -> Type) -> Type -> Type) where
     -- | Natural transformation that embeds generators into @m@.
     liftFree :: AlgebraType0 m f => f a -> m f a
 
     -- | The freeness property.
     foldNatFree
-        :: forall (d :: * -> *) f a .
+        :: forall (d :: Type -> Type) f a .
            ( AlgebraType m d
            , AlgebraType0 m f
            )
         => (forall x. f x -> d x)
         -- ^ natural transformation which embeds generators of @m@ into @d@
         -> (m f a -> d a)
-        -- ^ a homomorphism from @m@ to @d@
+        -- ^ a homomorphism from @m f@ to @d@
 
-    proof0 :: forall f. AlgebraType0 m f => Proof0 m f
-    proof1 :: forall f. AlgebraType0 m f => Proof1 m f
+    -- |
+    -- A proof that @'AlgebraType0' m (m f)@ holds.
+    proof0 :: forall f. AlgebraType0 m f => Proof0 m (m f)
+    -- |
+    -- A proof that @'AlgebraType' m (m f)@ holds.
+    proof1 :: forall f. AlgebraType0 m f => Proof1 m (m f)
 
 -- |
 -- Anything that carries @'FreeAlgebra1'@ constraint is also an instance of
@@ -157,7 +158,7 @@ foldFree1 = foldNatFree id
 
 -- |
 -- This is a functor instance for @m@ when considered as an endofuctor of some
--- subcategory of @* -> *@ (e.g. endofunctors of _Hask_).
+-- subcategory of @Type -> Type@ (e.g. endofunctors of _Hask_).
 --
 -- It can be specialized to:
 --
@@ -171,9 +172,10 @@ hoistFree1 :: forall m f g a .
            => (forall x. f x -> g x) -- ^ a natural transformation @f ~> g@
            -> m f a
            -> m g a
-hoistFree1 = go (proof1 :: Proof1 m g) where
-    go :: Proof1 m g -> (forall x. f x -> g x) -> m f a -> m g a
+hoistFree1 = go (proof1 :: Proof1 m (m g)) where
+    go :: Proof1 m (m g) -> (forall x. f x -> g x) -> m f a -> m g a
     go Proof1 nat = foldNatFree (liftFree . nat)
+    {-# INLINE go #-}
 
 -- |
 -- @
@@ -197,7 +199,7 @@ hoistFreeH :: forall m n f a .
 hoistFreeH = foldNatFree liftFree
 
 -- |
--- @'joinFree1'@ makes @m@ a monad in some subcatgory of types of kind @* -> *@
+-- @'joinFree1'@ makes @m@ a monad in some subcatgory of types of kind @Type -> Type@
 -- (usually the end-functor category of @Hask@).  It is just a specialization
 -- of @'foldFree1'@.
 joinFree1 :: forall m f a .
@@ -206,10 +208,11 @@ joinFree1 :: forall m f a .
              )
           => m (m f) a
           -> m f a
-joinFree1 = go (proof0 :: Proof0 m f) (proof1 :: Proof1 m f)
+joinFree1 = go (proof0 :: Proof0 m (m f)) (proof1 :: Proof1 m (m f))
     where
-    go :: Proof0 m f -> Proof1 m f -> m (m f) a -> m f a
+    go :: Proof0 m (m f) -> Proof1 m (m f) -> m (m f) a -> m f a
     go Proof0 Proof1 = foldFree1
+    {-# INLINE go #-}
 
 -- |
 -- Bind operator for the @'joinFree1'@ monad
@@ -221,10 +224,11 @@ bindFree1 :: forall m f g a .
           => m f a
           -> (forall x . f x -> m g x) -- ^ natural transformation @f ~> m g@
           -> m g a
-bindFree1 = go (proof0 :: Proof0 m g) (proof1 :: Proof1 m g)
+bindFree1 = go (proof0 :: Proof0 m (m g)) (proof1 :: Proof1 m (m g))
     where
-    go :: Proof0 m g -> Proof1 m g -> m f a -> (forall x . f x -> m g x) -> m g a
+    go :: Proof0 m (m g) -> Proof1 m (m g) -> m f a -> (forall x . f x -> m g x) -> m g a
     go Proof0 Proof1 mfa nat = joinFree1 $ hoistFree1 nat mfa
+    {-# INLINE go #-}
 
 assocFree1 :: forall m f a .
               ( FreeAlgebra1 m
@@ -234,13 +238,15 @@ assocFree1 :: forall m f a .
               )
            => m f (m f a)
            -> m (m f) (f a)
-assocFree1 = outer (proof0 :: Proof0 m f)
+assocFree1 = outer (proof0 :: Proof0 m (m f))
     where
         -- `Proof0` is needed to prove `Proof1`
-        outer :: Proof0 m f -> m f (m f a) -> m (m f) (f a)
-        outer Proof0 = inner (proof1 :: Proof1 m (m f))
+        {-# INLINE outer #-}
+        outer :: Proof0 m (m f) -> m f (m f a) -> m (m f) (f a)
+        outer Proof0 = inner (proof1 :: Proof1 m (m (m f)))
             where
-            inner :: Proof1 m (m f) -> m f (m f a) -> m (m f) (f a)
+            {-# INLINE inner #-}
+            inner :: Proof1 m (m (m f)) -> m f (m f a) -> m (m f) (f a)
             inner Proof1 = fmap g <$> foldNatFree f
 
             f :: forall x. f x -> m (m f) x
@@ -264,7 +270,7 @@ cataFree1 :: forall m f a .
 cataFree1 = cataM foldFree1
 
 -- |
--- Specialization of @'foldNatFree' \@_ \@'Identity'@, e.g.
+-- Specialization of @'foldNatFree' \@_ \@'Identity'@; it will further specialize to:
 --
 -- * @\\_ -> 'runIdentity' . 'Data.Functor.Coyoneda.lowerCoyoneda'@
 -- * @'Control.Applicative.Free.iterAp' :: 'Functor' g => (g a -> a) -> 'Ap' g a -> a@
@@ -326,7 +332,7 @@ instance FreeAlgebra1 Final.Ap where
 
 -- |
 -- @'Day' f f@ newtype wrapper.  It is isomorphic with @'Ap' f@ for applicative
--- functors @f@ via @'dayToAp'@ (and @'dayToAp'@).
+-- functors @f@ via @'dayToAp'@ (and @'apToDay'@).
 newtype DayF f a = DayF { runDayF :: Day f f a}
     deriving (Functor, Applicative)
 
