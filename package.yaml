@@ -50,15 +50,31 @@ dependencies:
   - natural-numbers
   - transformers
 
+flags:
+  develop:
+    description: Set -Werror flag
+    manual: true
+    default: false
+
 library:
   source-dirs: src
-  ghc-options:
-    - -Wall
-    - -Wincomplete-record-updates
-    - -Wincomplete-uni-patterns
-    - -Wredundant-constraints
-    - -Werror
-    - -Wno-deprecations
+  when:
+    - condition: flag(develop)
+      then:
+        ghc-options:
+          - -Werror
+          - -Wall
+          - -Wincomplete-record-updates
+          - -Wincomplete-uni-patterns
+          - -Wredundant-constraints
+          - -Wno-deprecations
+      else:
+        ghc-options:
+          - -Wall
+          - -Wincomplete-record-updates
+          - -Wincomplete-uni-patterns
+          - -Wredundant-constraints
+          - -Wno-deprecations
 
 tests:
   free-algebras-test:
