@@ -364,8 +364,8 @@ type instance AlgebraType  Free m = Monad m
 -- |
 -- @'Free'@ monad is free in the class of monad over the class of functors.
 instance FreeAlgebra1 Free where
-    liftFree = Free.liftF
-    foldNatFree nat ff = Free.foldFree nat ff
+    liftFree    = Free.liftF
+    foldNatFree = Free.foldFree
 
     proof0 = Proof0
     proof1 = Proof1
@@ -373,7 +373,7 @@ instance FreeAlgebra1 Free where
 type instance AlgebraType0 Church.F f = Functor f
 type instance AlgebraType  Church.F m = Monad m
 instance FreeAlgebra1 Church.F where
-    liftFree  = Church.liftF
+    liftFree    = Church.liftF
     foldNatFree = Church.foldF
 
     proof0 = Proof0
@@ -382,7 +382,7 @@ instance FreeAlgebra1 Church.F where
 type instance AlgebraType0 Alt f = Functor f
 type instance AlgebraType  Alt m = Alternative m
 instance FreeAlgebra1 Alt where
-    liftFree  = Alt.liftAlt
+    liftFree    = Alt.liftAlt
     foldNatFree = Alt.runAlt
 
     proof0 = Proof0
