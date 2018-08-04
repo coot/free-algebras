@@ -15,7 +15,7 @@ extra-source-files:
 
 # Metadata used when publishing your package
 synopsis:            Free algebras in Haskell.
-category:            Algebra
+category:            Algebra, Control, Monads
 
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is

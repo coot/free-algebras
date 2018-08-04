@@ -10,7 +10,7 @@ copyright:           "(c) 2018 Marcin Szamotulski"
 
 # Metadata used when publishing your package
 synopsis:            Example usage of (higher) free algebras (free monads).
-category:            Example
+category:            Example, DSL
 
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
