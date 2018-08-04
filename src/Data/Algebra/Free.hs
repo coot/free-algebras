@@ -77,6 +77,12 @@ class FreeAlgebra (m :: Type -> Type)  where
 
 -- |
 -- Inverse of @'foldMapFree'@
+--
+-- prop> unFoldMapFree id = returnFree
+--
+-- Note that @'unFoldMapFree' id@ is the unit of the
+-- [unit](https://ncatlab.org/nlab/show/unit+of+an+adjunction) of the
+-- adjunction imposed by the @'FreeAlgebra'@ constraint.
 unFoldMapFree
     :: FreeAlgebra m
     => (m a -> d)
@@ -88,6 +94,10 @@ unFoldMapFree f = f . returnFree
 -- use this map to build a @'Foldable'@ instance.
 --
 -- prop> foldFree . returnFree == id
+--
+-- @foldFree@ is the
+-- [unit](https://ncatlab.org/nlab/show/unit+of+an+adjunction) of the
+-- adjunction imposed by @FreeAlgebra@ constraint.
 foldFree
     :: ( FreeAlgebra  m
        , AlgebraType0 m a

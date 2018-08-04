@@ -119,21 +119,15 @@ wrapFree
 wrapFree = join . liftFree
 
 -- |
--- @'unFoldNatFree'@ is an inverse of @'foldNatFree'@
-unFoldNatFree
-    :: ( FreeAlgebra1 m
-       , AlgebraType0 m f
-       )
-    => (forall x . m f x -> d x)
-    -> f a -> d a
-unFoldNatFree nat = nat . liftFree
-
--- |
 -- @'FreeAlgebra1' m@ implies that @m f@ is a foldable.
 --
 -- @
 --  'foldFree1' . 'liftFree' == 'id' :: f a -> f a
 -- @
+--
+-- @foldFree1@ is the
+-- [unit](https://ncatlab.org/nlab/show/unit+of+an+adjunction) of the
+-- adjunction imposed by @FreeAlgebra1@ constraint.
 --
 -- It can be specialized to:
 --
@@ -147,6 +141,22 @@ foldFree1 :: ( FreeAlgebra1 m
           => m f a
           -> f a
 foldFree1 = foldNatFree id
+
+-- |
+-- @'unFoldNatFree'@ is an inverse of @'foldNatFree'@
+--
+-- prop> unFoldNatFree id = ruturnFree1
+--
+-- Note that @'unFoldNatFree' id@ is the
+-- [unit](https://ncatlab.org/nlab/show/unit+of+an+adjunction) of the
+-- adjunction imposed by the @'FreeAlgebra1'@ constraint.
+unFoldNatFree
+    :: ( FreeAlgebra1 m
+       , AlgebraType0 m f
+       )
+    => (forall x . m f x -> d x)
+    -> f a -> d a
+unFoldNatFree nat = nat . liftFree
 
 -- |
 -- This is a functor instance for @m@ when considered as an endofuctor of some
