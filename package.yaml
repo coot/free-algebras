@@ -1,20 +1,20 @@
 name:                free-algebras
-version:             0.0.1.0
-github:              "git@github.com:coot/free-algebras"
-homepage:            "https://github.com/coot/free-algebras#readme"
+version:             0.0.2.0
 license:             MPL-2.0
 license-file:        LICENSE
 author:              "Marcin Szamotulski"
 maintainer:          "profunctor@pm.me"
 copyright:           "(c) 2018 Marcin Szamotulski"
+homepage:            https://github.com/coot/free-algebras#readme
+bug-reports:         https://github.com/coot/free-algebras/issues
 
 extra-source-files:
   - ChangeLog.md
   - README.md
 
 # Metadata used when publishing your package
-# synopsis:            Short description of your package
-# category:            Web
+synopsis:            Free algebras in Haskell.
+category:            Algebra
 
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
@@ -41,6 +41,7 @@ default-extensions:
 
 dependencies:
   - base >= 4.11 && < 5
+  - constraints
   - containers
   - data-fix
   - free

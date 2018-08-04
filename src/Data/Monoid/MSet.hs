@@ -13,12 +13,13 @@ module Data.Monoid.MSet
     ) where
 
 import           Control.Monad (ap)
-import           Data.Monoid (Monoid, Endo (..), Sum (..))
-import           Data.List.NonEmpty (NonEmpty)
+import           Data.Constraint (Dict (..))
 import           Data.Functor.Const (Const (..))
 import           Data.Functor.Identity (Identity (..))
 import qualified Data.Functor.Product as Functor (Product)
 import qualified Data.Functor.Sum as Functor (Sum)
+import           Data.List.NonEmpty (NonEmpty)
+import           Data.Monoid (Monoid, Endo (..), Sum (..))
 import           Data.Natural (Natural)
 import           Data.Ord (Down)
 import           Data.Set (Set)
@@ -118,4 +119,4 @@ type instance AlgebraType  (FreeMSet m) a = MSet m a
 instance Monoid m => FreeAlgebra (FreeMSet m) where
     returnFree a = FreeMSet (mempty, a)
     foldMapFree f (FreeMSet (m, a)) = act m (f a)
-    proof = Proof
+    proof = Proof Dict

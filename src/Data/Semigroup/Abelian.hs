@@ -5,6 +5,7 @@ module Data.Semigroup.Abelian
     , fromNonEmpty
     ) where
 
+import           Data.Constraint (Dict (..))
 import           Data.IntSet (IntSet)
 import           Data.List.NonEmpty (NonEmpty)
 import qualified Data.List.NonEmpty as NE
@@ -100,4 +101,4 @@ instance FreeAlgebra FreeAbelianSemigroup where
         toNonEmpty_ :: Map a Integer -> NonEmpty a
         toNonEmpty_ = NE.fromList . concat . map (uncurry replicate_) . Map.toList
 
-    proof = Proof
+    proof = Proof Dict

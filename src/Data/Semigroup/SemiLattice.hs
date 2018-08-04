@@ -5,6 +5,7 @@ module Data.Semigroup.SemiLattice
     , toNonEmpty
     ) where
 
+import           Data.Constraint (Dict (..))
 import           Data.List.NonEmpty (NonEmpty (..))
 import qualified Data.List.NonEmpty as NE
 import           Data.IntSet (IntSet)
@@ -54,4 +55,4 @@ instance FreeAlgebra FreeSemiLattice where
     returnFree a = FreeSemiLattice $ Set.singleton a
     foldMapFree f (FreeSemiLattice as) = sconcat $ fmap f $ NE.fromList $ Set.toList as
 
-    proof = Proof
+    proof = Proof Dict

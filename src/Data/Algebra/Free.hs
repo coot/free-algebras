@@ -19,6 +19,7 @@ module Data.Algebra.Free
 
 import           Prelude
 
+import           Data.Constraint (Dict (..))
 import           Data.Fix (Fix, cata)
 import           Data.Kind (Constraint, Type)
 import           Data.List.NonEmpty (NonEmpty (..))
@@ -47,9 +48,8 @@ type family AlgebraType  (f :: k) (a :: l) :: Constraint
 type family AlgebraType0 (f :: k) (a :: l) :: Constraint
 
 -- |
--- Proof that @a@ is an algebra of type @'AlgebraType' m a@.
-data Proof (c :: Constraint) (f :: k) (a :: l) where
-    Proof :: c => Proof c f a
+-- A proof that constraint @c@ holds for type @a@.
+newtype Proof (c :: Constraint) (a :: l) = Proof (Dict c)
 
 -- |
 -- A lawful instance has to guarantee that @'unFoldFree'@ is an inverse of
@@ -71,9 +71,9 @@ class FreeAlgebra (m :: Type -> Type)  where
         => (a -> d)   -- ^ map generators of @m@ into @d@
         -> (m a -> d) -- ^ returns a homomorphism from @m a@ to @d@
 
-    -- | Proof that @'AlgebraType' m (m a)@ holds, e.g. if @m ~ []@
+    -- | Proof that @'AlgebraType' m (m a)@ holds for all @a@, e.g. if @m ~ []@
     -- then @[a]@ is a monoid for all @a@.
-    proof :: forall a. AlgebraType0 m a => Proof (AlgebraType m (m a)) m a
+    proof :: forall a. AlgebraType0 m a => Proof (AlgebraType m (m a)) (m a)
 
 -- |
 -- Inverse of @'foldMapFree'@
@@ -132,10 +132,10 @@ fmapFree :: forall m a b .
          => (a -> b)
          -> m a
          -> m b
-fmapFree = go (proof :: Proof (AlgebraType m (m b)) m b)
+fmapFree = go (proof :: Proof (AlgebraType m (m b)) (m b))
     where
-    go :: Proof (AlgebraType m (m b)) m b -> (a -> b) -> m a -> m b
-    go p f ma = case p of Proof -> foldMapFree (returnFree . f) ma
+    go :: Proof (AlgebraType m (m b)) (m b) -> (a -> b) -> m a -> m b
+    go p f ma = case p of Proof Dict -> foldMapFree (returnFree . f) ma
     {-# INLINE go #-}
 
 -- |
@@ -147,10 +147,10 @@ joinFree :: forall m a .
           )
          => m (m a)
          -> m a
-joinFree = go (proof :: Proof (AlgebraType m (m a)) m a)
+joinFree = go (proof :: Proof (AlgebraType m (m a)) (m a))
     where
-    go :: Proof (AlgebraType m (m a)) m a -> m (m a) -> m a
-    go p mma = case p of Proof -> foldFree mma
+    go :: Proof (AlgebraType m (m a)) (m a) -> m (m a) -> m a
+    go p mma = case p of Proof Dict  -> foldFree mma
     {-# INLINE go #-}
 
 -- |
@@ -196,14 +196,14 @@ instance FreeAlgebra NonEmpty where
     foldMapFree f (a :| []) = f a
     foldMapFree f (a :| (b : bs)) = f a <> foldMapFree f (b :| bs)
 
-    proof = Proof
+    proof = Proof Dict
 
 type instance AlgebraType0 [] a = ()
 type instance AlgebraType  [] m = Monoid m
 instance FreeAlgebra [] where
     returnFree a = [a]
     foldMapFree = foldMap
-    proof = Proof
+    proof = Proof Dict
 
 type instance AlgebraType0 Maybe a = ()
 type instance AlgebraType  Maybe m = Pointed m
@@ -212,4 +212,4 @@ instance FreeAlgebra Maybe where
     foldMapFree _ Nothing  = point
     foldMapFree f (Just a) = f a
 
-    proof = Proof
+    proof = Proof Dict

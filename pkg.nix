@@ -1,5 +1,6 @@
 { mkDerivation
 , base
+, constraints
 , containers
 , data-fix
 , free
@@ -30,6 +31,7 @@ mkDerivation {
   src = lib.cleanSourceWith { filter = srcFilter ./.; src = ./.; };
   libraryHaskellDepends = [
     base
+    constraints
     data-fix
     free
     groups

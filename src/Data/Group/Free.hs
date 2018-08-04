@@ -11,6 +11,7 @@ module Data.Group.Free
     ) where
 
 import           Control.Monad (ap)
+import           Data.Constraint (Dict (..))
 import           Data.Group (Group (..))
 import           Data.Semigroup (Semigroup (..))
 
@@ -107,4 +108,4 @@ instance FreeAlgebra FreeGroup where
     foldMapFree _ (FreeGroup [])       = mempty
     foldMapFree f (FreeGroup (a : as)) = either (invert . f) f a <> foldMapFree f (FreeGroup as)
 
-    proof = Proof
+    proof = Proof Dict

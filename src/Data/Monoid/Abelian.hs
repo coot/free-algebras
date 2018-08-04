@@ -2,6 +2,7 @@ module Data.Monoid.Abelian
     ( FreeAbelianMonoid (..)
     ) where
 
+import           Data.Constraint (Dict (..))
 import           Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
 import           Data.Semigroup (stimes)
@@ -29,5 +30,4 @@ type instance AlgebraType  FreeAbelianMonoid m = (Monoid m, AbelianSemigroup m)
 instance FreeAlgebra FreeAbelianMonoid where
     returnFree a = FreeAbelianMonoid (Map.singleton a 1)
     foldMapFree g (FreeAbelianMonoid as) = Map.foldMapWithKey (\a n -> stimes n $ g a) as 
-
-    proof = Proof
+    proof = Proof Dict
