@@ -5,6 +5,7 @@ license-file:        LICENSE
 author:              "Marcin Szamotulski"
 maintainer:          "profunctor@pm.me"
 copyright:           "(c) 2018 Marcin Szamotulski"
+github:              coot/free-algebras
 homepage:            https://github.com/coot/free-algebras#readme
 bug-reports:         https://github.com/coot/free-algebras/issues
 
@@ -19,7 +20,10 @@ category:            Algebra
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description:         Please see the README on GitHub at <https://github.com/coot/free-algebras#readme>
+description:        
+  Universal algebra approach to free algebras including
+  higher kinded algebraic structures like functors, applicative functors or
+  monads.
 
 default-extensions:
   ConstraintKinds
@@ -85,7 +89,6 @@ tests:
       - -threaded
       - -rtsopts
       - -with-rtsopts=-N
-      - -main-is Spec
     dependencies:
       - containers
       - free-algebras

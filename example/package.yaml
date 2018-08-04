@@ -1,6 +1,6 @@
 name:                free-algebras-example
-version:             0.0.1.0
-github:              "git@github.com:coot/free-algebras"
+version:             0.0.2.0
+github:              coot/free-algebras
 homepage:            "https://github.com/coot/free-algebras#readme"
 license:             MPL-2.0
 license-file:        LICENSE
@@ -9,8 +9,8 @@ maintainer:          "profunctor@pm.me"
 copyright:           "(c) 2018 Marcin Szamotulski"
 
 # Metadata used when publishing your package
-# synopsis:            Short description of your package
-# category:            Web
+synopsis:            Example usage of (higher) free algebras (free monads).
+category:            Example
 
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
@@ -36,7 +36,7 @@ default-extensions:
   TypeFamilies
 
 dependencies:
-  - base >= 4.7 && < 5
+  - base >= 4.11 && < 5
   - binary
   - bytestring
   - free
