@@ -1,5 +1,17 @@
-{ nixpkgs, mkDerivation, base, binary, bytestring, free, free-algebras
-, hpack, mtl, network, transformers, stdenv
+{ nixpkgs
+, mkDerivation
+, base
+, binary
+, bytestring
+, constraints
+, free
+, free-algebras
+, groups
+, hpack
+, mtl
+, network
+, transformers
+, stdenv
 }:
 mkDerivation {
   pname = "example";
@@ -7,7 +19,15 @@ mkDerivation {
   src = nixpkgs.lib.sourceFilesBySuffices ./.
     [ ".hs" "LICENSE" "ChangeLog.md" "package.yaml" ];
   libraryHaskellDepends = [
-    base binary bytestring free free-algebras mtl network transformers
+    base
+    binary bytestring
+    constraints
+    free
+    free-algebras
+    groups
+    mtl
+    network
+    transformers
   ];
   libraryToolDepends = [ hpack ];
   preConfigure = "hpack";

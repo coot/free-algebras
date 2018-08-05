@@ -4,3 +4,5 @@
 - Simplified `Proof` type.
 
 ## Unreleased changes
+
+- Monadicity example

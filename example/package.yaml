@@ -39,8 +39,10 @@ dependencies:
   - base >= 4.11 && < 5
   - binary
   - bytestring
+  - constraints
   - free
   - free-algebras
+  - groups
   - mtl
   - network
   - transformers
