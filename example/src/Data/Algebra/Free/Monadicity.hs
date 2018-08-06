@@ -131,24 +131,21 @@ left :: forall m a d .
         ( FreeAlgebra  m
         , AlgebraType  m d
         , AlgebraType0 m a
-        , AlgebraType0 m (m a) -- this should be implied (possibly by adding
-                               -- another proof in FreeAlgebra type class)
         )
      => Hom m a d
      -> AlgHom m (m a) d
-left (Hom f) = case proof :: Proof (AlgebraType m (m a)) (m a) of
-    Proof Dict -> AlgHom $ foldMapFree f
+left (Hom f) = case (proof0, proof) :: (Proof (AlgebraType0 m (m a)) (m a), Proof (AlgebraType m (m a)) (m a)) of
+    (Proof Dict, Proof Dict) -> AlgHom $ foldMapFree f
 
 -- |
 -- unit of the adjunction
 unit :: forall m a .
         ( FreeAlgebra  m
         , AlgebraType0 m a
-        , AlgebraType0 m (m a) -- it should be implies by `AlgebraType0 m a`
         )
      => Hom m a (m a)
-unit = case proof :: Proof (AlgebraType m (m a)) (m a) of
-    Proof Dict -> right (AlgHom id)
+unit = case (proof0, proof) :: (Proof (AlgebraType0 m (m a)) (m a), Proof (AlgebraType m (m a)) (m a)) of
+    (Proof Dict, Proof Dict) -> right (AlgHom id)
 
 -- |
 -- counit of the adjunction
@@ -156,13 +153,13 @@ counit :: forall m d .
           ( FreeAlgebra  m
           , AlgebraType  m d
           , AlgebraType0 m d -- it should be implied by `AlgebraType m d`
-          , AlgebraType0 m (m d)
           )
        => AlgHom m (m d) d
 counit = left (Hom id)
 
 -- |
--- The monad associated with the adjunction.  Note that it's isomorphic to @'FreeAlgebra' m => m@.
+-- The monad associated with the adjunction.  Note that it's isomorphic to
+-- @'FreeAlgebra' m => m a@.
 data FreeMAlg (m :: * -> *) (a :: *) where
     FreeMAlg :: FreeAlgebra m => m a -> FreeMAlg m a
 
@@ -191,7 +188,6 @@ fmapF (Hom fn) (FreeMAlg ma) = FreeMAlg $ fmapFree fn ma
 returnF :: forall m a .
            ( FreeAlgebra  m
            , AlgebraType0 m a
-           , AlgebraType0 m (m a)
            , AlgebraType0 m (FreeMAlg m a)
            )
         => Hom m a (FreeMAlg m a)
@@ -202,24 +198,25 @@ returnF = case unit :: Hom m a (m a) of Hom f -> Hom (FreeMAlg . f)
 joinF :: forall  m a .
          ( FreeAlgebra  m
          , AlgebraType0 m a
-         , AlgebraType0 m (m a)
          , AlgebraType0 m (FreeMAlg m a)
          , AlgebraType0 m (FreeMAlg m (FreeMAlg m a))
          )
       => Hom m (FreeMAlg m (FreeMAlg m a)) (FreeMAlg m a)
-joinF = Hom $ \(FreeMAlg mma) -> FreeMAlg $ joinFree $ fmapFree runFreeMAlg mma
+joinF = case proof0 :: Proof (AlgebraType0 m (m a)) (m a) of
+    Proof Dict ->
+        Hom $ \(FreeMAlg mma) -> FreeMAlg $ joinFree $ fmapFree runFreeMAlg mma
 
 -- |
 -- bind of the @FreeMAlg@ monad
 bindF :: forall m a b .
          ( FreeAlgebra  m
          , AlgebraType0 m b
-         , AlgebraType0 m (m b)
          )
       => FreeMAlg m a
       -> Hom m a (FreeMAlg m b)
       -> FreeMAlg m b
-bindF (FreeMAlg ma) (Hom f) = FreeMAlg $ ma `bindFree` (runFreeMAlg . f)
+bindF (FreeMAlg ma) (Hom f) = case proof0 :: Proof (AlgebraType0 m (m b)) (m b) of
+    Proof Dict -> FreeMAlg $ ma `bindFree` (runFreeMAlg . f)
 
 -- |
 -- Algebras for a monad @m@
@@ -268,14 +265,14 @@ instance MAlg NonEmpty a => MAlg NonEmpty (b -> a) where
 --    type instance AlgebraType0 (FreeMAlg m) a = AlgebraType0 m a
 -- @
 
--- This is undecidable instance:
+-- This is an undecidable instance:
 {--
   - instance ( FreeAlgebra m
   -          , AlgebraType0 m a
-  -          , AlgebraType0 m (m a)
   -          , AlgebraType0 m (FreeMAlg m a)
   -          ) => MAlg m (FreeMAlg m a) where
-  -     alg ma = FreeMAlg $ joinFree $ fmapFree runFreeMAlg ma
+  -     alg ma = case proof0 :: Proof (AlgebraType0 m (m a)) (m a) of
+  -         Proof Dict -> FreeMAlg $ joinFree $ fmapFree runFreeMAlg ma
   --}
 
 -- So let's just capture it in a function.

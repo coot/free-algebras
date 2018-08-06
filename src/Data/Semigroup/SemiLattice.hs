@@ -55,4 +55,5 @@ instance FreeAlgebra FreeSemiLattice where
     returnFree a = FreeSemiLattice $ Set.singleton a
     foldMapFree f (FreeSemiLattice as) = sconcat $ fmap f $ NE.fromList $ Set.toList as
 
-    proof = Proof Dict
+    proof0 = Proof Dict
+    proof  = Proof Dict

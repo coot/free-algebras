@@ -108,4 +108,5 @@ instance FreeAlgebra FreeGroup where
     foldMapFree _ (FreeGroup [])       = mempty
     foldMapFree f (FreeGroup (a : as)) = either (invert . f) f a <> foldMapFree f (FreeGroup as)
 
-    proof = Proof Dict
+    proof0 = Proof Dict
+    proof  = Proof Dict

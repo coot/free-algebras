@@ -101,4 +101,5 @@ instance FreeAlgebra FreeAbelianSemigroup where
         toNonEmpty_ :: Map a Integer -> NonEmpty a
         toNonEmpty_ = NE.fromList . concat . map (uncurry replicate_) . Map.toList
 
-    proof = Proof Dict
+    proof0 = Proof Dict
+    proof  = Proof Dict

@@ -30,4 +30,5 @@ type instance AlgebraType  FreeAbelianMonoid m = (Monoid m, AbelianSemigroup m)
 instance FreeAlgebra FreeAbelianMonoid where
     returnFree a = FreeAbelianMonoid (Map.singleton a 1)
     foldMapFree g (FreeAbelianMonoid as) = Map.foldMapWithKey (\a n -> stimes n $ g a) as 
-    proof = Proof Dict
+    proof0 = Proof Dict
+    proof  = Proof Dict
