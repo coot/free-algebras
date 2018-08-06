@@ -17,17 +17,17 @@ let
   lib = nixpkgs.haskell.lib;
 
   doHaddock = if haddock
-  then lib.doHaddock
-  else lib.dontHaddock;
+    then lib.doHaddock
+    else lib.dontHaddock;
   doTest = if test
-  then lib.doCheck
-  else lib.dontCheck;
+    then lib.doCheck
+    else lib.dontCheck;
   doBench = if benchmarks
-  then lib.doBenchmark
-  else nixpkgs.lib.id;
+    then lib.doBenchmark
+    else nixpkgs.lib.id;
   doDev = if dev
-  then drv: lib.enableCabalFlag drv "develop"
-  else nixpkgs.lib.id;
+    then drv: lib.enableCabalFlag drv "develop"
+    else nixpkgs.lib.id;
 
   free-algebras = doDev(doHaddock(doTest(doBench(
     pkgs.${compiler}.callPackage ./pkg.nix { inherit nixpkgs; }))));
