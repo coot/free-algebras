@@ -50,10 +50,10 @@ toNonEmpty :: FreeSemiLattice a -> NonEmpty a
 toNonEmpty (FreeSemiLattice as) = NE.fromList $ Set.toList as
 
 type instance AlgebraType0 FreeSemiLattice a = Ord a
-type instance AlgebraType  FreeSemiLattice a = SemiLattice a
+type instance AlgebraType  FreeSemiLattice a = (Ord a, SemiLattice a)
 instance FreeAlgebra FreeSemiLattice where
     returnFree a = FreeSemiLattice $ Set.singleton a
     foldMapFree f (FreeSemiLattice as) = sconcat $ fmap f $ NE.fromList $ Set.toList as
 
-    proof0 = Proof Dict
     proof  = Proof Dict
+    forget = Proof Dict

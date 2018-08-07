@@ -102,11 +102,11 @@ instance Eq a => Group (FreeGroup a) where
     invert (FreeGroup as) = FreeGroup $ foldl (\acu a -> either Right Left a : acu) [] as
 
 type instance AlgebraType0 FreeGroup a = Eq a
-type instance AlgebraType  FreeGroup g = Group g
+type instance AlgebraType  FreeGroup g = (Eq g, Group g)
 instance FreeAlgebra FreeGroup where
     returnFree a = FreeGroup [Right a]
     foldMapFree _ (FreeGroup [])       = mempty
     foldMapFree f (FreeGroup (a : as)) = either (invert . f) f a <> foldMapFree f (FreeGroup as)
 
-    proof0 = Proof Dict
     proof  = Proof Dict
+    forget = Proof Dict

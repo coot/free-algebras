@@ -10,7 +10,7 @@ module Data.Algebra.Free.Monadicity
     , idAlgHom
     , composeAlgHom
     , bimapAlgHom
-    , forget
+    , forget_
     , right
     , left
     , unit
@@ -47,6 +47,16 @@ import           Data.Group.Free (FreeGroup)
 import qualified Data.Group.Free as FreeGroup
 import           Data.Monoid.MSet (FreeMSet (..))
 import           Data.Algebra.Free
+    ( FreeAlgebra (..)
+    , AlgebraType0
+    , AlgebraType
+    , Proof (..)
+    , unFoldMapFree
+    , foldFree
+    , fmapFree
+    , joinFree
+    , bindFree
+    )
 
 -- |
 -- Full subcategory of @Hask@.
@@ -77,9 +87,7 @@ bimapHom f g (Hom ab) = Hom (g . ab . f)
 -- |
 -- Category of algebras @a@ which fulfil the constraint @AlgebraType m a@.
 data AlgHom m a b where
-    AlgHom :: ( AlgebraType0 m a
-              , AlgebraType0 m b
-              , AlgebraType  m a
+    AlgHom :: ( AlgebraType  m a
               , AlgebraType  m b
               )
            => (a -> b)
@@ -88,10 +96,12 @@ data AlgHom m a b where
 unAlgHom :: AlgHom m a b -> a -> b
 unAlgHom (AlgHom f) = f
 
-forget :: AlgHom m a b -> Hom m a b
-forget (AlgHom f) = Hom f
+forget_ :: forall m a b . FreeAlgebra m => AlgHom m a b -> Hom m a b
+forget_ (AlgHom f) = case forget @m @a of
+    Proof Dict -> case forget @m @b of
+        Proof Dict -> Hom f
 
-idAlgHom :: (AlgebraType0 m a, AlgebraType m a) => AlgHom m a a
+idAlgHom :: AlgebraType m a => AlgHom m a a
 idAlgHom = AlgHom id
 
 -- |
@@ -100,9 +110,7 @@ composeAlgHom :: AlgHom m b c -> AlgHom m a b -> AlgHom m a c
 composeAlgHom (AlgHom f) (AlgHom g) = AlgHom (f . g)
 
 bimapAlgHom :: forall m a' a b b'.
-               ( AlgebraType0 m a'
-               , AlgebraType0 m b'
-               , AlgebraType  m a'
+               ( AlgebraType  m a'
                , AlgebraType  m b'
                )
             => (a' -> a)
@@ -115,14 +123,11 @@ bimapAlgHom f g (AlgHom ab) = AlgHom (g . ab . f)
 -- Isomorphism of @AlgHom m (m a) d@ and @Hom m a d@ with inverse @'left'@.
 right :: forall m a d .
          ( FreeAlgebra  m
-         , AlgebraType0 m d -- it should be implied by `AlgebraType m d` 
-                            -- (possibly by adding a proof in `FreeAlgebra`
-                            -- type class)
          , AlgebraType0 m a
          )
       => AlgHom m (m a) d
       -> Hom m a d
-right (AlgHom f) = case proof :: Proof (AlgebraType m (m a)) (m a) of
+right (AlgHom f) = case forget @m @d of
     Proof Dict -> Hom $ unFoldMapFree f
 
 -- |
@@ -134,21 +139,25 @@ left :: forall m a d .
         )
      => Hom m a d
      -> AlgHom m (m a) d
-left (Hom f) = case (proof0, proof) :: (Proof (AlgebraType0 m (m a)) (m a), Proof (AlgebraType m (m a)) (m a)) of
-    (Proof Dict, Proof Dict) -> AlgHom $ foldMapFree f
+left (Hom f) = case proof @m @a of
+    Proof Dict -> case forget @m @(m a) of
+        Proof Dict -> AlgHom $ foldMapFree f
 
 -- |
--- unit of the adjunction
+-- [unit](https://en.wikipedia.org/wiki/Adjoint_functors#Definition_via_counit%E2%80%93unit_adjunction)
+-- of the adjunction, which turns out to be @'returnFree'@.
 unit :: forall m a .
         ( FreeAlgebra  m
         , AlgebraType0 m a
         )
      => Hom m a (m a)
-unit = case (proof0, proof) :: (Proof (AlgebraType0 m (m a)) (m a), Proof (AlgebraType m (m a)) (m a)) of
-    (Proof Dict, Proof Dict) -> right (AlgHom id)
+unit = case proof @m @a of
+    Proof Dict -> case forget @m @(m a) of
+        Proof Dict -> right (AlgHom id)
 
 -- |
--- counit of the adjunction
+-- [counit](https://en.wikipedia.org/wiki/Adjoint_functors#Definition_via_counit%E2%80%93unit_adjunction)
+-- of the adjunction, which boils down to @'foldMapFree' id@.
 counit :: forall m d .
           ( FreeAlgebra  m
           , AlgebraType  m d
@@ -202,9 +211,9 @@ joinF :: forall  m a .
          , AlgebraType0 m (FreeMAlg m (FreeMAlg m a))
          )
       => Hom m (FreeMAlg m (FreeMAlg m a)) (FreeMAlg m a)
-joinF = case proof0 :: Proof (AlgebraType0 m (m a)) (m a) of
-    Proof Dict ->
-        Hom $ \(FreeMAlg mma) -> FreeMAlg $ joinFree $ fmapFree runFreeMAlg mma
+joinF = case proof @m @a of
+    Proof Dict -> case forget @m @(m a) of
+        Proof Dict -> Hom $ \(FreeMAlg mma) -> FreeMAlg $ joinFree $ fmapFree runFreeMAlg mma
 
 -- |
 -- bind of the @FreeMAlg@ monad
@@ -215,8 +224,9 @@ bindF :: forall m a b .
       => FreeMAlg m a
       -> Hom m a (FreeMAlg m b)
       -> FreeMAlg m b
-bindF (FreeMAlg ma) (Hom f) = case proof0 :: Proof (AlgebraType0 m (m b)) (m b) of
-    Proof Dict -> FreeMAlg $ ma `bindFree` (runFreeMAlg . f)
+bindF (FreeMAlg ma) (Hom f) = case proof @m @a of
+    Proof Dict -> case forget @m @(m a) of
+        Proof Dict -> FreeMAlg $ ma `bindFree` (runFreeMAlg . f)
 
 -- |
 -- Algebras for a monad @m@
@@ -271,7 +281,7 @@ instance MAlg NonEmpty a => MAlg NonEmpty (b -> a) where
   -          , AlgebraType0 m a
   -          , AlgebraType0 m (FreeMAlg m a)
   -          ) => MAlg m (FreeMAlg m a) where
-  -     alg ma = case proof0 :: Proof (AlgebraType0 m (m a)) (m a) of
+  -     alg ma = case proof @m @a of
   -         Proof Dict -> FreeMAlg $ joinFree $ fmapFree runFreeMAlg ma
   --}
 
@@ -311,7 +321,6 @@ foldFreeMAlg = foldMapFreeMAlg id
 -- @AlgebraType m a@ on @a@ out of @m a -> a@.  Some examples are given below.
 k :: ( FreeAlgebra  m
      , AlgebraType  m a
-     , AlgebraType0 m a
      )
   => Proxy a
   -> (m a -> a)

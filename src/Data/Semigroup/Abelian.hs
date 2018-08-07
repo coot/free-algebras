@@ -88,7 +88,7 @@ instance Ord a => Semigroup (FreeAbelianSemigroup a) where
 instance Ord a => AbelianSemigroup (FreeAbelianSemigroup a)
 
 type instance AlgebraType0 FreeAbelianSemigroup a = Ord a
-type instance AlgebraType  FreeAbelianSemigroup a = AbelianSemigroup a
+type instance AlgebraType  FreeAbelianSemigroup a = (Ord a, AbelianSemigroup a)
 instance FreeAlgebra FreeAbelianSemigroup where
     returnFree a = FreeAbelianSemigroup $ Map.singleton a 1
     foldMapFree f (FreeAbelianSemigroup as) = foldMapFree f (toNonEmpty_ as)
@@ -101,5 +101,5 @@ instance FreeAlgebra FreeAbelianSemigroup where
         toNonEmpty_ :: Map a Integer -> NonEmpty a
         toNonEmpty_ = NE.fromList . concat . map (uncurry replicate_) . Map.toList
 
-    proof0 = Proof Dict
     proof  = Proof Dict
+    forget = Proof Dict

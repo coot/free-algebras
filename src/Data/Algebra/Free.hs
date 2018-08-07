@@ -59,6 +59,18 @@ newtype Proof (c :: Constraint) (a :: l) = Proof (Dict c)
 -- algebras of type @'AlgebraType m'@.  The right adjoint is the forgetful
 -- functor.  The composition of left adjoin and the right one is always
 -- a monad, this is why we will be able to build monad instance for @m@.
+--
+-- This class does not enforce that the forgetful functor from category of
+-- types which @AlgebraType m a@ to @AlgebraType0 m a@ is well defined (i.e.
+-- that @AlgebraType m a@ implies @AlgebraType0 m a@).  But it enforces two
+-- other important implications:
+--
+-- * @AlgebraType0 m a@ implies @AlgebraType0 m (m a)@
+--   i.e. @m@ preserves @AlgebraType0@ constraint.
+--
+-- * @AlgebraType m a@ implies @AlgebraType m (m a)@
+--   
+--
 class FreeAlgebra (m :: Type -> Type)  where
     -- | Injective map that embeds generators @a@ into @m@.
     returnFree :: a -> m a
@@ -71,12 +83,17 @@ class FreeAlgebra (m :: Type -> Type)  where
         => (a -> d)   -- ^ map generators of @m@ into @d@
         -> (m a -> d) -- ^ returns a homomorphism from @m a@ to @d@
 
-    -- | Proof that @'AlgebraType0' m (m a)@ holds for all @a@, e.g. if @m ~ []@
-    -- then @[a]@ is a monoid for all @a@.
-    proof0 :: forall a. AlgebraType0 m a => Proof (AlgebraType0 m (m a)) (m a)
-    -- | Proof that @'AlgebraType' m (m a)@ holds for all @a@, e.g. if @m ~ []@
-    -- then @[a]@ is a monoid for all @a@.
-    proof :: forall a. AlgebraType0 m a => Proof (AlgebraType m (m a)) (m a)
+    -- |
+    -- Proof that @AlgebraType0 m a => m a@ is an algebra of type @AlgebraType m (m a)@.
+    -- This proves that @m@ is a mapping from the full subcategory of @Hask@ of
+    -- types satisfyling @AlgebraType0 m a@ constraint to the full subcategory
+    -- satisfying @AlgebraType m a@, @fmapFree@ below proves that it's a functor.
+    proof  :: forall a. AlgebraType0 m a => Proof (AlgebraType m (m a)) (m a)
+    -- |
+    -- Proof that the forgetful functor from types @a@ satisfying @AgelbraType
+    -- m a@ to @AlgebraType0 m a@ is well defiend.
+    forget :: forall a. AlgebraType  m a => Proof (AlgebraType0 m a) (m a)
+
 
 -- |
 -- Inverse of @'foldMapFree'@
@@ -102,13 +119,14 @@ unFoldMapFree f = f . returnFree
 -- [unit](https://ncatlab.org/nlab/show/unit+of+an+adjunction) of the
 -- adjunction imposed by @FreeAlgebra@ constraint.
 foldFree
-    :: ( FreeAlgebra  m
-       , AlgebraType0 m a
+    :: forall m a .
+       ( FreeAlgebra  m
        , AlgebraType  m a
        )
     => m a
     -> a
-foldFree = foldMapFree id
+foldFree ma = case forget @m @a of
+    Proof Dict -> foldMapFree id ma
 
 -- |
 -- The canonical quotient map from a free algebra of a wider class to a free
@@ -145,11 +163,8 @@ fmapFree :: forall m a b .
          => (a -> b)
          -> m a
          -> m b
-fmapFree = go (proof :: Proof (AlgebraType m (m b)) (m b))
-    where
-    go :: Proof (AlgebraType m (m b)) (m b) -> (a -> b) -> m a -> m b
-    go (Proof Dict) f ma = foldMapFree (returnFree . f) ma
-    {-# INLINE go #-}
+fmapFree f ma = case proof @m @b of
+    Proof Dict -> foldMapFree (returnFree . f) ma
 
 -- |
 -- @'FreeAlgebra'@ constraint implies @Monad@ constrain.
@@ -159,11 +174,8 @@ joinFree :: forall m a .
           )
          => m (m a)
          -> m a
-joinFree = go (proof0 :: Proof (AlgebraType0 m (m a)) (m a)) (proof :: Proof (AlgebraType m (m a)) (m a))
-    where
-    go :: Proof (AlgebraType0 m (m a)) (m a) -> Proof (AlgebraType m (m a)) (m a) -> m (m a) -> m a
-    go (Proof Dict) (Proof Dict) mma = foldFree mma
-    {-# INLINE go #-}
+joinFree mma = case proof @m @a of
+    Proof Dict -> foldFree mma
 
 -- |
 -- The monadic @'bind'@ operator.  @'returnFree'@ is the corresponding
@@ -176,8 +188,10 @@ bindFree :: forall m a b .
          => m a
          -> (a -> m b)
          -> m b
-bindFree ma f = case proof0 :: Proof (AlgebraType0 m (m b)) (m b) of
-    Proof Dict -> joinFree $ fmapFree f ma
+bindFree ma f = 
+    case proof @m @b of
+        Proof Dict -> case forget @m @(m b) of
+            Proof Dict -> joinFree $ fmapFree f ma
 
 -- |
 -- @'Fix' m@ is the initial algebra in the category of algebras of type
@@ -192,7 +206,6 @@ bindFree ma f = case proof0 :: Proof (AlgebraType0 m (m b)) (m b) of
 -- For monoids the inverse is given by @'Data.Fix.ana' (\_ -> [])@.  The
 -- category of semigroups, however,  does not have the initial object.
 cataFree :: ( FreeAlgebra  m
-            , AlgebraType0 m a
             , AlgebraType  m a
             , Functor m
             )
@@ -209,16 +222,16 @@ instance FreeAlgebra NonEmpty where
     foldMapFree f (a :| []) = f a
     foldMapFree f (a :| (b : bs)) = f a <> foldMapFree f (b :| bs)
 
-    proof0 = Proof Dict
     proof  = Proof Dict
+    forget = Proof Dict
 
 type instance AlgebraType0 [] a = ()
 type instance AlgebraType  [] m = Monoid m
 instance FreeAlgebra [] where
     returnFree a = [a]
     foldMapFree = foldMap
-    proof0 = Proof Dict
     proof  = Proof Dict
+    forget = Proof Dict
 
 type instance AlgebraType0 Maybe a = ()
 type instance AlgebraType  Maybe m = Pointed m
@@ -227,5 +240,5 @@ instance FreeAlgebra Maybe where
     foldMapFree _ Nothing  = point
     foldMapFree f (Just a) = f a
 
-    proof0 = Proof Dict
     proof  = Proof Dict
+    forget = Proof Dict

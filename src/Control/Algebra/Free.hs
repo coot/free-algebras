@@ -85,7 +85,7 @@ class FreeAlgebra1 (m :: (Type -> Type) -> Type -> Type) where
     -- | The freeness property.
     foldNatFree
         :: forall (d :: Type -> Type) f a .
-           ( AlgebraType m d
+           ( AlgebraType  m d
            , AlgebraType0 m f
            )
         => (forall x. f x -> d x)
@@ -94,11 +94,18 @@ class FreeAlgebra1 (m :: (Type -> Type) -> Type -> Type) where
         -- ^ a homomorphism from @m f@ to @d@
 
     -- |
-    -- A proof that @'AlgebraType0' m (m f)@ holds for all @f@.
-    proof0 :: forall f. AlgebraType0 m f => Proof (AlgebraType0 m (m f)) (m f)
+    -- A proof that @'AlgebraType' m (m f)@ holds for all @AlgebraType0 f => f@.
+    -- Together with @hoistFree1@ this proves that @FreeAlgebra m => m@ is
+    -- a functor from the full subcategory fo types of kind @Type -> Type@
+    -- which satisfy @'AlgebraType0' m f@ to ones that satisfy @'AlgebraType'
+    -- m f@.
+    proof1  :: forall f. AlgebraType0 m f => Proof (AlgebraType m (m f)) (m f)
+
     -- |
-    -- A proof that @'AlgebraType' m (m f)@ holds for all @f@.
-    proof  :: forall f. AlgebraType0 m f => Proof (AlgebraType m (m f)) (m f)
+    -- A proof that the forgetful functor from the full subcategory of types of
+    -- kind @Type -> Type@ satisfying @'AlgebraType' m f@ constraint to types
+    -- satisfying @'AlgebraType0' m f@ is well defined.
+    forget1 :: forall f. AlgebraType  m f => Proof (AlgebraType0 m f) (m f)
 
 -- |
 -- Anything that carries @'FreeAlgebra1'@ constraint is also an instance of
@@ -134,13 +141,14 @@ wrapFree = join . liftFree
 -- * @'Data.Functor.Coyoneda.lowerCoyoneda' :: 'Functor' f => 'Coyoneda' f a -> f a@
 -- * @'Control.Applicative.Free.retractAp' :: 'Applicative' f => 'Ap' f a -> f a@
 -- * @'Control.Monad.Free.foldFree' :: 'Monad' m => (forall x. f x -> m x) -> 'Free' f a -> m a@
-foldFree1 :: ( FreeAlgebra1 m
-             , AlgebraType0 m f
+foldFree1 :: forall m f a .
+             ( FreeAlgebra1 m
              , AlgebraType  m f
              )
           => m f a
           -> f a
-foldFree1 = foldNatFree id
+foldFree1 = case forget1 @m @f of
+    Proof Dict -> foldNatFree id
 
 -- |
 -- @'unFoldNatFree'@ is an inverse of @'foldNatFree'@
@@ -174,10 +182,8 @@ hoistFree1 :: forall m f g a .
            => (forall x. f x -> g x) -- ^ a natural transformation @f ~> g@
            -> m f a
            -> m g a
-hoistFree1 = go (proof :: Proof (AlgebraType m (m g)) (m g)) where
-    go :: Proof (AlgebraType m (m g)) (m g) -> (forall x. f x -> g x) -> m f a -> m g a
-    go (Proof Dict) nat = foldNatFree (liftFree . nat)
-    {-# INLINE go #-}
+hoistFree1 nat = case proof1 @m @g of
+    Proof Dict -> foldNatFree (liftFree . nat)
 
 -- |
 -- @
@@ -210,11 +216,9 @@ joinFree1 :: forall m f a .
              )
           => m (m f) a
           -> m f a
-joinFree1 = go (proof0 :: Proof (AlgebraType0 m (m f)) (m f)) (proof :: Proof (AlgebraType m (m f)) (m f))
-    where
-    go :: Proof (AlgebraType0 m (m f)) (m f) -> Proof (AlgebraType m (m f)) (m f) -> m (m f) a -> m f a
-    go (Proof Dict) (Proof Dict) = foldFree1
-    {-# INLINE go #-}
+joinFree1 = case proof1 @m @f of
+    Proof Dict -> case forget1 @m @(m f) of
+        Proof Dict -> foldFree1
 
 -- |
 -- Bind operator for the @'joinFree1'@ monad
@@ -226,36 +230,34 @@ bindFree1 :: forall m f g a .
           => m f a
           -> (forall x . f x -> m g x) -- ^ natural transformation @f ~> m g@
           -> m g a
-bindFree1 = go (proof0 :: Proof (AlgebraType0 m (m g)) (m g)) (proof :: Proof (AlgebraType m (m g)) (m g))
-    where
-    go :: Proof (AlgebraType0 m (m g)) (m g) -> Proof (AlgebraType m (m g)) (m g) -> m f a -> (forall x . f x -> m g x) -> m g a
-    go (Proof Dict) (Proof Dict) mfa nat = joinFree1 $ hoistFree1 nat mfa
-    {-# INLINE go #-}
+bindFree1 mfa nat = case proof1 @m @g of
+    Proof Dict -> case forget1 @m @(m g) of
+        Proof Dict -> joinFree1 $ hoistFree1 nat mfa
 
 assocFree1 :: forall m f a .
               ( FreeAlgebra1 m
               , AlgebraType  m f
-              , AlgebraType0 m f
               , Functor (m (m f))
               )
            => m f (m f a)
            -> m (m f) (f a)
-assocFree1 = outer (proof0 :: Proof (AlgebraType0 m (m f)) (m f))
+assocFree1 = case forget1 @m @f of
+    Proof Dict -> case proof1 @m @f of
+        Proof Dict -> case forget1 @m @(m f) of
+            Proof Dict -> case proof1 @m @(m f) of
+                Proof Dict -> case forget1 @m @(m (m f)) of
+                    Proof Dict -> fmap g <$> foldNatFree f
     where
-        -- `Proof0` is needed to prove `Proof`
-        {-# INLINE outer #-}
-        outer :: Proof (AlgebraType0 m (m f)) (m f) -> m f (m f a) -> m (m f) (f a)
-        outer (Proof Dict) = inner (proof :: Proof (AlgebraType m (m (m f))) (m (m f)))
-            where
-            {-# INLINE inner #-}
-            inner :: Proof (AlgebraType m (m (m f))) (m (m f)) -> m f (m f a) -> m (m f) (f a)
-            inner (Proof Dict) = fmap g <$> foldNatFree f
+        f :: forall x .
+             ( AlgebraType0 m f
+             , AlgebraType0 m (m f)
+             )
+          => f x
+          -> m (m f) x
+        f = hoistFree1 liftFree . liftFree
 
-            f :: forall x. f x -> m (m f) x
-            f = hoistFree1 liftFree . liftFree
-
-            g :: m f a -> f a
-            g = foldFree1
+        g :: m f a -> f a
+        g = foldFree1
 
 -- |
 -- @'Fix' (m f)@ is the initial /algebra/ of type @'AlgebraType' m@ and
@@ -263,7 +265,6 @@ assocFree1 = outer (proof0 :: Proof (AlgebraType0 m (m f)) (m f))
 cataFree1 :: forall m f a .
              ( FreeAlgebra1 m
              , AlgebraType  m f
-             , AlgebraType0 m f
              , Monad f
              , Traversable (m f)
              )
@@ -297,8 +298,8 @@ instance FreeAlgebra1 Coyoneda where
     liftFree = liftCoyoneda
     foldNatFree nat (Coyoneda ba fx) = ba <$> nat fx
 
-    proof0 = Proof Dict
-    proof  = Proof Dict
+    proof1  = Proof Dict
+    forget1 = Proof Dict
 
 -- |
 -- Algebras of the same type as @'Ap'@ are the applicative functors.
@@ -311,8 +312,8 @@ instance FreeAlgebra1 Ap where
     liftFree  = Ap.liftAp
     foldNatFree = Ap.runAp
 
-    proof0 = Proof Dict
-    proof  = Proof Dict
+    proof1  = Proof Dict
+    forget1 = Proof Dict
 
 type instance AlgebraType0 Fast.Ap g = Functor g
 type instance AlgebraType  Fast.Ap g = Applicative g
@@ -320,8 +321,8 @@ instance FreeAlgebra1 Fast.Ap where
     liftFree  = Fast.liftAp
     foldNatFree = Fast.runAp
 
-    proof0 = Proof Dict
-    proof  = Proof Dict
+    proof1  = Proof Dict
+    forget1 = Proof Dict
 
 type instance AlgebraType0 Final.Ap g = Functor g
 type instance AlgebraType  Final.Ap g = Applicative g
@@ -329,8 +330,8 @@ instance FreeAlgebra1 Final.Ap where
     liftFree  = Final.liftAp
     foldNatFree = Final.runAp
 
-    proof0 = Proof Dict
-    proof  = Proof Dict
+    proof1  = Proof Dict
+    forget1 = Proof Dict
 
 -- |
 -- @'Day' f f@ newtype wrapper.  It is isomorphic with @'Ap' f@ for applicative
@@ -356,8 +357,8 @@ instance FreeAlgebra1 DayF where
     foldNatFree nat (DayF day)
         = Day.dap . Day.trans2 nat . Day.trans1 nat $ day
 
-    proof0 = Proof Dict
-    proof  = Proof Dict
+    proof1  = Proof Dict
+    forget1 = Proof Dict
 
 -- |
 -- Algebras of the same type as @'Free'@ monad is the class of all monads.
@@ -369,8 +370,8 @@ instance FreeAlgebra1 Free where
     liftFree    = Free.liftF
     foldNatFree = Free.foldFree
 
-    proof0 = Proof Dict
-    proof  = Proof Dict
+    proof1  = Proof Dict
+    forget1 = Proof Dict
 
 type instance AlgebraType0 Church.F f = Functor f
 type instance AlgebraType  Church.F m = Monad m
@@ -378,8 +379,8 @@ instance FreeAlgebra1 Church.F where
     liftFree    = Church.liftF
     foldNatFree = Church.foldF
 
-    proof0 = Proof Dict
-    proof  = Proof Dict
+    proof1  = Proof Dict
+    forget1 = Proof Dict
 
 type instance AlgebraType0 Alt f = Functor f
 type instance AlgebraType  Alt m = Alternative m
@@ -387,8 +388,8 @@ instance FreeAlgebra1 Alt where
     liftFree    = Alt.liftAlt
     foldNatFree = Alt.runAlt
 
-    proof0 = Proof Dict
-    proof  = Proof Dict
+    proof1  = Proof Dict
+    forget1 = Proof Dict
 
 -- |
 -- Algebras of the same type as @'L.StateT'@ monad is the class of all state
@@ -412,8 +413,8 @@ instance FreeAlgebra1 (L.StateT s) where
         put s
         return a
 
-    proof0 = Proof Dict
-    proof  = Proof Dict
+    proof1  = Proof Dict
+    forget1 = Proof Dict
 
 -- |
 -- Algebras of the same type as @'S.StateT'@ monad is the class of all state
@@ -431,8 +432,8 @@ instance FreeAlgebra1 (S.StateT s) where
         put s
         return a
 
-    proof0 = Proof Dict
-    proof  = Proof Dict
+    proof1  = Proof Dict
+    forget1 = Proof Dict
 
 -- |
 -- Algebras of the same type as @'L.WriterT'@ monad is the class of all writer
@@ -445,8 +446,8 @@ instance FreeAlgebra1 (L.WriterT w) where
     liftFree = lift
     foldNatFree nat (L.WriterT m) = fst <$> nat m
 
-    proof0 = Proof Dict
-    proof  = Proof Dict
+    proof1  = Proof Dict
+    forget1 = Proof Dict
 
 -- |
 -- Algebras of the same type as @'S.WriterT'@ monad is the class of all writer
@@ -460,8 +461,8 @@ instance FreeAlgebra1 (S.WriterT w) where
     liftFree = lift
     foldNatFree nat (S.WriterT m) = fst <$> nat m
 
-    proof0 = Proof Dict
-    proof  = Proof Dict
+    proof1  = Proof Dict
+    forget1 = Proof Dict
 
 -- |
 -- Algebras of the same type as @'L.ReaderT'@ monad is the class of all reader
@@ -475,8 +476,8 @@ instance FreeAlgebra1 (ReaderT r) where
     foldNatFree nat (ReaderT g) =
         ask >>= nat . g
 
-    proof0 = Proof Dict
-    proof  = Proof Dict
+    proof1  = Proof Dict
+    forget1 = Proof Dict
 
 -- |
 -- Algebras of the same type as @'S.ReaderT'@ monad is the class of all reader
@@ -493,8 +494,8 @@ instance FreeAlgebra1 (ExceptT e) where
             Left e  -> throwError e
             Right a -> return a
 
-    proof0 = Proof Dict
-    proof  = Proof Dict
+    proof1  = Proof Dict
+    forget1 = Proof Dict
 
 type instance AlgebraType0 (L.RWST r w s) m = ( Monad m, Monoid w )
 type instance AlgebraType  (L.RWST r w s) m = MonadRWS r w s m
@@ -508,8 +509,8 @@ instance FreeAlgebra1 (L.RWST r w s) where
         tell w
         return a
 
-    proof0 = Proof Dict
-    proof  = Proof Dict
+    proof1  = Proof Dict
+    forget1 = Proof Dict
 
 type instance AlgebraType0 (S.RWST r w s) m = ( Monad m, Monoid w )
 type instance AlgebraType  (S.RWST r w s) m = MonadRWS r w s m
@@ -523,8 +524,8 @@ instance FreeAlgebra1 (S.RWST r w s) where
         tell w
         return a
 
-    proof0 = Proof Dict
-    proof  = Proof Dict
+    proof1  = Proof Dict
+    forget1 = Proof Dict
 
 -- |
 -- Algebra type for @'ListT'@ monad transformer.
@@ -549,8 +550,8 @@ instance FreeAlgebra1 ListT where
         a <- foldM (\x y -> x `mappend1_` y) empty as
         return a
 
-    proof0 = Proof Dict
-    proof  = Proof Dict
+    proof1  = Proof Dict
+    forget1 = Proof Dict
 
 -- $monadContT
 --
@@ -576,5 +577,5 @@ instance FreeAlgebra1 MaybeT where
             Nothing -> point
             Just a  -> return a
 
-    proof0 = Proof Dict
-    proof  = Proof Dict
+    proof1  = Proof Dict
+    forget1 = Proof Dict

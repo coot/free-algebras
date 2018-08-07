@@ -45,7 +45,6 @@ instance (Pointed r, Functor f) => MAction ((->) r) f where
 instance ( Monad m
          , FreeAlgebra  m
          , AlgebraType  m d
-         , AlgebraType0 m d
          )
          => MAction m (Const d) where
     mact mca = Const $ foldFree $ getConst <$> mca
@@ -64,5 +63,5 @@ instance Monad m => FreeAlgebra1 (FreeMAction m) where
     liftFree = FreeMAction . return
     foldNatFree nat (FreeMAction mfa) = mact $ nat <$> mfa
 
-    proof0 = Proof Dict
-    proof  = Proof Dict
+    proof1  = Proof Dict
+    forget1 = Proof Dict

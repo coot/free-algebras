@@ -119,5 +119,5 @@ type instance AlgebraType  (FreeMSet m) a = MSet m a
 instance Monoid m => FreeAlgebra (FreeMSet m) where
     returnFree a = FreeMSet (mempty, a)
     foldMapFree f (FreeMSet (m, a)) = act m (f a)
-    proof0 = Proof Dict
     proof  = Proof Dict
+    forget = Proof Dict
