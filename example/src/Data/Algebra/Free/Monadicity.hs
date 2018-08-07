@@ -11,8 +11,8 @@ module Data.Algebra.Free.Monadicity
     , composeAlgHom
     , bimapAlgHom
     , forget_
-    , right
-    , left
+    , psi
+    , phi
     , unit
     , counit
     , FreeMAlg (..)
@@ -24,6 +24,7 @@ module Data.Algebra.Free.Monadicity
     , MAlg (..)
     , algfn
     , algFreeMAlg
+    , returnFreeMAlg
     , foldMapFreeMAlg
     , foldFreeMAlg
     , k
@@ -37,6 +38,7 @@ module Data.Algebra.Free.Monadicity
 
 import           Prelude
 
+import           Control.Monad (join)
 import           Data.Bifunctor (bimap)
 import           Data.Constraint (Dict (..))
 import           Data.List.NonEmpty (NonEmpty (..))
@@ -120,26 +122,28 @@ bimapAlgHom :: forall m a' a b b'.
 bimapAlgHom f g (AlgHom ab) = AlgHom (g . ab . f)
 
 -- |
--- Isomorphism of @AlgHom m (m a) d@ and @Hom m a d@ with inverse @'left'@.
-right :: forall m a d .
+-- @ψ :: (...) AlgHom m (m a) d -> Hom m a d@
+-- with inverse @'phi'@.
+psi :: forall m a d .
          ( FreeAlgebra  m
          , AlgebraType0 m a
          )
       => AlgHom m (m a) d
       -> Hom m a d
-right (AlgHom f) = case forget @m @d of
+psi (AlgHom f) = case forget @m @d of
     Proof Dict -> Hom $ unFoldMapFree f
 
 -- |
--- Inverse of @'right'@
-left :: forall m a d .
+-- @φ :: (...) => Hom m a d -> AlgHom m (m a) d@
+-- with inverse of @'psi'@
+phi :: forall m a d .
         ( FreeAlgebra  m
         , AlgebraType  m d
         , AlgebraType0 m a
         )
      => Hom m a d
      -> AlgHom m (m a) d
-left (Hom f) = case proof @m @a of
+phi (Hom f) = case proof @m @a of
     Proof Dict -> case forget @m @(m a) of
         Proof Dict -> AlgHom $ foldMapFree f
 
@@ -153,7 +157,7 @@ unit :: forall m a .
      => Hom m a (m a)
 unit = case proof @m @a of
     Proof Dict -> case forget @m @(m a) of
-        Proof Dict -> right (AlgHom id)
+        Proof Dict -> psi (AlgHom id)
 
 -- |
 -- [counit](https://en.wikipedia.org/wiki/Adjoint_functors#Definition_via_counit%E2%80%93unit_adjunction)
@@ -161,10 +165,10 @@ unit = case proof @m @a of
 counit :: forall m d .
           ( FreeAlgebra  m
           , AlgebraType  m d
-          , AlgebraType0 m d -- it should be implied by `AlgebraType m d`
           )
        => AlgHom m (m d) d
-counit = left (Hom id)
+counit = case forget @m @d of
+    Proof Dict -> phi (Hom id)
 
 -- |
 -- The monad associated with the adjunction.  Note that it's isomorphic to
@@ -193,7 +197,7 @@ fmapF :: forall m a b .
 fmapF (Hom fn) (FreeMAlg ma) = FreeMAlg $ fmapFree fn ma
 
 -- |
--- unit of the @FreeMAlg@ monad (i.e. @return@ in Haskell)
+-- unit of the @'FreeMAlg'@ monad (i.e. @return@ in Haskell)
 returnF :: forall m a .
            ( FreeAlgebra  m
            , AlgebraType0 m a
@@ -203,7 +207,7 @@ returnF :: forall m a .
 returnF = case unit :: Hom m a (m a) of Hom f -> Hom (FreeMAlg . f)
 
 -- |
--- join of the @FreeMAlg@ monad
+-- join of the @'FreeMAlg'@ monad
 joinF :: forall  m a .
          ( FreeAlgebra  m
          , AlgebraType0 m a
@@ -216,7 +220,7 @@ joinF = case proof @m @a of
         Proof Dict -> Hom $ \(FreeMAlg mma) -> FreeMAlg $ joinFree $ fmapFree runFreeMAlg mma
 
 -- |
--- bind of the @FreeMAlg@ monad
+-- bind of the @'FreeMAlg'@ monad
 bindF :: forall m a b .
          ( FreeAlgebra  m
          , AlgebraType0 m b
@@ -275,7 +279,10 @@ instance MAlg NonEmpty a => MAlg NonEmpty (b -> a) where
 --    type instance AlgebraType0 (FreeMAlg m) a = AlgebraType0 m a
 -- @
 
--- This is an undecidable instance:
+instance (Monad m, FreeAlgebra m) => MAlg m (FreeMAlg m a) where
+    alg ma = FreeMAlg $ join $ fmap runFreeMAlg ma
+
+-- This could be done without @Monad@constraint but it will be undecidable instance:
 {--
   - instance ( FreeAlgebra m
   -          , AlgebraType0 m a
@@ -295,6 +302,12 @@ algFreeMAlg
     => m (FreeMAlg m a)
     -> FreeMAlg m a
 algFreeMAlg ma = FreeMAlg $ joinFree $ fmapFree runFreeMAlg ma
+
+returnFreeMAlg
+    :: FreeAlgebra m
+    => a
+    -> FreeMAlg m a
+returnFreeMAlg = FreeMAlg . returnFree
 
 foldMapFreeMAlg
     :: ( AlgebraType0 m a

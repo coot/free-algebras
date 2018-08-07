@@ -59,18 +59,6 @@ newtype Proof (c :: Constraint) (a :: l) = Proof (Dict c)
 -- algebras of type @'AlgebraType m'@.  The right adjoint is the forgetful
 -- functor.  The composition of left adjoin and the right one is always
 -- a monad, this is why we will be able to build monad instance for @m@.
---
--- This class does not enforce that the forgetful functor from category of
--- types which @AlgebraType m a@ to @AlgebraType0 m a@ is well defined (i.e.
--- that @AlgebraType m a@ implies @AlgebraType0 m a@).  But it enforces two
--- other important implications:
---
--- * @AlgebraType0 m a@ implies @AlgebraType0 m (m a)@
---   i.e. @m@ preserves @AlgebraType0@ constraint.
---
--- * @AlgebraType m a@ implies @AlgebraType m (m a)@
---   
---
 class FreeAlgebra (m :: Type -> Type)  where
     -- | Injective map that embeds generators @a@ into @m@.
     returnFree :: a -> m a
@@ -84,7 +72,7 @@ class FreeAlgebra (m :: Type -> Type)  where
         -> (m a -> d) -- ^ returns a homomorphism from @m a@ to @d@
 
     -- |
-    -- Proof that @AlgebraType0 m a => m a@ is an algebra of type @AlgebraType m (m a)@.
+    -- Proof that @AlgebraType0 m a => m a@ is an algebra of type @AlgebraType m@.
     -- This proves that @m@ is a mapping from the full subcategory of @Hask@ of
     -- types satisfyling @AlgebraType0 m a@ constraint to the full subcategory
     -- satisfying @AlgebraType m a@, @fmapFree@ below proves that it's a functor.
