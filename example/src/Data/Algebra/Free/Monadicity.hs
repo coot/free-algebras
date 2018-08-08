@@ -1,4 +1,5 @@
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE UndecidableInstances #-}
 module Data.Algebra.Free.Monadicity
     ( Hom (..)
     , unHom
@@ -38,7 +39,6 @@ module Data.Algebra.Free.Monadicity
 
 import           Prelude
 
-import           Control.Monad (join)
 import           Data.Bifunctor (bimap)
 import           Data.Constraint (Dict (..))
 import           Data.List.NonEmpty (NonEmpty (..))
@@ -174,7 +174,7 @@ counit = case forget @m @d of
 -- The monad associated with the adjunction.  Note that it's isomorphic to
 -- @'FreeAlgebra' m => m a@.
 data FreeMAlg (m :: * -> *) (a :: *) where
-    FreeMAlg :: FreeAlgebra m => m a -> FreeMAlg m a
+    FreeMAlg :: (FreeAlgebra m, AlgebraType0 m a) => m a -> FreeMAlg m a
 
 instance Show (m a) => Show (FreeMAlg m a) where
     show (FreeMAlg ma) = "FreeMAlg " ++ show ma
@@ -279,17 +279,14 @@ instance MAlg NonEmpty a => MAlg NonEmpty (b -> a) where
 --    type instance AlgebraType0 (FreeMAlg m) a = AlgebraType0 m a
 -- @
 
-instance (Monad m, FreeAlgebra m) => MAlg m (FreeMAlg m a) where
-    alg ma = FreeMAlg $ join $ fmap runFreeMAlg ma
-
--- This could be done without @Monad@constraint but it will be undecidable instance:
 {--
   - instance ( FreeAlgebra m
   -          , AlgebraType0 m a
   -          , AlgebraType0 m (FreeMAlg m a)
   -          ) => MAlg m (FreeMAlg m a) where
   -     alg ma = case proof @m @a of
-  -         Proof Dict -> FreeMAlg $ joinFree $ fmapFree runFreeMAlg ma
+  -         Proof Dict -> case forget @m @(m a) of
+  -             Proof Dict -> FreeMAlg $ joinFree $ fmapFree runFreeMAlg ma
   --}
 
 -- So let's just capture it in a function.
@@ -304,7 +301,9 @@ algFreeMAlg
 algFreeMAlg ma = FreeMAlg $ joinFree $ fmapFree runFreeMAlg ma
 
 returnFreeMAlg
-    :: FreeAlgebra m
+    :: ( FreeAlgebra  m
+       , AlgebraType0 m a
+       )
     => a
     -> FreeMAlg m a
 returnFreeMAlg = FreeMAlg . returnFree
