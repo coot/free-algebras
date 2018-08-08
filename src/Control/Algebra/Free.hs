@@ -221,7 +221,8 @@ joinFree1 = case proof1 @m @f of
         Proof Dict -> foldFree1
 
 -- |
--- Bind operator for the @'joinFree1'@ monad
+-- Bind operator for the @'joinFree1'@ monad, this is just @'foldNatFree'@ in
+-- disguise.
 bindFree1 :: forall m f g a .
              ( FreeAlgebra1 m
              , AlgebraType0 m g
@@ -231,8 +232,7 @@ bindFree1 :: forall m f g a .
           -> (forall x . f x -> m g x) -- ^ natural transformation @f ~> m g@
           -> m g a
 bindFree1 mfa nat = case proof1 @m @g of
-    Proof Dict -> case forget1 @m @(m g) of
-        Proof Dict -> joinFree1 $ hoistFree1 nat mfa
+    Proof Dict -> foldNatFree nat mfa
 
 assocFree1 :: forall m f a .
               ( FreeAlgebra1 m

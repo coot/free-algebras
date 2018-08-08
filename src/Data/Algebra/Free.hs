@@ -167,7 +167,7 @@ joinFree mma = case proof @m @a of
 
 -- |
 -- The monadic @'bind'@ operator.  @'returnFree'@ is the corresponding
--- @'return'@ for this monad.
+-- @'return'@ for this monad.  This just @'foldMapFree'@ in disguise.
 bindFree :: forall m a b .
             ( FreeAlgebra  m
             , AlgebraType0 m a
@@ -176,10 +176,8 @@ bindFree :: forall m a b .
          => m a
          -> (a -> m b)
          -> m b
-bindFree ma f = 
-    case proof @m @b of
-        Proof Dict -> case forget @m @(m b) of
-            Proof Dict -> joinFree $ fmapFree f ma
+bindFree ma f = case proof @m @b of
+    Proof Dict -> foldMapFree f ma
 
 -- |
 -- @'Fix' m@ is the initial algebra in the category of algebras of type
