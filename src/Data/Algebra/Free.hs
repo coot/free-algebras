@@ -35,7 +35,7 @@ import           Data.Algebra.Pointed (Pointed (..))
 --
 -- A lawful instance for this type family must guarantee
 -- that the constraint @'AlgebraType0' m f@ is implied by the @'AlgebraType'
--- m f@ constraint.  This guaranees that there exists a forgetful functor from
+-- m f@ constraint.  This guarantees that there exists a forgetful functor from
 -- the category of types of kind @* -> *@ which satisfy @'AlgebraType' m@
 -- constrain to the category of types of kind @* -> *@ which satisfy the
 -- @'AlgebraType0 m@ constraint.
@@ -74,12 +74,12 @@ class FreeAlgebra (m :: Type -> Type)  where
     -- |
     -- Proof that @AlgebraType0 m a => m a@ is an algebra of type @AlgebraType m@.
     -- This proves that @m@ is a mapping from the full subcategory of @Hask@ of
-    -- types satisfyling @AlgebraType0 m a@ constraint to the full subcategory
+    -- types satisfying @AlgebraType0 m a@ constraint to the full subcategory
     -- satisfying @AlgebraType m a@, @fmapFree@ below proves that it's a functor.
     proof  :: forall a. AlgebraType0 m a => Proof (AlgebraType m (m a)) (m a)
     -- |
     -- Proof that the forgetful functor from types @a@ satisfying @AgelbraType
-    -- m a@ to @AlgebraType0 m a@ is well defiend.
+    -- m a@ to @AlgebraType0 m a@ is well defined.
     forget :: forall a. AlgebraType  m a => Proof (AlgebraType0 m a) (m a)
 
 
@@ -183,7 +183,7 @@ bindFree ma f = case proof @m @b of
 -- @'Fix' m@ is the initial algebra in the category of algebras of type
 -- @'AlgebraType' m@, whenever it /exists/.
 --
--- Another way of puting this is observing that @'Fix' m@ is isomorphic to @m
+-- Another way of putting this is observing that @'Fix' m@ is isomorphic to @m
 -- Void@ where @m@ is the /free algebra/.  This isomorphisms is given by
 -- @
 --   fixToFree :: (FreeAlgebra m, AlgebraType m (m Void), Functor m) => Fix m -> m Void

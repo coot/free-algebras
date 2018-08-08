@@ -67,14 +67,14 @@ import           Data.Algebra.Free (AlgebraType, AlgebraType0, Proof (..))
 -- free applicative functors, free monads, state monads etc.
 --
 -- A lawful instance should guarantee that @'foldNatFree'@ is an isomorphism
--- with inversese @'unFoldNatFree'@.
+-- with inverses @'unFoldNatFree'@.
 --
 -- This guaranties that @m@ is a left adjoint functor from the category of
 -- types of kind @Type -> Type@ which satisfy @'AlgebraType0' m@ constraint, to the
 -- category of types of kind @Type -> Type@ which satisfy the @'AlgebraType' m@
--- constraint.  This functor is left afjoin to the forgetful functor (which is
+-- constraint.  This functor is left adjoin to the forgetful functor (which is
 -- well defined if the laws on @'AlgebraType0'@ family are satisfied.  This in
--- turn guarantess that @m@ componsed with this forgetful functor is a monad.
+-- turn guarantees that @m@ composed with this forgetful functor is a monad.
 -- In result we get the monadic combinators: @'liftFree'@ (@'return'@ of
 -- this monad) and @'bindFree1'@ (its @'bind'@) and @'joinFree1'@ - its
 -- @'join'@ operator.
@@ -96,7 +96,7 @@ class FreeAlgebra1 (m :: (Type -> Type) -> Type -> Type) where
     -- |
     -- A proof that @'AlgebraType' m (m f)@ holds for all @AlgebraType0 f => f@.
     -- Together with @hoistFree1@ this proves that @FreeAlgebra m => m@ is
-    -- a functor from the full subcategory fo types of kind @Type -> Type@
+    -- a functor from the full subcategory of types of kind @Type -> Type@
     -- which satisfy @'AlgebraType0' m f@ to ones that satisfy @'AlgebraType'
     -- m f@.
     proof1  :: forall f. AlgebraType0 m f => Proof (AlgebraType m (m f)) (m f)
@@ -110,7 +110,7 @@ class FreeAlgebra1 (m :: (Type -> Type) -> Type -> Type) where
 -- |
 -- Anything that carries @'FreeAlgebra1'@ constraint is also an instance of
 -- @'Control.Monad.Free.Class.MonadFree'@, but not vice versa. You can use
--- @'wrap'@ to define the a @'Contorl.Monad.Free.Class.MonadFree'@ instance.
+-- @'wrap'@ to define a @'Contorl.Monad.Free.Class.MonadFree'@ instance.
 -- @'ContT'@ is an example of a monad which does have an  @'FreeAlgebra1'@
 -- instance, but has an @'MonadFree'@ instance.
 --
