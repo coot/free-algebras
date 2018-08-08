@@ -1,7 +1,9 @@
 {- |
    Free groups
+
      * https://en.wikipedia.org/wiki/Free_group
      * https://ncatlab.org/nlab/show/Nielsen-Schreier+theorem
+
  -}
 module Data.Group.Free
     ( FreeGroup

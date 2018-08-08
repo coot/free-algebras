@@ -98,8 +98,7 @@ unFoldMapFree
 unFoldMapFree f = f . returnFree
 
 -- |
--- All types which satisfy @'FreeAlgebra'@ constraint are foldable.  You can
--- use this map to build a @'Foldable'@ instance.
+-- All types which satisfy @'FreeAlgebra'@ constraint are foldable.
 --
 -- prop> foldFree . returnFree == id
 --
