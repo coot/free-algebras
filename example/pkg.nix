@@ -15,7 +15,7 @@
 }:
 mkDerivation {
   pname = "example";
-  version = "0.0.1.0";
+  version = "0.0.3.0";
   src = nixpkgs.lib.sourceFilesBySuffices ./.
     [ ".hs" "LICENSE" "ChangeLog.md" "package.yaml" ];
   libraryHaskellDepends = [
