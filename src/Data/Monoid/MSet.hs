@@ -11,6 +11,7 @@ module Data.Monoid.MSet
     , fact
     , FreeMSet (..)
     , hoistFreeMSet
+    , foldrMSet
     , S (..)
     ) where
 
@@ -26,8 +27,15 @@ import           Data.Natural (Natural)
 import           Data.Ord (Down)
 import           Data.Set (Set)
 
-import           Data.Semigroup.SSet (SSet (..), fact, rep)
-import           Data.Algebra.Free (AlgebraType, AlgebraType0, FreeAlgebra (..), Proof (..), bindFree)
+import           Data.Semigroup.SSet (SSet (..), S (..), fact, rep)
+import           Data.Algebra.Free
+    ( AlgebraType
+    , AlgebraType0
+    , FreeAlgebra (..)
+    , Proof (..)
+    , bindFree
+    , foldrFree
+    )
 
 -- |
 -- Lawful instance should satisfy:
@@ -119,6 +127,11 @@ instance Semigroup m => SSet m (FreeMSet m a) where
     act m (FreeMSet (h, a)) = FreeMSet $ (m <> h, a)
 
 instance Monoid m => MSet m (FreeMSet m a)
+
+-- |
+-- @'foldrFree'@ for @'FreeMSet'@
+foldrMSet :: forall m a b . MSet m b => (a -> b -> b) -> b -> (m, a) -> b
+foldrMSet f b (m, a) = foldrFree f b (FreeMSet (S m, a))
 
 type instance AlgebraType0 (FreeMSet m) a = ()
 type instance AlgebraType  (FreeMSet m) a = MSet m a
