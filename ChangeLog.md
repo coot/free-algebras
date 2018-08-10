@@ -11,4 +11,6 @@
 
 ## Unreleased changes
 
+- `S` new type wrapper in `SSet`, and overlappable instance for
+  `SSet s a => SSet (S s) (Endo a)`
 - `foldrFree` and friends

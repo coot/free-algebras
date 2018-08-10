@@ -5,11 +5,13 @@
  -}
 module Data.Monoid.MSet
     ( MSet
+    , SSet (..)
     , Endo (..)
     , rep
     , fact
     , FreeMSet (..)
     , hoistFreeMSet
+    , S (..)
     ) where
 
 import           Control.Monad (ap)
@@ -83,6 +85,10 @@ instance MSet m a => MSet m (IO a)
 instance MSet m b => MSet m (a -> b)
 
 instance MSet (Endo a) a
+
+instance {-# OVERLAPPABLE #-} MSet m a => MSet (S m) a
+
+instance {-# OVERLAPPING #-} MSet m b => MSet (S m) (Endo b)
 
 instance Monoid m => MSet (Sum Natural) m
 

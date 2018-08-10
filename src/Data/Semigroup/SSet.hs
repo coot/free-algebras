@@ -5,6 +5,7 @@ module Data.Semigroup.SSet
     ( SSet (..)
     , rep
     , fact
+    , S (..)
     ) where
 
 import           Data.Semigroup (Endo (..), Sum (..))
@@ -97,6 +98,22 @@ instance SSet s b => SSet s (a -> b) where
 
 instance SSet (Endo a) a where
     act (Endo f) a = f a
+
+-- |
+-- A newtype wrapper to avoid overlapping instances.
+newtype S s = S { runS :: s }
+
+instance Semigroup m => Semigroup (S m) where
+    S s <> S s' = S $ s <> s'
+
+instance Monoid m => Monoid (S m) where
+    mempty = S mempty
+
+instance {-# OVERLAPPABLE #-} SSet m a => SSet (S m) a where
+    act (S m) a = act m a
+
+instance {-# OVERLAPPABLE #-} SSet s a => SSet (S s) (Endo a) where
+    act s (Endo f) = Endo $ act s . f
 
 instance Monoid s => SSet (Sum Natural) s where
     act (Sum 0) _ = mempty
