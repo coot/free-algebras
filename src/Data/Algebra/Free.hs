@@ -14,6 +14,10 @@ module Data.Algebra.Free
     , joinFree
     , bindFree
     , cataFree
+    , foldrFree
+    , foldrFree'
+    , foldlFree
+    , foldlFree'
     )
     where
 
@@ -23,7 +27,7 @@ import           Data.Constraint (Dict (..))
 import           Data.Fix (Fix, cata)
 import           Data.Kind (Constraint, Type)
 import           Data.List.NonEmpty (NonEmpty (..))
-import           Data.Monoid (Monoid (..))
+import           Data.Monoid (Endo (..), Monoid (..), Dual (..))
 import           Data.Semigroup (Semigroup, (<>))
 
 import           Data.Algebra.Pointed (Pointed (..))
@@ -197,6 +201,72 @@ cataFree :: ( FreeAlgebra  m
          => Fix m
          -> a
 cataFree = cata foldFree
+
+-- |
+-- A version of @'Data.Foldable.foldr'@, e.g. it can specialize to
+--
+-- * @foldrFree \@[] :: (a -> b -> b) -> [a] -> b -> b@
+-- * @foldrFree \@'Data.List.NonEmpty.NonEmpty' :: (a -> b -> b) -> 'Data.List.NonEmpty.NonEmpty' a -> b -> b@
+foldrFree
+    :: forall m a b .
+       ( FreeAlgebra  m
+       , AlgebraType  m (Endo b)
+       , AlgebraType0 m a
+       )
+    => (a -> b -> b)
+    -> b
+    -> m a
+    -> b
+foldrFree f z t = appEndo (foldMapFree (Endo . f) t) z
+
+-- |
+-- Like @'foldrFree'@ but strict.
+foldrFree'
+    :: forall m a b .
+       ( FreeAlgebra  m
+       , AlgebraType  m (Dual (Endo (b -> b)))
+       , AlgebraType0 m a
+       )
+    => (a -> b -> b)
+    -> m a
+    -> b
+    -> b
+foldrFree' f xs z0 = foldlFree f' id xs z0
+    where
+    f' k x z = k $! f x z
+
+-- |
+-- Generalizes @'Data.Foldabale.foldl'@, e.g. it can specialize to
+--
+-- * @foldlFree \@[] :: (b -> a -> b) -> b -> [a] -> b@
+-- * @foldlFree \@'Data.List.NonEmpty.NonEmpty' :: (b -> a -> b) -> b -> 'Data.List.NonEmpty.NonEmpty' a -> b@
+foldlFree
+    :: forall m a b .
+       ( FreeAlgebra  m
+       , AlgebraType  m (Dual (Endo b))
+       , AlgebraType0 m a
+       )
+    => (b -> a -> b)
+    -> b
+    -> m a
+    -> b
+foldlFree f z t = appEndo (getDual (foldMapFree (Dual . Endo . flip f) t)) z
+
+-- |
+-- Like @'foldlFree'@ but strict.
+foldlFree'
+    :: forall m a b .
+       ( FreeAlgebra  m
+       , AlgebraType  m (Endo (b -> b))
+       , AlgebraType0 m a
+       )
+    => (b -> a -> b)
+    -> b
+    -> m a
+    -> b
+foldlFree' f z0 xs = foldrFree f' id xs z0
+    where
+    f' x k z = k $! f z x
 
 type instance AlgebraType0 NonEmpty a = ()
 type instance AlgebraType  NonEmpty m = Semigroup m

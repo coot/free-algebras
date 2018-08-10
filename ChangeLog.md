@@ -10,3 +10,5 @@
 - Simplified `Proof` type.
 
 ## Unreleased changes
+
+- `foldrFree` and friends
