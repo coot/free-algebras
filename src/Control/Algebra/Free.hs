@@ -75,9 +75,17 @@ import           Data.Algebra.Free (AlgebraType, AlgebraType0, Proof (..))
 -- constraint.  This functor is left adjoin to the forgetful functor (which is
 -- well defined if the laws on @'AlgebraType0'@ family are satisfied.  This in
 -- turn guarantees that @m@ composed with this forgetful functor is a monad.
--- In result we get the monadic combinators: @'liftFree'@ (@'return'@ of
--- this monad) and @'bindFree1'@ (its @'bind'@) and @'joinFree1'@ - its
--- @'join'@ operator.
+-- In result we get monadic operations:
+-- 
+--   * @return = 'liftFree'@
+--   * @(>>=)  = 'bindFree1'@
+--   * @join   = 'joinFree1'@
+--
+-- For @m@ such that @'AlgebraType0'@ subsumes @'Monad'@ this class implies:
+--
+-- * @MFunctor@ via @hoist = hoistFree1@
+-- * @MMonad@ via @embed = flip bindFree1@
+-- * @MonadTrans@ via @lift = liftFree@
 class FreeAlgebra1 (m :: (Type -> Type) -> Type -> Type) where
     -- | Natural transformation that embeds generators into @m@.
     liftFree :: AlgebraType0 m f => f a -> m f a
@@ -95,7 +103,7 @@ class FreeAlgebra1 (m :: (Type -> Type) -> Type -> Type) where
 
     -- |
     -- A proof that @'AlgebraType' m (m f)@ holds for all @AlgebraType0 f => f@.
-    -- Together with @hoistFree1@ this proves that @FreeAlgebra m => m@ is
+    -- Together with @'hoistFree1'@ this proves that @FreeAlgebra m => m@ is
     -- a functor from the full subcategory of types of kind @Type -> Type@
     -- which satisfy @'AlgebraType0' m f@ to ones that satisfy @'AlgebraType'
     -- m f@.
@@ -174,6 +182,10 @@ unFoldNatFree nat = nat . liftFree
 --
 -- * @'Control.Applicative.Free.hoistAp' :: (forall a. f a -> g a) -> 'Ap' f b -> 'Ap' g b @
 -- * @'Control.Monad.Free.hoistFree' :: 'Functor' g => (forall a. f a -> g a) -> 'Free' f b -> 'Free' g b@
+-- * @Control.Monad.Morph.hoist@ for @'FreeAlgebra1' m => m@ such that
+--   @'AlgebraType0' m@ subsumes @Monad m@, e.g.
+--   @'Control.Monad.State.Lazy.StateT'@, @'Control.Monad.Writer.Lazy.WriterT'@
+--   or @'Control.Monad.Reader.ReaderT'@.
 hoistFree1 :: forall m f g a .
               ( FreeAlgebra1 m
               , AlgebraType0 m g
@@ -223,6 +235,12 @@ joinFree1 = case proof1 @m @f of
 -- |
 -- Bind operator for the @'joinFree1'@ monad, this is just @'foldNatFree'@ in
 -- disguise.
+--
+-- For @'Control.Monad.State.Lazy.StateT'@,
+-- @'Control.Monad.Writer.Lazy.WriterT'@ or
+-- @'Contorl.Monad.Reader.Lazy.ReaderT'@ (or any @'FreeAlgebra1' m => m@ such
+-- that @'AlgebraType0' m@ subsumes @'Monad' m@), this is the @>>=@ version of
+-- @Control.Monad.Morph.embed@.
 bindFree1 :: forall m f g a .
              ( FreeAlgebra1 m
              , AlgebraType0 m g

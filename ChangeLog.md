@@ -15,3 +15,4 @@
   `SSet s a => SSet (S s) (Endo a)`
 - `foldrFree` and friends
 - `foldrMSet`
+- documented intersection with `monad-mmorph` package.
