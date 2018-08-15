@@ -20,6 +20,7 @@ module Control.Algebra.Free.Monadicity
     , fmapF
     , returnF
     , joinF
+    , joinF'
     , bindF
     , MAlg (..)
     -- , algfn
@@ -182,6 +183,18 @@ joinF :: forall  m f .
 joinF = case proof1 @m @f of
     Proof Dict -> case forget1 @m @(m f) of
         Proof Dict -> Hom $ \(FreeMAlg mma) -> FreeMAlg $ joinFree1 $ hoistFree1 runFreeMAlg mma
+
+
+-- |
+-- The same as @'joinF'@ but defined the same way as in categor theory text
+-- books where newtype wrapers do not show up ;).
+joinF' :: forall  m a .
+         ( FreeAlgebra1 m
+         , AlgebraType0 m a
+         )
+      => Hom m (m (m a)) (m a)
+joinF' = case proof1 @m @a of
+    Proof Dict -> forget_ counit
 
 -- |
 -- bind of the @'FreeMAlg'@ monad
