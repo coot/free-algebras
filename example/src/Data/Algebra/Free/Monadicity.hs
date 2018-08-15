@@ -312,6 +312,8 @@ algFreeMAlg
     -> FreeMAlg m a
 algFreeMAlg ma = FreeMAlg $ joinFree $ fmapFree runFreeMAlg ma
 
+-- |
+-- Unwrapped version of @'returnF'@
 returnFreeMAlg
     :: ( FreeAlgebra  m
        , AlgebraType0 m a

@@ -243,6 +243,8 @@ algFreeMAlg
     -> FreeMAlg m f a
 algFreeMAlg ma = FreeMAlg $ joinFree1 $ hoistFree1 runFreeMAlg ma
 
+-- |
+-- Unwrapped version of @'returnF'@
 returnFreeMAlg
     :: ( FreeAlgebra1 m
        , AlgebraType0 m f
