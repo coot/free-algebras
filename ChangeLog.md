@@ -18,3 +18,4 @@
 - Simplified `Proof` type.
 
 ## Unreleased changes
+- `FreeAlgebra` instance for `Identity` functor

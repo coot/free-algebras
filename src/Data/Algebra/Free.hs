@@ -24,6 +24,7 @@ module Data.Algebra.Free
 import           Prelude
 
 import           Data.Constraint (Dict (..))
+import           Data.Functor.Identity (Identity (..))
 import           Data.Fix (Fix, cata)
 import           Data.Kind (Constraint, Type)
 import           Data.List.NonEmpty (NonEmpty (..))
@@ -268,6 +269,15 @@ foldlFree' f z0 xs = foldrFree f' id xs z0
     where
     f' x k z = k $! f z x
 
+type instance AlgebraType0 Identity a = ()
+type instance AlgebraType  Identity a = ()
+instance FreeAlgebra Identity where
+    returnFree = Identity
+    foldMapFree f = f . runIdentity
+
+    proof  = Proof Dict
+    forget = Proof Dict
+
 type instance AlgebraType0 NonEmpty a = ()
 type instance AlgebraType  NonEmpty m = Semigroup m
 instance FreeAlgebra NonEmpty where
@@ -285,6 +295,7 @@ type instance AlgebraType  [] m = Monoid m
 instance FreeAlgebra [] where
     returnFree a = [a]
     foldMapFree = foldMap
+
     proof  = Proof Dict
     forget = Proof Dict
 
