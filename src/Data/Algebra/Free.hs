@@ -35,7 +35,7 @@ import           Data.Algebra.Pointed (Pointed (..))
 -- |
 -- Type family which for each free algebra @m@ returns a type level lambda from
 -- types to constraints.  It is describe the class of algebras for which this
--- free algebra is free. 
+-- free algebra is free.
 --
 -- A lawful instance for this type family must guarantee
 -- that the constraint @'AlgebraType0' m f@ is implied by the @'AlgebraType'
@@ -58,7 +58,7 @@ newtype Proof (c :: Constraint) (a :: l) = Proof (Dict c)
 -- |
 -- A lawful instance has to guarantee that @'unFoldFree'@ is an inverse of
 -- @'foldMapFree'@.
--- 
+--
 -- This in turn guaranties that @m@ is a left adjoint functor from Hask to
 -- algebras of type @'AlgebraType m'@.  The right adjoint is the forgetful
 -- functor.  The composition of left adjoin and the right one is always
