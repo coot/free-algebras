@@ -14,7 +14,7 @@
 , stdenv
 }:
 mkDerivation {
-  pname = "example";
+  pname = "free-algebras-examples";
   version = "0.0.3.0";
   src = nixpkgs.lib.sourceFilesBySuffices ./.
     [ ".hs" "LICENSE" "ChangeLog.md" "package.yaml" ];
