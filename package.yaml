@@ -48,6 +48,7 @@ dependencies:
   - constraints
   - containers
   - data-fix
+  - dlist
   - free
   - groups
   - kan-extensions

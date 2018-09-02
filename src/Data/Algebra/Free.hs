@@ -25,6 +25,8 @@ module Data.Algebra.Free
 import           Prelude
 
 import           Data.Constraint (Dict (..))
+import           Data.DList (DList)
+import           Data.DList as DList
 import           Data.Functor.Identity (Identity (..))
 import           Data.Fix (Fix, cata)
 import           Data.Group (Group (..))
@@ -60,12 +62,13 @@ newtype Proof (c :: Constraint) (a :: l) = Proof (Dict c)
 
 -- |
 -- A lawful instance has to guarantee that @'unFoldFree'@ is an inverse of
--- @'foldMapFree'@.
+-- @'foldMapFree'@ (in the category of algebras of type @'AlgebraType' m@).
 --
--- This in turn guaranties that @m@ is a left adjoint functor from Hask to
--- algebras of type @'AlgebraType m'@.  The right adjoint is the forgetful
--- functor.  The composition of left adjoin and the right one is always
--- a monad, this is why we will be able to build monad instance for @m@.
+-- This in turn guaranties that @m@ is a left adjoint functor from full
+-- subcategory of Hask (of types constrained by @'AlgebraType0' m) to algebras
+-- of type @'AlgebraType' m@.  The right adjoint is the forgetful functor.  The
+-- composition of left adjoin and the right one is always a monad, this is why
+-- we will be able to build monad instance for @m@.
 class FreeAlgebra (m :: Type -> Type)  where
     -- | Injective map that embeds generators @a@ into @m@.
     returnFree :: a -> m a
@@ -282,6 +285,9 @@ instance FreeAlgebra Identity where
 
 type instance AlgebraType0 NonEmpty a = ()
 type instance AlgebraType  NonEmpty m = Semigroup m
+-- |
+-- @'NonEmpty'@ is the free semigroup in the class of semigroup which are
+-- strict in the left argument.
 instance FreeAlgebra NonEmpty where
     returnFree a = a :| []
     -- @'foldMap'@ requires @'Monoid' d@ constraint which we don't need to
@@ -295,11 +301,19 @@ instance FreeAlgebra NonEmpty where
 type instance AlgebraType0 [] a = ()
 type instance AlgebraType  [] m = Monoid m
 -- | 
--- Note that @'[]'@ is a free monoid only for finite monoids which are not
--- partially defined, as described
--- [here](http://comonad.com/reader/2015/free-monoids-in-haskell/)
--- For a truelly free monoid see @'Free'@ type below.  This also applies to
--- other instances.
+-- Note that @'[]'@ is a free monoid only for monoids which multiplication is
+-- strict in the left argument
+-- [ref](http://comonad.com/reader/2015/free-monoids-in-haskell/). Note that
+-- being strict adds additional equation to the monoid laws:
+--
+-- prop> undefined <> a = undefined
+--
+-- Thus, expectedly we get an equational theory for left / right / two-sided
+-- strict monoids.
+--
+-- Snoc lists are free monoids in the class of monoids which are strict in the
+-- right argument, @'Free' Monoid@ and @'DList' are free in the class of all
+-- Haskell monoids.
 instance FreeAlgebra [] where
     returnFree a = [a]
     foldMapFree = foldMap
@@ -345,6 +359,18 @@ type instance AlgebraType  (Free Monoid) a = Monoid a
 instance FreeAlgebra (Free Monoid) where
     returnFree a = Free $ \k -> k a
     foldMapFree f (Free k) = k f
+
+    proof  = Proof Dict
+    forget = Proof Dict
+
+type instance AlgebraType0 DList a = ()
+type instance AlgebraType  DList a = Monoid a
+-- |
+-- @'DList'@ is isomorphic to @'Free' Monoid@; it is free in the class of all
+-- monoids.
+instance FreeAlgebra DList where
+    returnFree = DList.singleton
+    foldMapFree = foldMap
 
     proof  = Proof Dict
     forget = Proof Dict

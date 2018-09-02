@@ -19,3 +19,6 @@
 
 ## Unreleased changes
 - `FreeAlgebra` instance for `Identity` functor
+- generic `Free` type
+- `DList` and `FreeGroup` based on `DList`, `FreeGroupL`
+- documentation on strictness / laziness

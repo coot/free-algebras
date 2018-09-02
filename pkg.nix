@@ -3,6 +3,7 @@
 , constraints
 , containers
 , data-fix
+, dlist
 , free
 , groups
 , hedgehog 
@@ -33,6 +34,7 @@ mkDerivation {
     base
     constraints
     data-fix
+    dlist
     free
     groups
     kan-extensions

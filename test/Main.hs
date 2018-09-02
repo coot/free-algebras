@@ -5,6 +5,7 @@ module Main
 import           Control.Monad (unless)
 import           System.Exit (exitFailure)
 
+import qualified Test.Data.Group.Free (tests)
 import qualified Test.Data.Algebra.Free (tests)
 import qualified Test.Control.Algebra.Free (tests)
 
@@ -19,4 +20,5 @@ main = do
     runTests
         [ Test.Data.Algebra.Free.tests
         , Test.Control.Algebra.Free.tests
+        , Test.Data.Group.Free.tests
         ]

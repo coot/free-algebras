@@ -7,13 +7,20 @@
  -}
 module Data.Group.Free
     ( FreeGroup
+    , fromDList
+    , toDList
+    , normalize
+
+    , FreeGroupL
     , fromList
     , toList
-    , normalize
+    , normalizeL
     ) where
 
-import           Control.Monad (ap)
+import           Control.Monad (ap, join)
 import           Data.Constraint (Dict (..))
+import           Data.DList (DList)
+import qualified Data.DList as DList
 import           Data.Group (Group (..))
 import           Data.Semigroup (Semigroup (..))
 
@@ -34,19 +41,22 @@ import           Data.Algebra.Free
 --
 -- It is a monad on a full subcategory of @Hask@ which constists of types which
 -- satisfy the @'Eq'@ constraint.
-newtype FreeGroup a = FreeGroup { runFreeGroup :: [Either a a] }
-    deriving (Show, Eq, Ord)
+--
+-- @'FreeGroup' a@ is isomorphic with @'Free' Group a@ (but the latter does not
+-- require @Eq@ constraint, hence is more general).
+newtype FreeGroup a = FreeGroup { runFreeGroup :: DList (Either a a) }
+    deriving (Eq, Ord, Show)
 
 instance Functor FreeGroup where
-    fmap f (FreeGroup as) = FreeGroup $ map (either (Left . f) (Right . f)) as
+    fmap f (FreeGroup as) = FreeGroup $ fmap (either (Left . f) (Right . f)) as
 
 instance Applicative FreeGroup where
     pure  = returnFree
     (<*>) = ap
 
 instance Monad FreeGroup where
-    return a = FreeGroup [Right a]
-    FreeGroup as >>= f = FreeGroup $ concatMap (runFreeGroup . either f f) as
+    return a = FreeGroup $ DList.singleton (Right a)
+    FreeGroup as >>= f = FreeGroup $ join $ fmap (runFreeGroup . either f f) as
 
 -- |
 -- Normalize a list, i.e. remove adjusten inverses from a word, i.e.
@@ -55,60 +65,87 @@ instance Monad FreeGroup where
 -- Complexity: @O(n)@
 normalize
     :: Eq a
-    => [Either a a]
-    -> [Either a a]
-
-normalize (Left a : Right b : bs)
-    | a == b    = normalize bs
-    | otherwise = case normalize (Right b : bs) of
-        Right b' : bs' | a == b'
-                       -> bs'
-                       | otherwise
-                       -> Left a : Right b' : bs'
-        bs'            -> Left a : bs'
-
-normalize (Right a : Left b : bs)
-    | a == b    = normalize bs
-    | otherwise = case normalize (Left b : bs) of
-        Left b' : bs' | a == b'
-                      -> bs'
-                      | otherwise
-                      -> Right a : Left b' : bs'
-        bs'           -> Right a : bs'
-
-normalize (a : as) = case normalize as of
-    a' : as' | either Right Left a == a'
-             -> as'
-             | otherwise
-             -> a : a' : as'
-    []       -> [a]
-
-normalize [] = []
+    => DList (Either a a)
+    -> DList (Either a a)
+normalize = DList.foldr fn (DList.empty)
+    where
+    fn a as = case as of
+        DList.Nil -> DList.singleton a
+        _         ->
+            let b  = DList.head as
+                bs = DList.tail as
+            in case (a, b) of
+                (Left x,  Right y) | x == y -> bs
+                (Right x, Left y)  | x == y -> bs
+                _                           -> DList.cons a as
 
 -- |
 -- Smart constructor which normalizes a list.
-fromList :: Eq a => [Either a a] -> FreeGroup a
-fromList = FreeGroup . normalize
+fromDList :: Eq a => DList (Either a a) -> FreeGroup a
+fromDList = FreeGroup . normalize
 
-toList :: FreeGroup a -> [Either a a]
-toList = runFreeGroup
-
+toDList :: FreeGroup a -> DList (Either a a)
+toDList = runFreeGroup
 
 instance Eq a => Semigroup (FreeGroup a) where
-    FreeGroup as <> FreeGroup bs = FreeGroup $ normalize (as ++ bs)
+    FreeGroup as <> FreeGroup bs = FreeGroup $ normalize (as `DList.append` bs)
 
 instance Eq a => Monoid (FreeGroup a) where
-    mempty = FreeGroup []
+    mempty = FreeGroup DList.empty
 
 instance Eq a => Group (FreeGroup a) where
-    invert (FreeGroup as) = FreeGroup $ foldl (\acu a -> either Right Left a : acu) [] as
+    invert (FreeGroup as) = FreeGroup $ foldl (\acu a -> either Right Left a `DList.cons` acu) DList.empty as
 
 type instance AlgebraType0 FreeGroup a = Eq a
 type instance AlgebraType  FreeGroup g = (Eq g, Group g)
 instance FreeAlgebra FreeGroup where
-    returnFree a = FreeGroup [Right a]
-    foldMapFree _ (FreeGroup [])       = mempty
-    foldMapFree f (FreeGroup (a : as)) = either (invert . f) f a <> foldMapFree f (FreeGroup as)
+    returnFree a = FreeGroup (DList.singleton (Right a))
+    foldMapFree _ (FreeGroup DList.Nil) = mempty
+    foldMapFree f (FreeGroup as)        =
+        let a'  = DList.head as
+            as' = DList.tail as
+        in either (invert . f) f a' <> foldMapFree f (FreeGroup as')
+
+    proof  = Proof Dict
+    forget = Proof Dict
+
+-- |
+-- Free group in the class of groups which multiplication is strict on the left, i.e.
+--
+-- prop> undefined <> a = undefined
+newtype FreeGroupL a = FreeGroupL { runFreeGroupL :: [Either a a] }
+    deriving (Show, Eq, Ord)
+
+normalizeL
+    :: Eq a
+    => [Either a a]
+    -> [Either a a]
+normalizeL = DList.toList . normalize . DList.fromList
+
+-- |
+-- Smart constructors
+fromList :: Eq a => [Either a a] -> FreeGroupL a
+fromList = FreeGroupL . normalizeL
+
+toList :: FreeGroupL a -> [Either a a]
+toList = runFreeGroupL
+
+instance Eq a => Semigroup (FreeGroupL a) where
+    FreeGroupL as <> FreeGroupL bs = FreeGroupL $ normalizeL (as ++ bs)
+
+instance Eq a => Monoid (FreeGroupL a) where
+    mempty = FreeGroupL []
+
+instance Eq a => Group (FreeGroupL a) where
+    invert (FreeGroupL as) = FreeGroupL $ foldl (\acu a -> either Right Left a : acu) [] as
+
+type instance AlgebraType0 FreeGroupL a = Eq a
+type instance AlgebraType  FreeGroupL g = (Eq g, Group g)
+instance FreeAlgebra FreeGroupL where
+    returnFree a = FreeGroupL [Right a]
+    foldMapFree _ (FreeGroupL []) = mempty
+    foldMapFree f (FreeGroupL (a : as)) =
+        either (invert . f) f a <> foldMapFree f (FreeGroupL as)
 
     proof  = Proof Dict
     forget = Proof Dict
