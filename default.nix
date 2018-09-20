@@ -6,12 +6,7 @@
 }:
 with builtins;
 let
-  spec = fromJSON (readFile ./nixpkgs.json);
-  src = fetchTarball {
-    url = "https://github.com/${spec.owner}/${spec.repo}/archive/${spec.rev}.tar.gz";
-    sha256 = spec.sha256;
-  };
-  nixpkgs = import src {};
+  nixpkgs = import ./nixpkgs.nix {};
 
   pkgs = nixpkgs.haskell.packages;
   lib = nixpkgs.haskell.lib;
@@ -30,8 +25,10 @@ let
     else nixpkgs.lib.id;
 
   free-algebras = doDev(doHaddock(doTest(doBench(
-    pkgs.${compiler}.callPackage ./pkg.nix { inherit nixpkgs; }))));
+    pkgs.${compiler}.callPackage ./pkg.nix
+      { inherit nixpkgs; }))));
   examples = doDev(doHaddock(doTest(doBench(
-    pkgs.${compiler}.callPackage ./examples/pkg.nix { inherit free-algebras nixpkgs; }))));
+    pkgs.${compiler}.callPackage ./examples/pkg.nix
+      { inherit free-algebras nixpkgs; }))));
 in
 { inherit free-algebras examples; }
