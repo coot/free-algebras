@@ -4,6 +4,7 @@
 , binary
 , bytestring
 , constraints
+, dlist
 , free
 , free-algebras
 , groups
@@ -22,6 +23,7 @@ mkDerivation {
     base
     binary bytestring
     constraints
+    dlist
     free
     free-algebras
     groups

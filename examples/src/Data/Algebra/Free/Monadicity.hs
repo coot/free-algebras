@@ -46,7 +46,7 @@ import           Data.List.NonEmpty (NonEmpty (..))
 import qualified Data.List.NonEmpty as NE
 import           Data.Proxy (Proxy (..))
 
-import           Data.Group.Free (FreeGroup)
+import           Data.Group.Free (FreeGroupL)
 import qualified Data.Group.Free as FreeGroup
 import           Data.Monoid.MSet (FreeMSet (..))
 import           Data.Algebra.Free
@@ -371,8 +371,8 @@ k_inv_pointed :: MAlg Maybe a => a
 k_inv_pointed = foldFreeMAlg (FreeMAlg Nothing)
 
 -- |
--- @'invert'@ deduced from @FreeAlg FreeGroup@ @MAlg@ instance.
-k_inv_group_invert :: (MAlg FreeGroup a, Eq a) => a -> a
+-- @'invert'@ deduced from @FreeAlg FreeGroupL@ @MAlg@ instance.
+k_inv_group_invert :: (MAlg FreeGroupL a, Eq a) => a -> a
 k_inv_group_invert a = foldFreeMAlg (FreeMAlg (FreeGroup.fromList [Left a]))
 
 -- |
