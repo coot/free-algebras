@@ -7,7 +7,6 @@
 , free
 , groups
 , hedgehog 
-, hpack 
 , kan-extensions
 , mtl
 , natural-numbers
@@ -24,7 +23,7 @@ let
     || lib.hasPrefix "test" relPath
     || lib.any
         (a: a == relPath)
-        [ "Setup.hs" "cabal.project" "ChangeLog.md" "package.yaml" "LICENSE"];
+        [ "Setup.hs" "cabal.project" "ChangeLog.md" "free-algebras.cabal" "LICENSE"];
 in
 mkDerivation {
   pname = "free-algebras";
@@ -42,7 +41,7 @@ mkDerivation {
     natural-numbers
     transformers
   ];
-  libraryToolDepends = [ hpack ];
+  libraryToolDepends = [ ];
   testHaskellDepends = [
     base
     containers
@@ -52,7 +51,6 @@ mkDerivation {
     mtl
     transformers
   ];
-  preConfigure = "hpack";
   homepage = "https://github.com/coot/free-algebras#readme";
   license = stdenv.lib.licenses.mpl20;
   enableSeparateDocOutput = false;

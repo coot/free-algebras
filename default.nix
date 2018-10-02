@@ -6,10 +6,10 @@
 }:
 with builtins;
 let
-  nixpkgs = import ./nixpkgs.nix {};
+  nixpkgs = import ./nix/nixpkgs.nix { };
 
-  pkgs = nixpkgs.haskell.packages;
   lib = nixpkgs.haskell.lib;
+  callPackage = nixpkgs.haskell.packages.${compiler}.callPackage;
 
   doHaddock = if haddock
     then lib.doHaddock
@@ -25,10 +25,10 @@ let
     else nixpkgs.lib.id;
 
   free-algebras = doDev(doHaddock(doTest(doBench(
-    pkgs.${compiler}.callPackage ./pkg.nix
+    callPackage ./pkg.nix
       { inherit nixpkgs; }))));
   examples = doDev(doHaddock(doTest(doBench(
-    pkgs.${compiler}.callPackage ./examples/pkg.nix
+    callPackage ./examples/pkg.nix
       { inherit free-algebras nixpkgs; }))));
 in
 { inherit free-algebras examples; }

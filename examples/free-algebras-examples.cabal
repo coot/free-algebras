@@ -1,0 +1,43 @@
+name:           free-algebras-examples
+version:        0.0.4.0
+synopsis:       Example usage of (higher) free algebras (free monads).
+description:    Please see the README on GitHub at <https://github.com/coot/free-algebras#readme>
+category:       Example, DSL
+homepage:       https://github.com/coot/free-algebras#readme
+bug-reports:    https://github.com/coot/free-algebras/issues
+author:         Marcin Szamotulski
+maintainer:     profunctor@pm.me
+copyright:      (c) 2018 Marcin Szamotulski
+license:        MPL-2.0
+license-file:   LICENSE
+build-type:     Simple
+cabal-version: >= 1.10
+
+source-repository head
+  type: git
+  location: https://github.com/coot/free-algebras
+
+library
+  exposed-modules:
+      Control.Algebra.Free.Monadicity
+      Control.Category.Free
+      Data.Algebra.Free.Monadicity
+      Network.TCP
+  other-modules:
+      Paths_free_algebras_examples
+  hs-source-dirs:
+      src
+  default-extensions: ConstraintKinds DataKinds DeriveFunctor EmptyDataDecls FlexibleInstances FlexibleContexts KindSignatures InstanceSigs MultiParamTypeClasses OverloadedStrings PolyKinds RankNTypes ScopedTypeVariables TupleSections TypeApplications TypeFamilies
+  ghc-options: -Wall -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -Werror -Wno-deprecations
+  build-depends:
+      base >=4.11 && <5
+    , binary
+    , bytestring
+    , constraints
+    , free
+    , free-algebras
+    , groups
+    , mtl
+    , network
+    , transformers
+  default-language: Haskell2010

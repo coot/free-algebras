@@ -8,7 +8,6 @@
 , free
 , free-algebras
 , groups
-, hpack
 , mtl
 , network
 , transformers
@@ -18,7 +17,7 @@ mkDerivation {
   pname = "free-algebras-examples";
   version = "0.0.3.0";
   src = nixpkgs.lib.sourceFilesBySuffices ./.
-    [ ".hs" "LICENSE" "ChangeLog.md" "package.yaml" ];
+    [ ".hs" "LICENSE" "ChangeLog.md" "free-algebras-examples.cabal" ];
   libraryHaskellDepends = [
     base
     binary bytestring
@@ -31,8 +30,7 @@ mkDerivation {
     network
     transformers
   ];
-  libraryToolDepends = [ hpack ];
-  preConfigure = "hpack";
+  libraryToolDepends = [ ];
   license = stdenv.lib.licenses.mpl20;
   enableSeparateDocOutput = false;
 }
