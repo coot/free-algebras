@@ -1,2 +1,10 @@
 language: nix
-script: nix-build --arg dev true -A free-algebras -A examples
+script: nix-build --arg dev true -A free-algebras -A examples --argstr compiler $COMPILER
+matrix:
+  include:
+    - name: "ghc843"
+      env: COMPILER="ghc843"
+    - name: "ghc822"
+      env: COMPILER="ghc822"
+    - name: "ghc802"
+      env: COMPILER="ghc802"
