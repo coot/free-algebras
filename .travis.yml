@@ -1,0 +1,2 @@
+language: nix
+script: nix-build --arg dev true -A free-algebras -A examples
