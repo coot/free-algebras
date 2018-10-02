@@ -6,6 +6,7 @@ module Data.Algebra.Free
       -- * FreeAlgebra class
     , FreeAlgebra (..)
     , Proof (..)
+    , proof
       -- * Combinators
     , unFoldMapFree
     , foldFree
@@ -61,6 +62,11 @@ type family AlgebraType0 (f :: k) (a :: l) :: Constraint
 newtype Proof (c :: Constraint) (a :: l) = Proof (Dict c)
 
 -- |
+-- @'Proof'@ smart constructor.
+proof :: c => Proof (c :: Constraint) (a :: l)
+proof = Proof Dict
+
+-- |
 -- A lawful instance has to guarantee that @'unFoldFree'@ is an inverse of
 -- @'foldMapFree'@ (in the category of algebras of type @'AlgebraType' m@).
 --
@@ -85,8 +91,9 @@ class FreeAlgebra (m :: Type -> Type)  where
     -- Proof that @AlgebraType0 m a => m a@ is an algebra of type @AlgebraType m@.
     -- This proves that @m@ is a mapping from the full subcategory of @Hask@ of
     -- types satisfying @AlgebraType0 m a@ constraint to the full subcategory
-    -- satisfying @AlgebraType m a@, @fmapFree@ below proves that it's a functor.
-    proof  :: forall a. AlgebraType0 m a => Proof (AlgebraType m (m a)) (m a)
+    -- satisfying @AlgebraType m a@, @'fmapFree'@ below proves that it's a functor.
+    -- (@'codom'@ from codomain)
+    codom  :: forall a. AlgebraType0 m a => Proof (AlgebraType m (m a)) (m a)
     -- |
     -- Proof that the forgetful functor from types @a@ satisfying @AgelbraType
     -- m a@ to @AlgebraType0 m a@ is well defined.
@@ -160,7 +167,7 @@ fmapFree :: forall m a b .
          => (a -> b)
          -> m a
          -> m b
-fmapFree f ma = case proof @m @b of
+fmapFree f ma = case codom @m @b of
     Proof Dict -> foldMapFree (returnFree . f) ma
 
 -- |
@@ -171,7 +178,7 @@ joinFree :: forall m a .
           )
          => m (m a)
          -> m a
-joinFree mma = case proof @m @a of
+joinFree mma = case codom @m @a of
     Proof Dict -> foldFree mma
 
 -- |
@@ -185,7 +192,7 @@ bindFree :: forall m a b .
          => m a
          -> (a -> m b)
          -> m b
-bindFree ma f = case proof @m @b of
+bindFree ma f = case codom @m @b of
     Proof Dict -> foldMapFree f ma
 
 -- |
@@ -280,8 +287,8 @@ instance FreeAlgebra Identity where
     returnFree = Identity
     foldMapFree f = f . runIdentity
 
-    proof  = Proof Dict
-    forget = Proof Dict
+    codom  = proof
+    forget = proof
 
 type instance AlgebraType0 NonEmpty a = ()
 type instance AlgebraType  NonEmpty m = Semigroup m
@@ -295,7 +302,7 @@ instance FreeAlgebra NonEmpty where
     foldMapFree f (a :| []) = f a
     foldMapFree f (a :| (b : bs)) = f a <> foldMapFree f (b :| bs)
 
-    proof  = Proof Dict
+    codom  = Proof Dict
     forget = Proof Dict
 
 type instance AlgebraType0 [] a = ()
@@ -318,7 +325,7 @@ instance FreeAlgebra [] where
     returnFree a = [a]
     foldMapFree = foldMap
 
-    proof  = Proof Dict
+    codom  = Proof Dict
     forget = Proof Dict
 
 type instance AlgebraType0 Maybe a = ()
@@ -328,7 +335,7 @@ instance FreeAlgebra Maybe where
     foldMapFree _ Nothing  = point
     foldMapFree f (Just a) = f a
 
-    proof  = Proof Dict
+    codom  = Proof Dict
     forget = Proof Dict
 
 -- |
@@ -345,7 +352,7 @@ instance FreeAlgebra (Free Semigroup) where
     returnFree a = Free $ \k -> k a
     foldMapFree f (Free k) = k f
 
-    proof  = Proof Dict
+    codom  = Proof Dict
     forget = Proof Dict
 
 instance Semigroup (Free Monoid a) where
@@ -360,8 +367,8 @@ instance FreeAlgebra (Free Monoid) where
     returnFree a = Free $ \k -> k a
     foldMapFree f (Free k) = k f
 
-    proof  = Proof Dict
-    forget = Proof Dict
+    codom  = proof
+    forget = proof
 
 type instance AlgebraType0 DList a = ()
 type instance AlgebraType  DList a = Monoid a
@@ -372,8 +379,8 @@ instance FreeAlgebra DList where
     returnFree = DList.singleton
     foldMapFree = foldMap
 
-    proof  = Proof Dict
-    forget = Proof Dict
+    codom  = proof
+    forget = proof
 
 instance Semigroup (Free Group a) where
     Free f <> Free g = Free $ \k -> f k <> g k
@@ -390,5 +397,5 @@ instance FreeAlgebra (Free Group) where
     returnFree a = Free $ \k -> k a
     foldMapFree f (Free k) = k f
 
-    proof  = Proof Dict
-    forget = Proof Dict
+    codom  = proof
+    forget = proof

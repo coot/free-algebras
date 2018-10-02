@@ -3,14 +3,13 @@
 module Control.Monad.Action where
 
 import           Control.Monad (join)
-import           Data.Constraint (Dict (..))
 import           Data.Functor.Const (Const (..))
 
 import           Control.Algebra.Free
     ( AlgebraType0
     , AlgebraType
     , FreeAlgebra1 (..)
-    , Proof (..)
+    , proof
     )
 import           Data.Algebra.Pointed (Pointed (point))
 import           Data.Algebra.Free (FreeAlgebra, foldFree)
@@ -63,5 +62,5 @@ instance Monad m => FreeAlgebra1 (FreeMAction m) where
     liftFree = FreeMAction . return
     foldNatFree nat (FreeMAction mfa) = mact $ nat <$> mfa
 
-    proof1  = Proof Dict
-    forget1 = Proof Dict
+    codom1  = proof
+    forget1 = proof

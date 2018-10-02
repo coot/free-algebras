@@ -18,7 +18,6 @@ module Data.Group.Free
     ) where
 
 import           Control.Monad (ap, join)
-import           Data.Constraint (Dict (..))
 import           Data.DList (DList)
 import qualified Data.DList as DList
 import           Data.Group (Group (..))
@@ -28,7 +27,7 @@ import           Data.Algebra.Free
     ( AlgebraType
     , AlgebraType0
     , FreeAlgebra (..)
-    , Proof (..)
+    , proof
     )
 
 -- |
@@ -106,8 +105,8 @@ instance FreeAlgebra FreeGroup where
             as' = DList.tail as
         in either (invert . f) f a' <> foldMapFree f (FreeGroup as')
 
-    proof  = Proof Dict
-    forget = Proof Dict
+    codom  = proof
+    forget = proof
 
 -- |
 -- Free group in the class of groups which multiplication is strict on the left, i.e.
@@ -147,5 +146,5 @@ instance FreeAlgebra FreeGroupL where
     foldMapFree f (FreeGroupL (a : as)) =
         either (invert . f) f a <> foldMapFree f (FreeGroupL as)
 
-    proof  = Proof Dict
-    forget = Proof Dict
+    codom  = proof
+    forget = proof

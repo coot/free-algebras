@@ -5,7 +5,6 @@ module Data.Semigroup.SemiLattice
     , toNonEmpty
     ) where
 
-import           Data.Constraint (Dict (..))
 import           Data.List.NonEmpty (NonEmpty (..))
 import qualified Data.List.NonEmpty as NE
 import           Data.IntSet (IntSet)
@@ -18,7 +17,7 @@ import           Data.Algebra.Free
     ( AlgebraType
     , AlgebraType0
     , FreeAlgebra (..)
-    , Proof (..)
+    , proof
     )
 import           Data.Semigroup.Abelian (AbelianSemigroup)
 
@@ -55,5 +54,5 @@ instance FreeAlgebra FreeSemiLattice where
     returnFree a = FreeSemiLattice $ Set.singleton a
     foldMapFree f (FreeSemiLattice as) = sconcat $ fmap f $ NE.fromList $ Set.toList as
 
-    proof  = Proof Dict
-    forget = Proof Dict
+    codom  = proof
+    forget = proof

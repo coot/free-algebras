@@ -16,7 +16,6 @@ module Data.Monoid.MSet
     ) where
 
 import           Control.Monad (ap)
-import           Data.Constraint (Dict (..))
 import           Data.Functor.Const (Const (..))
 import           Data.Functor.Identity (Identity (..))
 import qualified Data.Functor.Product as Functor (Product)
@@ -32,7 +31,7 @@ import           Data.Algebra.Free
     ( AlgebraType
     , AlgebraType0
     , FreeAlgebra (..)
-    , Proof (..)
+    , proof
     , bindFree
     , foldrFree
     )
@@ -138,5 +137,5 @@ type instance AlgebraType  (FreeMSet m) a = MSet m a
 instance Monoid m => FreeAlgebra (FreeMSet m) where
     returnFree a = FreeMSet (mempty, a)
     foldMapFree f (FreeMSet (m, a)) = act m (f a)
-    proof  = Proof Dict
-    forget = Proof Dict
+    codom  = proof
+    forget = proof

@@ -144,7 +144,7 @@ phi :: forall m a d .
         )
      => Hom m a d
      -> AlgHom m (m a) d
-phi (Hom f) = case proof @m @a of
+phi (Hom f) = case codom @m @a of
     Proof Dict -> case forget @m @(m a) of
         Proof Dict -> AlgHom $ foldMapFree f
 
@@ -156,7 +156,7 @@ unit :: forall m a .
         , AlgebraType0 m a
         )
      => Hom m a (m a)
-unit = case proof @m @a of
+unit = case codom @m @a of
     Proof Dict -> case forget @m @(m a) of
         Proof Dict -> psi (AlgHom id)
 
@@ -216,7 +216,7 @@ joinF :: forall  m a .
          , AlgebraType0 m (FreeMAlg m (FreeMAlg m a))
          )
       => Hom m (FreeMAlg m (FreeMAlg m a)) (FreeMAlg m a)
-joinF = case proof @m @a of
+joinF = case codom @m @a of
     Proof Dict -> case forget @m @(m a) of
         Proof Dict -> Hom $ \(FreeMAlg mma) -> FreeMAlg $ joinFree $ fmapFree runFreeMAlg mma
 
@@ -228,7 +228,7 @@ joinF' :: forall  m a .
          , AlgebraType0 m a
          )
       => Hom m (m (m a)) (m a)
-joinF' = case proof @m @a of
+joinF' = case codom @m @a of
     Proof Dict -> forget_ counit
 
 -- |
@@ -240,7 +240,7 @@ bindF :: forall m a b .
       => FreeMAlg m a
       -> Hom m a (FreeMAlg m b)
       -> FreeMAlg m b
-bindF (FreeMAlg ma) (Hom f) = case proof @m @a of
+bindF (FreeMAlg ma) (Hom f) = case codom @m @a of
     Proof Dict -> case forget @m @(m a) of
         Proof Dict -> FreeMAlg $ ma `bindFree` (runFreeMAlg . f)
 
@@ -296,7 +296,7 @@ instance MAlg NonEmpty a => MAlg NonEmpty (b -> a) where
   -          , AlgebraType0 m a
   -          , AlgebraType0 m (FreeMAlg m a)
   -          ) => MAlg m (FreeMAlg m a) where
-  -     alg ma = case proof @m @a of
+  -     alg ma = case codom @m @a of
   -         Proof Dict -> case forget @m @(m a) of
   -             Proof Dict -> FreeMAlg $ joinFree $ fmapFree runFreeMAlg ma
   --}

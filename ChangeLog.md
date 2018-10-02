@@ -18,6 +18,7 @@
 - Simplified `Proof` type.
 
 ## Unreleased changes
+- `FreeAlgebra` renamed `proof` to `codom`, added `Proof` smart constructor `proof`.
 - `FreeAlgebra` instance for `Identity` functor
 - generic `Free` type
 - `DList` and `FreeGroup` based on `DList`, `FreeGroupL`
