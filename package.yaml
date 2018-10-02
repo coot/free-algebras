@@ -45,7 +45,7 @@ default-extensions:
 
 dependencies:
   - base >= 4.11 && < 5
-  - constraints
+  - constraints >= 0.9 && < 0.11
   - containers
   - data-fix
   - dlist
