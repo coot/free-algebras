@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {- |
     Actions of [semigroup](https://en.wikipedia.org/wiki/Semigroup_action) (SSet).
  -}
@@ -8,7 +9,7 @@ module Data.Semigroup.SSet
     , S (..)
     ) where
 
-import           Data.Semigroup (Endo (..), Sum (..))
+import           Data.Semigroup (Semigroup (..), Endo (..), Sum (..))
 import           Data.Functor.Const (Const (..))
 import           Data.Functor.Identity (Identity (..))
 import qualified Data.Functor.Product as Functor (Product)
@@ -17,7 +18,7 @@ import           Data.Group (Group (..))
 import           Data.List.NonEmpty (NonEmpty)
 import qualified Data.List.NonEmpty as NE
 import           Data.Natural (Natural)
-import           Data.Ord (Down)
+import           Data.Ord (Down (..))
 import           Data.Set (Set)
 import qualified Data.Set as Set
 
@@ -38,7 +39,7 @@ class Semigroup s => SSet s a where
 rep :: SSet s a => s -> Endo a
 rep s = Endo (act s)
 
-instance Semigroup s => SSet s s where
+instance {-# OVERLAPPING #-} Semigroup s => SSet s s where
     act = (<>)
 
 instance (SSet s a, SSet s b) => SSet s (a, b) where
@@ -89,7 +90,8 @@ instance SSet s b => SSet s (Either a b) where
     act = fact
 
 instance SSet s a => SSet s (Down a) where
-    act = fact 
+    act s (Down a) =  Down (act s a)
+
 instance SSet s a => SSet s (IO a) where
     act = fact
 
@@ -108,20 +110,26 @@ instance Semigroup m => Semigroup (S m) where
 
 instance Monoid m => Monoid (S m) where
     mempty = S mempty
+#if __GLASGOW_HASKELL__ <= 822
+    S s `mappend` S s' = S $ s `mappend` s'
+#endif
 
-instance {-# OVERLAPPABLE #-} SSet m a => SSet (S m) a where
-    act (S m) a = act m a
+-- instance {-# OVERLAPPABLE #-} SSet m a => SSet (S m) a where
+    -- act (S m) a = act m a
 
-instance {-# OVERLAPPABLE #-} SSet s a => SSet (S s) (Endo a) where
+-- instance {-# OVERLAPPABLE #-} SSet s a => SSet (S s) (Endo a) where
+    -- act s (Endo f) = Endo $ act s . f
+
+instance {-# OVERLAPPABLE #-} SSet s a => SSet s (Endo a) where
     act s (Endo f) = Endo $ act s . f
 
 instance Monoid s => SSet (Sum Natural) s where
     act (Sum 0) _ = mempty
-    act (Sum n) s = s <> act (Sum (n - 1)) s
+    act (Sum n) s = s `mappend` act (Sum (n - 1)) s
 
 instance Group g => SSet (Sum Integer) g where
-    act (Sum n) g | n < 0      = invert g <> act (Sum (n + 1)) g
-                  | n > 0      = g <> act (Sum (n - 1)) g
+    act (Sum n) g | n < 0      = invert g `mappend` act (Sum (n + 1)) g
+                  | n > 0      = g `mappend` act (Sum (n - 1)) g
                   | otherwise  = mempty
 
 instance SSet s a => SSet s (Const a b) where

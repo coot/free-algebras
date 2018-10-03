@@ -30,7 +30,7 @@ library
   default-extensions: ConstraintKinds DataKinds DeriveFunctor EmptyDataDecls FlexibleInstances FlexibleContexts KindSignatures InstanceSigs MultiParamTypeClasses OverloadedStrings PolyKinds RankNTypes ScopedTypeVariables TupleSections TypeApplications TypeFamilies
   ghc-options: -Wall -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -Werror -Wno-deprecations
   build-depends:
-      base >=4.11 && <5
+      base >=4.10 && <5
     , binary
     , bytestring
     , constraints

@@ -12,7 +12,7 @@ import           Data.Map (Map)
 import qualified Data.Map as Map
 import           Data.Set (Set)
 import           Data.Semigroup
-    ( Semigroup
+    ( Semigroup (..)
     , All
     , Any
     , Dual
@@ -65,7 +65,7 @@ instance AbelianSemigroup IntSet
 -- |
 -- Free abelian semigroup is isomorphic to a non empty map with keys @a@ and
 -- values positive natural numbers.
-newtype FreeAbelianSemigroup a = FreeAbelianSemigroup { runFreeAbelianSemigroup :: Map a Integer }
+newtype FreeAbelianSemigroup a = FreeAbelianSemigroup (Map a Integer)
     deriving (Ord, Eq, Show)
 
 toNonEmpty :: FreeAbelianSemigroup a -> NonEmpty (a, Integer)

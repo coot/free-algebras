@@ -4,6 +4,7 @@ module Test.Data.Group.Free
     ) where
 
 import           Control.Monad (mapM)
+import           Data.Semigroup (Semigroup (..))
 import           Data.Group (invert)
 import           Data.DList (DList)
 import qualified Data.DList as DList

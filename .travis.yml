@@ -6,5 +6,3 @@ matrix:
       env: COMPILER="ghc843"
     - name: "ghc822"
       env: COMPILER="ghc822"
-    - name: "ghc802"
-      env: COMPILER="ghc802"

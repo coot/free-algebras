@@ -8,7 +8,7 @@ module Data.Semigroup.SemiLattice
 import           Data.List.NonEmpty (NonEmpty (..))
 import qualified Data.List.NonEmpty as NE
 import           Data.IntSet (IntSet)
-import           Data.Semigroup (All, Any, sconcat)
+import           Data.Semigroup (All, Any, Semigroup, sconcat)
 import           Data.Set (Set)
 import qualified Data.Set as Set
 import           Data.Void (Void)
@@ -35,7 +35,7 @@ instance SemiLattice IntSet
 
 -- |
 -- @'FreeSemiLattice'@ is a non empty set.
-newtype FreeSemiLattice a = FreeSemiLattice { runFreeSemiLattice :: Set a }
+newtype FreeSemiLattice a = FreeSemiLattice (Set a)
     deriving (Ord, Eq, Show, Semigroup)
 
 instance Ord a => AbelianSemigroup (FreeSemiLattice a)

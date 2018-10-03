@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {- |
    Free groups
 
@@ -91,6 +92,9 @@ instance Eq a => Semigroup (FreeGroup a) where
 
 instance Eq a => Monoid (FreeGroup a) where
     mempty = FreeGroup DList.empty
+#if __GLASGOW_HASKELL__ <= 822
+    mappend = (<>)
+#endif
 
 instance Eq a => Group (FreeGroup a) where
     invert (FreeGroup as) = FreeGroup $ foldl (\acu a -> either Right Left a `DList.cons` acu) DList.empty as
@@ -103,7 +107,7 @@ instance FreeAlgebra FreeGroup where
     foldMapFree f (FreeGroup as)        =
         let a'  = DList.head as
             as' = DList.tail as
-        in either (invert . f) f a' <> foldMapFree f (FreeGroup as')
+        in either (invert . f) f a' `mappend` foldMapFree f (FreeGroup as')
 
     codom  = proof
     forget = proof
@@ -134,6 +138,9 @@ instance Eq a => Semigroup (FreeGroupL a) where
 
 instance Eq a => Monoid (FreeGroupL a) where
     mempty = FreeGroupL []
+#if __GLASGOW_HASKELL__ <= 822
+    mappend = (<>)
+#endif
 
 instance Eq a => Group (FreeGroupL a) where
     invert (FreeGroupL as) = FreeGroupL $ foldl (\acu a -> either Right Left a : acu) [] as
@@ -144,7 +151,7 @@ instance FreeAlgebra FreeGroupL where
     returnFree a = FreeGroupL [Right a]
     foldMapFree _ (FreeGroupL []) = mempty
     foldMapFree f (FreeGroupL (a : as)) =
-        either (invert . f) f a <> foldMapFree f (FreeGroupL as)
+        either (invert . f) f a `mappend` foldMapFree f (FreeGroupL as)
 
     codom  = proof
     forget = proof

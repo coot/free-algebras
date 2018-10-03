@@ -1,9 +1,13 @@
+{-# LANGUAGE CPP                  #-}
 {-# LANGUAGE UndecidableInstances #-}
 module Data.Algebra.Pointed
     ( Pointed (..)
     , PointedMonoid (..)
     ) where
 
+#if __GLASGOW_HASKELL__ <= 822
+import Data.Semigroup (Semigroup (..))
+#endif
 
 -- |
 -- Class of pointed sets
@@ -23,6 +27,9 @@ instance Semigroup m => Semigroup (PointedMonoid m) where
 
 instance Monoid m => Monoid (PointedMonoid m) where
     mempty = PointedMonoid mempty
+#if __GLASGOW_HASKELL__ <= 822
+    mappend (PointedMonoid m) (PointedMonoid n) = PointedMonoid $ mappend m n
+#endif
 
 instance Monoid m => Pointed (PointedMonoid m) where
     point = mempty

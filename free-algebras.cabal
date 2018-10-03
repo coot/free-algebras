@@ -43,7 +43,7 @@ library
       src
   default-extensions: ConstraintKinds DataKinds DeriveFunctor EmptyDataDecls FlexibleInstances FlexibleContexts KindSignatures InstanceSigs MultiParamTypeClasses OverloadedStrings PolyKinds RankNTypes ScopedTypeVariables TupleSections TypeApplications TypeFamilies
   build-depends:
-      base >=4.11 && <5
+      base >=4.10 && <5
     , constraints
     , containers
     , data-fix
@@ -73,7 +73,7 @@ test-suite free-algebras-test
   default-extensions: ConstraintKinds DataKinds DeriveFunctor EmptyDataDecls FlexibleInstances FlexibleContexts KindSignatures InstanceSigs MultiParamTypeClasses OverloadedStrings PolyKinds RankNTypes ScopedTypeVariables TupleSections TypeApplications TypeFamilies
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.11 && <5
+      base >=4.10 && <5
     , constraints
     , containers
     , data-fix

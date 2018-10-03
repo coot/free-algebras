@@ -1,10 +1,11 @@
+{-# LANGUAGE CPP #-}
 module Data.Monoid.Abelian
     ( FreeAbelianMonoid (..)
     ) where
 
 import           Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
-import           Data.Semigroup (stimes)
+import           Data.Semigroup (Semigroup (..), stimes)
 import           Data.Natural (Natural)
 
 import           Data.Algebra.Free (AlgebraType, AlgebraType0, FreeAlgebra (..), proof)
@@ -23,6 +24,9 @@ instance Ord a => AbelianSemigroup (FreeAbelianMonoid a)
 
 instance Ord a => Monoid (FreeAbelianMonoid a) where
     mempty = FreeAbelianMonoid (Map.empty)
+#if __GLASGOW_HASKELL__ <= 822
+    mappend = (<>)
+#endif
 
 type instance AlgebraType0 FreeAbelianMonoid a = Ord a
 type instance AlgebraType  FreeAbelianMonoid m = (Ord m, Monoid m, AbelianSemigroup m)

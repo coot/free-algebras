@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP   #-}
 {-# LANGUAGE GADTs #-}
 module Data.Algebra.Free
     ( -- * Algebra type
@@ -356,10 +357,14 @@ instance FreeAlgebra (Free Semigroup) where
     forget = Proof Dict
 
 instance Semigroup (Free Monoid a) where
-    Free f <> Free g = Free $ \k -> f k <> g k
+    Free f <> Free g = Free $ \k -> f k `mappend` g k
 
 instance Monoid (Free Monoid a) where
     mempty = Free (const mempty)
+#if __GLASGOW_HASKELL__ <= 822
+    mappend = (<>)
+#endif
+
 
 type instance AlgebraType0 (Free Monoid) a = ()
 type instance AlgebraType  (Free Monoid) a = Monoid a
@@ -383,10 +388,13 @@ instance FreeAlgebra DList where
     forget = proof
 
 instance Semigroup (Free Group a) where
-    Free f <> Free g = Free $ \k -> f k <> g k
+    Free f <> Free g = Free $ \k -> f k `mappend` g k
 
 instance Monoid (Free Group a) where
     mempty = Free (const mempty)
+#if __GLASGOW_HASKELL__ <= 822
+    mappend = (<>)
+#endif
 
 instance Group (Free Group a) where
     invert (Free k) = Free (k . invert)
