@@ -15,6 +15,7 @@ cabal-version:  >= 1.10
 extra-source-files:
     ChangeLog.md
     README.md
+tested-with:    GHC==8.0.2, GHC==8.2.2, GHC==8.4.3
 
 source-repository head
   type: git
