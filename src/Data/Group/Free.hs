@@ -18,7 +18,7 @@ module Data.Group.Free
     , normalizeL
     ) where
 
-import           Control.Monad (ap, join)
+import           Control.Monad (ap)
 import           Data.DList (DList)
 import qualified Data.DList as DList
 import           Data.Group (Group (..))
@@ -56,7 +56,7 @@ instance Applicative FreeGroup where
 
 instance Monad FreeGroup where
     return a = FreeGroup $ DList.singleton (Right a)
-    FreeGroup as >>= f = FreeGroup $ join $ fmap (runFreeGroup . either f f) as
+    FreeGroup as >>= f = FreeGroup $ as >>= runFreeGroup . either f f
 
 -- |
 -- Normalize a list, i.e. remove adjusten inverses from a word, i.e.
@@ -67,7 +67,7 @@ normalize
     :: Eq a
     => DList (Either a a)
     -> DList (Either a a)
-normalize = DList.foldr fn (DList.empty)
+normalize = DList.foldr fn DList.empty
     where
     fn a as = case as of
         DList.Nil -> DList.singleton a

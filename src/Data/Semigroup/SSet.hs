@@ -99,7 +99,7 @@ instance SSet s b => SSet s (a -> b) where
     act = fact
 
 instance SSet (Endo a) a where
-    act (Endo f) a = f a
+    act = appEndo
 
 -- |
 -- A newtype wrapper to avoid overlapping instances.

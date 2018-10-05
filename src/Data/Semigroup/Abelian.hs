@@ -98,7 +98,7 @@ instance FreeAlgebra FreeAbelianSemigroup where
         replicate_ a n = a : replicate_ a (n - 1)                             
 
         toNonEmpty_ :: Map a Integer -> NonEmpty a
-        toNonEmpty_ = NE.fromList . concat . map (uncurry replicate_) . Map.toList
+        toNonEmpty_ = NE.fromList . concatMap (uncurry replicate_) . Map.toList
 
     codom  = proof
     forget = proof

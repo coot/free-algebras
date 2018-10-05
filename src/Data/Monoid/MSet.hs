@@ -165,7 +165,7 @@ instance MSet m b => MSet m (a -> b) where
 
 instance MSet (Endo a) a where
 #if __GLASGOW_HASKELL__ <= 822
-    mact (Endo f) a = f a
+    mact = appEndo
 #endif
 
 instance {-# OVERLAPPABLE #-} MSet m a => MSet (S m) a where
@@ -218,11 +218,11 @@ instance ( Monoid m
     (>>=)  = bindFree
 
 instance Semigroup m => SSet m (FreeMSet m a) where
-    act m (FreeMSet (h, a)) = FreeMSet $ (m <> h, a)
+    act m (FreeMSet (h, a)) = FreeMSet (m <> h, a)
 
 instance Monoid m => MSet m (FreeMSet m a) where
 #if __GLASOW_HASKELL__ <= 822
-    mact m (FreeMSet (h, a)) = FreeMSet $ (m `mappend` h, a)
+    mact m (FreeMSet (h, a)) = FreeMSet (m `mappend` h, a)
 #endif
 
 -- |
