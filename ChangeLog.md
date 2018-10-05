@@ -1,5 +1,12 @@
 # Changelog for free-algebras
 
+## Version 0.0.5.0
+- `FreeAlgebra` renamed `proof` to `codom`, added `Proof` smart constructor `proof`.
+- `FreeAlgebra` instance for `Identity` functor
+- generic `Free` type
+- `DList` and `FreeGroup` based on `DList`, `FreeGroupL`
+- documentation on strictness / laziness improved
+
 ## Version 0.0.4.0
 
 - `S` new type wrapper in `SSet`, and overlappable instance for
@@ -18,8 +25,3 @@
 - Simplified `Proof` type.
 
 ## Unreleased changes
-- `FreeAlgebra` renamed `proof` to `codom`, added `Proof` smart constructor `proof`.
-- `FreeAlgebra` instance for `Identity` functor
-- generic `Free` type
-- `DList` and `FreeGroup` based on `DList`, `FreeGroupL`
-- documentation on strictness / laziness
