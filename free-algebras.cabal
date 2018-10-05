@@ -46,7 +46,7 @@ library
   build-depends:
       base            >= 4.9 && <5
     , constraints     >= 0.8 && <0.11.0 
-    , containers      >= 0.4.2.1 && <0.7
+    , containers      >= 0.5.8.1 && <0.7
     , data-fix                  <0.3
     , dlist           >= 0.8 && <0.9
     , free            >= 4.0 && <6.0
