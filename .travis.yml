@@ -6,6 +6,8 @@ script:
   | cachix push free-algebras
 matrix:
   include:
+  # - name: ghc861
+    # env: COMPILER="ghc861"
   - name: ghc843
     env: COMPILER="ghc843"
   - name: ghc822

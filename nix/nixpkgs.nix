@@ -1,10 +1,10 @@
 {}:
 with builtins;
 let
-  rev = "889c72032f8595fcd7542c6032c208f6b8033db6";
+  rev = "6a3f5bcb061e1822f50e299f5616a0731636e4e7";
   url = "https://github.com/NixOS/nixpkgs/archive/${rev}.tar.gz";
   # nix-prefetch-url --unpack
-  sha256 = "0zsrcpnr0bwi81dfpmdhv8mz41lk9c1gjp6slbmagal5in14kn9c";
+  sha256 = "1ib96has10v5nr6bzf7v8kw7yzww8zanxgw2qi1ll1sbv6kj6zpd";
   config =
     { packageOverrides = super:
       let self = super.pkgs;
@@ -12,6 +12,13 @@ let
       in {
         haskell = super.haskell // {
           packages = super.haskell.packages // {
+            ghc861 = super.haskell.packages.ghc861.override {
+              overrides = self: super: {
+                free = super.callPackage ./free-5.1.nix {};
+                semigroupoids = super.callPackage ./semigroupoids-5.3.1.nix {};
+                base-orphans = super.callPackage ./base-orphans-0.8.nix {};
+              };
+            };
             ghc802 = super.haskell.packages.ghc802.override {
               overrides = self: super: {
                 ansi-terminal = super.callPackage ./ansi-terminal-0.6.3.1.nix {};
