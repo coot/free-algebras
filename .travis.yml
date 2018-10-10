@@ -1,19 +1,30 @@
 language: nix
 script:
 - nix-env -iA cachix -f https://github.com/NixOS/nixpkgs/tarball/1d4de0d552ae9aa66a5b8dee5fb0650a4372d148
+- echo "trusted-users = root ${USER}" | sudo tee -a /etc/nix/nix.conf || true
+- sudo pkill nix-daemon || true
 - cachix use free-algebras
-- nix-build --arg dev true -A free-algebras -A examples --argstr compiler $COMPILER
-  | cachix push free-algebras
+- nix-build --arg dev true -A free-algebras -o result-fa --argstr compiler $COMPILER
+- nix-build --arg dev true -A examples      -o result-ex --argstr compiler $COMPILER
+- cachix push free-algebras ./result-fa ./result-ex
 matrix:
   include:
-  # - name: ghc861
-    # env: COMPILER="ghc861"
   - name: ghc843
     env: COMPILER="ghc843"
   - name: ghc822
     env: COMPILER="ghc822"
   - name: ghc802
+    env: COMPILER="ghc802"
+
+  - name: ghc843
+    env: COMPILER="ghc843"
+    os: osx
+  - name: ghc822
     env: COMPILER="ghc822"
+    os: osx
+  - name: ghc802
+    env: COMPILER="ghc802"
+    os: osx
 env:
   global:
     secure: QuO7Rg6p93Db3br6Zc6jytMrxnSgJc2KihvsC0UtFqFVdZL6feii3sVSQjfzr0QUn1c/cKLu05RC302yuOxOFewDPANQf7CRA40I1R5rSIHhl55zU82dwtvd6sPv4/I0QO1dDzQh9aXmu1ltnetauFPXc6N17Ez6E0544e7Cxx9gskTn1pwI/Lj3KpZbZORd1mB8lJzrtJMokd88EEYyfwrOObY8qeKHBLJHhglG5tdWxbk1NihEJTE1X4JKgm+5+cS802WtGRChbJwrCKhDCEGhiuYBwWxzIhS7VYQ4fOiqc87FMN0BI6t780gzVjpvQ4pyeVf5gQTa6Hv3BD9LtgYKrnhgIgpu3l9N/6RWdM6Cr6BNq30a7kM2D7kXIuUN/6ouL8qKzcdOieFIzgx53/h5q91UtjuyIa4VQVPwVtkHpjIv7bugsMZiWVfQ11mrlk2flkqy+xj6/BDUmUw+6jXNPrFHjcqn5XbvNajuCY02C1thqcFgo2KRmoLnWLYBKT31GuyUfpcKo/HVVif4nAeM62bQcHB5G7voHcA79oVumyb9EhrZw9i+qpvANM6zT7141Heq2PYLfmWm4UJFoa9TBLBmyOtRRZX1wJDFJAptkY5d4Oxxlb/yaCpcNmnFLQ6smncpQDk9lmo4s/s9hn3zefyY3eTkQLMt5KWAjuk=
