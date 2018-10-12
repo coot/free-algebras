@@ -1,14 +1,15 @@
 {-# LANGUAGE GADTs                      #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 module Control.Algebra.Free
-    (
-    -- * Classes
-      AlgebraType0
-    , AlgebraType
+    ( -- Higher free algebra class
+      FreeAlgebra1 (..)
+      -- ** Type level witnesses
     , Proof (..)
     , proof
-    , FreeAlgebra1 (..)
-    -- * Combinators
+      -- ** Higher algebra type
+    , AlgebraType0
+    , AlgebraType
+      -- * Combinators
     , wrapFree
     , foldFree1
     , unFoldNatFree
@@ -19,11 +20,11 @@ module Control.Algebra.Free
     , assocFree1
     , iterFree1
     , cataFree1
-    -- * Day convolution
+      -- * Day convolution
     , DayF (..)
     , dayToAp
     , apToDay
-    -- * Various classes (higher algebra types)
+      -- * Various classes (higher algebra types)
     , MonadList (..)
     , MonadMaybe (..)
     ) where
@@ -98,9 +99,9 @@ class FreeAlgebra1 (m :: (Type -> Type) -> Type -> Type) where
            , AlgebraType0 m f
            )
         => (forall x. f x -> d x)
-        -- ^ natural transformation which embeds generators of @m@ into @d@
+        -- ^ a natural transformation which embeds generators of @m@ into @d@
         -> (m f a -> d a)
-        -- ^ a homomorphism from @m f@ to @d@
+        -- ^ a morphism from @m f@ to @d@
 
     -- |
     -- A proof that @'AlgebraType' m (m f)@ holds for all @AlgebraType0 f => f@.
@@ -119,7 +120,7 @@ class FreeAlgebra1 (m :: (Type -> Type) -> Type -> Type) where
 -- |
 -- Anything that carries @'FreeAlgebra1'@ constraint is also an instance of
 -- @'Control.Monad.Free.Class.MonadFree'@, but not vice versa. You can use
--- @'wrap'@ to define a @'Contorl.Monad.Free.Class.MonadFree'@ instance.
+-- @'wrap'@ to define a @'Control.Monad.Free.Class.MonadFree'@ instance.
 -- @'ContT'@ is an example of a monad which does have an  @'FreeAlgebra1'@
 -- instance, but has an @'MonadFree'@ instance.
 --
@@ -239,7 +240,7 @@ joinFree1 = case codom1 @m @f of
 --
 -- For @'Control.Monad.State.Lazy.StateT'@,
 -- @'Control.Monad.Writer.Lazy.WriterT'@ or
--- @'Contorl.Monad.Reader.Lazy.ReaderT'@ (or any @'FreeAlgebra1' m => m@ such
+-- @'Control.Monad.Reader.Lazy.ReaderT'@ (or any @'FreeAlgebra1' m => m@ such
 -- that @'AlgebraType0' m@ subsumes @'Monad' m@), this is the @>>=@ version of
 -- @Control.Monad.Morph.embed@.
 bindFree1 :: forall m f g a .
