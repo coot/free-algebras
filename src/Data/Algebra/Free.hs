@@ -216,8 +216,7 @@ bindFree ma f = case codom @m @b of
 --   fixToFree :: (FreeAlgebra m, AlgebraType m (m Void), Functor m) => Fix m -> m Void
 --   fixToFree = cataFree
 -- @
--- For monoids the inverse is given by @'Data.Fix.ana' (\_ -> [])@.  The
--- category of semigroups, however,  does not have the initial object.
+-- For monoids the inverse is given by @'Data.Fix.ana' (\_ -> [])@.
 cataFree :: ( FreeAlgebra  m
             , AlgebraType  m a
             , Functor m

@@ -1,5 +1,8 @@
 # Changelog for free-algebras
 
+## Version 0.0.5.1
+- Improved documentation
+
 ## Version 0.0.5.0
 - `FreeAlgebra` renamed `proof` to `codom`, added `Proof` smart constructor `proof`.
 - `FreeAlgebra` instance for `Identity` functor
@@ -25,3 +28,4 @@
 - Simplified `Proof` type.
 
 ## Unreleased changes
+

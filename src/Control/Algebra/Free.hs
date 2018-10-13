@@ -281,7 +281,7 @@ assocFree1 = case forget1 @m @f of
 
 -- |
 -- @'Fix' (m f)@ is the initial /algebra/ of type @'AlgebraType' m@ and
--- @'AlgebraType0' f@ (whenever it /exists/).
+-- @'AlgebraType0' f@.
 cataFree1 :: forall m f a .
              ( FreeAlgebra1 m
              , AlgebraType  m f
