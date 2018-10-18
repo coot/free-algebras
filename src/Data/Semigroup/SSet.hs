@@ -110,18 +110,18 @@ instance Semigroup m => Semigroup (S m) where
 
 instance Monoid m => Monoid (S m) where
     mempty = S mempty
-#if __GLASGOW_HASKELL__ <= 822
+#if __GLASGOW_HASKELL__ < 804
     S s `mappend` S s' = S $ s `mappend` s'
 #endif
 
--- instance {-# OVERLAPPABLE #-} SSet m a => SSet (S m) a where
-    -- act (S m) a = act m a
+-- instance SSet s a => SSet (S s) a where
+  -- act (S s) a = act s a
 
 -- instance {-# OVERLAPPABLE #-} SSet s a => SSet (S s) (Endo a) where
     -- act s (Endo f) = Endo $ act s . f
 
-instance {-# OVERLAPPABLE #-} SSet s a => SSet s (Endo a) where
-    act s (Endo f) = Endo $ act s . f
+instance SSet s a => SSet (S s) (Endo a) where
+    act (S s) (Endo f) = Endo $ act s . f
 
 instance Monoid s => SSet (Sum Natural) s where
     act (Sum 0) _ = mempty

@@ -22,13 +22,17 @@ import           Data.Functor.Identity (Identity (..))
 import qualified Data.Functor.Product as Functor (Product)
 import qualified Data.Functor.Sum as Functor (Sum)
 import           Data.List.NonEmpty (NonEmpty)
+#if __GLASGOW_HASKELL__ < 804
 import qualified Data.List.NonEmpty as NE
+#endif
 import           Data.Monoid (Monoid, Endo (..), Sum (..))
 import           Data.Natural (Natural)
 import           Data.Ord (Down (..))
 import           Data.Semigroup (Semigroup (..))
 import           Data.Set (Set)
+#if __GLASGOW_HASKELL__ < 804
 import qualified Data.Set as Set
+#endif
 
 import           Data.Semigroup.SSet (SSet (..), S (..), fact, rep)
 import           Data.Algebra.Free
@@ -52,8 +56,8 @@ import           Data.Algebra.Free
 -- Note that if @g@ is a @'Group'@ then an @MSet@ is simply a @GSet@, this
 -- is because monoids and groups share the same morphisms (a monoid homomorphis
 -- between groups necessarily preserves inverses).
-#if __GLASGOW_HASKELL__ > 822
-class (Monoid m , SSet m a) => MSet m a
+#if __GLASGOW_HASKELL__ >= 804
+class (Monoid m, SSet m a) => MSet m a where
   mact :: m -> a -> a
   mact = act
 #else
@@ -62,57 +66,57 @@ class Monoid m => MSet m a where
 #endif
 
 instance Monoid m => MSet m m where
-#if __GLASGOW_HASKELL__ <= 822
+#if __GLASGOW_HASKELL__ < 804
   mact = mappend
 #endif
 
 instance (MSet m a, MSet m b) => MSet m (a, b) where
-#if __GLASGOW_HASKELL__ <= 822
+#if __GLASGOW_HASKELL__ < 804
   mact m (a, b) = (mact m a, mact m b)
 #endif
 
 instance (MSet m a, MSet m b, MSet m c) => MSet m (a, b, c) where
-#if __GLASGOW_HASKELL__ <= 822
+#if __GLASGOW_HASKELL__ < 804
     mact m (a, b, c) = (mact m a, mact m b, mact m c)
 #endif
 
 instance (MSet m a, MSet m b, MSet m c, MSet m d) => MSet m (a, b, c, d) where
-#if __GLASGOW_HASKELL__ <= 822
+#if __GLASGOW_HASKELL__ < 804
     mact m (a, b, c, d) = (mact m a, mact m b, mact m c, mact m d)
 #endif
 
 instance (MSet m a, MSet m b, MSet m c, MSet m d, MSet m e) => MSet m (a, b, c, d, e) where
-#if __GLASGOW_HASKELL__ <= 822
+#if __GLASGOW_HASKELL__ < 804
     mact m (a, b, c, d, e) = (mact m a, mact m b, mact m c, mact m d, mact m e)
 #endif
 
 instance (MSet m a, MSet m b, MSet m c, MSet m d, MSet m e, MSet m f) => MSet m (a, b, c, d, e, f) where
-#if __GLASGOW_HASKELL__ <= 822
+#if __GLASGOW_HASKELL__ < 804
     mact m (a, b, c, d, e, f) = (mact m a, mact m b, mact m c, mact m d, mact m e, mact m f)
 #endif
 
 instance (MSet m a, MSet m b, MSet m c, MSet m d, MSet m e, MSet m f, MSet m h) => MSet m (a, b, c, d, e, f, h) where
-#if __GLASGOW_HASKELL__ <= 822
+#if __GLASGOW_HASKELL__ < 804
     mact m (a, b, c, d, e, f, h) = (mact m a, mact m b, mact m c, mact m d, mact m e, mact m f, mact m h)
 #endif
 
 instance (MSet m a, MSet m b, MSet m c, MSet m d, MSet m e, MSet m f, MSet m h, MSet m i) => MSet m (a, b, c, d, e, f, h, i) where
-#if __GLASGOW_HASKELL__ <= 822
+#if __GLASGOW_HASKELL__ < 804
     mact m (a, b, c, d, e, f, h, i) = (mact m a, mact m b, mact m c, mact m d, mact m e, mact m f, mact m h, mact m i)
 #endif
 
 instance MSet m a => MSet m [a] where
-#if __GLASGOW_HASKELL__ <= 822
+#if __GLASGOW_HASKELL__ < 804
     mact m = map (mact m)
 #endif
 
 instance MSet m a => MSet m (NonEmpty a) where
-#if __GLASGOW_HASKELL__ <= 822
+#if __GLASGOW_HASKELL__ < 804
     mact m = NE.map (mact m)
 #endif
 
 instance (MSet m a, Ord a) => MSet m (Set a) where
-#if __GLASGOW_HASKELL__ <= 822
+#if __GLASGOW_HASKELL__ < 804
     mact m as = Set.map (mact m) as
 #endif
 
@@ -122,80 +126,82 @@ instance (MSet m a, Ord a) => MSet m (Set a) where
   --}
 
 
-#if __GLASGOW_HASKELL__ <= 822
+#if __GLASGOW_HASKELL__ < 804
 fmact :: (Functor f, MSet s a) => s -> f a -> f a
 fmact s = fmap (mact s)
 #endif
 
 
 instance MSet m a => MSet m (Identity a) where
-#if __GLASGOW_HASKELL__ <= 822
+#if __GLASGOW_HASKELL__ < 804
     mact = fmact
 #endif
 
 instance MSet m a => MSet (Identity m) a where
-#if __GLASGOW_HASKELL__ <= 822
+#if __GLASGOW_HASKELL__ < 804
     mact (Identity f) a = f `mact` a
 #endif
 
 instance MSet m a => MSet m (Maybe a) where
-#if __GLASGOW_HASKELL__ <= 822
+#if __GLASGOW_HASKELL__ < 804
     mact = fmact
 #endif
 
 instance MSet m b => MSet m (Either a b) where
-#if __GLASGOW_HASKELL__ <= 822
+#if __GLASGOW_HASKELL__ < 804
     mact = fmact
 #endif
 
 instance MSet m a => MSet m (Down a) where
-#if __GLASGOW_HASKELL__ <= 822
+#if __GLASGOW_HASKELL__ < 804
     mact m (Down a) =  Down (mact m a)
 #endif
 
 instance MSet m a => MSet m (IO a) where
-#if __GLASGOW_HASKELL__ <= 822
+#if __GLASGOW_HASKELL__ < 804
     mact = fmact
 #endif
 
 instance MSet m b => MSet m (a -> b) where
-#if __GLASGOW_HASKELL__ <= 822
+#if __GLASGOW_HASKELL__ < 804
     mact = fmact
 #endif
 
 instance MSet (Endo a) a where
-#if __GLASGOW_HASKELL__ <= 822
+#if __GLASGOW_HASKELL__ < 804
     mact = appEndo
 #endif
 
-instance {-# OVERLAPPABLE #-} MSet m a => MSet (S m) a where
-#if __GLASGOW_HASKELL__ <= 822
-    S m `mact` a = m `mact` a
+#if __GLASGOW_HASKELL__ >= 804
+-- instance {-# OVERLAPPABLE #-} (Monoid m, SSet m a) => MSet (S m) a
+#else
+-- instance {-# OVERLAPPABLE #-} MSet m a => MSet (S m) a where
+    -- S m `mact` a = m `mact` a
 #endif
 
-instance {-# OVERLAPPING #-} MSet m b => MSet (S m) (Endo b) where
-#if __GLASOW_HASKELL__ <= 822
-    mact m (Endo f) = Endo $ mact m . f
+instance MSet m b => MSet (S m) (Endo b) where
+#if __GLASGOW_HASKELL__ < 804
+    mact (S m) (Endo f) = Endo $ mact m . f
 #endif
 
 instance Monoid m => MSet (Sum Natural) m where
-#if __GLASOW_HASKELL__ <= 822
+#if __GLASGOW_HASKELL__ < 804
     mact (Sum 0) _ = mempty
     mact (Sum n) s = s `mappend` mact (Sum (n - 1)) s
 #endif
 
 instance MSet m a => MSet m (Const a b) where
-#if __GLASOW_HASKELL__ <= 822
+#if __GLASGOW_HASKELL__ < 804
     mact s (Const a) = Const $ s `mact` a
 #endif
 
 instance (Functor f, Functor h, MSet m a) => MSet m (Functor.Product f h a) where
-#if __GLASOW_HASKELL__ <= 822
+#if __GLASGOW_HASKELL__ < 804
     mact = fmact 
 #endif
 
 instance (Functor f, Functor h, MSet m a) => MSet m (Functor.Sum f h a) where
-#if __GLASOW_HASKELL__ <= 822
+#if __GLASGOW_HASKELL__ < 804
     mact = fmact 
 #endif
 
@@ -221,7 +227,7 @@ instance Semigroup m => SSet m (FreeMSet m a) where
     act m (FreeMSet (h, a)) = FreeMSet (m <> h, a)
 
 instance Monoid m => MSet m (FreeMSet m a) where
-#if __GLASOW_HASKELL__ <= 822
+#if __GLASGOW_HASKELL__ < 804
     mact m (FreeMSet (h, a)) = FreeMSet (m `mappend` h, a)
 #endif
 
