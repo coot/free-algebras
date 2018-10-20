@@ -5,7 +5,7 @@
     The category of @MSet@s (and @GSet@s) is monadic (unlike the category of @SSet@s).
  -}
 module Data.Monoid.MSet
-    ( MSet
+    ( MSet (..)
     , SSet (..)
     , Endo (..)
     , rep
@@ -28,7 +28,7 @@ import           Data.List.NonEmpty (NonEmpty)
 #if __GLASGOW_HASKELL__ < 804
 import qualified Data.List.NonEmpty as NE
 #endif
-import           Data.Monoid (Monoid, Endo (..), Sum (..))
+import           Data.Monoid (Monoid, Endo (..), Sum (..), Product (..))
 import           Data.Natural (Natural)
 import           Data.Ord (Down (..))
 import           Data.Semigroup (Semigroup (..))
@@ -218,6 +218,16 @@ instance Semigroup m => SSet m (FreeMSet m a) where
 instance Monoid m => MSet m (FreeMSet m a) where
 #if __GLASGOW_HASKELL__ < 804
     mact m (FreeMSet (h, a)) = FreeMSet (m `mappend` h, a)
+#endif
+
+instance Num s => MSet (Sum s) s where
+#if __GLASGOW_HASKELL__ < 804
+    mact (Sum n) s = n + s
+#endif
+
+instance Num s => MSet (Product s) s where
+#if __GLASGOW_HASKELL__ < 804
+    mact (Product n) s = n * s
 #endif
 
 -- |

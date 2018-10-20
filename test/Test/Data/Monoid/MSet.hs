@@ -1,69 +1,68 @@
 {-# LANGUAGE TemplateHaskell #-}
-
-module Test.Data.Semigroup.SSet
+module Test.Data.Monoid.MSet
     ( tests
     ) where
 
 import Data.Functor.Identity
-import Data.Semigroup
+import Data.Monoid
 
-import Data.Semigroup.SSet
+import Data.Monoid.MSet
 
 import           Hedgehog (Property, Gen, property, (===))
 import qualified Hedgehog as H
 import qualified Hedgehog.Gen as Gen
 import qualified Hedgehog.Range as Range
 
-sset_property :: ( Semigroup s
-                 , SSet s a
+mset_property :: forall m a.
+                 ( Monoid m
+                 , MSet m a
                  , Show a
                  , Eq a
                  )
-              => Gen s
-              -> (s -> String)
+              => Gen m
+              -> (m -> String)
               -> Gen a
               -> Property
-sset_property gens show_ gena = property $ do
+mset_property gens show_ gena = property $ do
   s1 <- H.forAllWith show_ gens
   s2 <- H.forAllWith show_ gens
   a  <- H.forAll gena
-  s1 `act` (s2 `act` a) === (s1 <> s2) `act` a
 
-prop_sset_sum_int :: Property
-prop_sset_sum_int =
+  s1 `mact` (s2 `mact` a) === (s1 <> s2) `mact` a
+  mempty @m `mact` a === a
+
+prop_mset_sum_int :: Property
+prop_mset_sum_int =
   let gens :: Gen (S (Sum Int))
       gens = S . Sum <$> Gen.integral (Range.linear (-1024) 1024)
-  in sset_property gens show gens
+  in mset_property gens show gens
 
-_s2 :: Identity (S (Sum Int))
-_s2 = act @(S (Sum Int)) (S (Sum 1)) (Identity (S (Sum 2)))
-
-prop_sset_sum_functor :: Property
-prop_sset_sum_functor =
+prop_mset_sum_functor :: Property
+prop_mset_sum_functor =
   let gens :: Gen (Sum Int)
       gens = Sum <$> Gen.integral (Range.linear (-1024) 1024)
       gena :: Gen (Identity Int)
       gena = Identity <$> Gen.integral (Range.linear (-1024) 1024)
-  in sset_property gens show gena
+  in mset_property gens show gena
 
-prop_sset_endo :: Property
-prop_sset_endo =
+prop_mset_endo :: Property
+prop_mset_endo =
   let gens :: Gen (Endo (Sum Int))
       gens = Endo . (<>) . Sum <$> Gen.integral (Range.linear (-1024) 1024)
       gena :: Gen (Sum Int)
       gena = Sum <$> Gen.integral (Range.linear (-1024) 1024)
-  in sset_property gens (const "*") gena
+  in mset_property gens (const "*") gena
 
-prop_sset_s_sum_int :: Property
-prop_sset_s_sum_int =
+prop_mset_s_sum_int :: Property
+prop_mset_s_sum_int =
   let gens :: Gen (Sum Int)
       gens = Sum <$> Gen.integral (Range.linear (-1024) 1024)
       gena :: Gen Int
       gena = Gen.integral (Range.linear (-1024) 1024)
-  in sset_property gens show gena
+  in mset_property gens show gena
 
-prop_sset_endo2 :: Property
-prop_sset_endo2 =
+prop_mset_endo2 :: Property
+prop_mset_endo2 =
   let gens :: Gen (S (Sum Int))
       gens = S . Sum <$> Gen.integral (Range.linear (-1024) 1024)
       gena :: Gen (Endo Int)
@@ -77,13 +76,13 @@ prop_sset_endo2 =
     b  <- H.forAll genb
     act (s1 <> s2) a `appEndo` b === act s1 (act s2 a) `appEndo` b
 
-prop_sset_product :: Property
-prop_sset_product =
+prop_mset_product :: Property
+prop_mset_product =
   let gens :: Gen (Product Int)
       gens = Product <$> Gen.integral (Range.linear (-1024) 1024)
       gena :: Gen Int
       gena = Gen.integral (Range.linear (-1024) 1024)
-  in sset_property gens show gena
+  in mset_property gens show gena
 
 tests :: IO Bool
 tests = H.checkParallel $$(H.discover)
