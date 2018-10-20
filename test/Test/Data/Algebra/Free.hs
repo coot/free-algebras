@@ -103,15 +103,16 @@ prop_foldMapFree_list
     = foldMapFree_property @[] @(Sum Int) @Int
         ((Gen.list $ Range.linear 0 100)
             (Gen.integral $ Range.linear 0 1024))
-        (Gen.integral $ Range.linear 0 1024)
+        (Gen.integral @_ @Int $ Range.linear 0 1024)
         (Sum . sum)
         Sum
 
 prop_foldMapFree_nonempty :: Property
+prop_foldMapFree_nonempty
     = foldMapFree_property @NonEmpty @(Sum Int) @Int
         ((Gen.nonEmpty $ Range.linear 0 100)
-            (Gen.integral $ Range.linear 0 1024))
-        (Gen.integral $ Range.linear 0 1024)
+            (Gen.integral @_ @Int $ Range.linear 0 1024))
+        (Gen.integral @_ @Int $ Range.linear 0 1024)
         (Sum . sum)
         Sum
 
@@ -140,13 +141,13 @@ prop_fmapFree_list :: Property
 prop_fmapFree_list = fmapFree_property @[] @Integer @Integer
     ((Gen.list $ Range.linear 0 100)
         (Gen.integral $ Range.linear 0 1024))
-    (\x -> x^2 + 2 * x + 1)
+    (\x -> x^(2::Int) + 2 * x + 1)
 
 prop_fmapFree_nonempty :: Property
 prop_fmapFree_nonempty = fmapFree_property
     ((Gen.nonEmpty $ Range.linear 0 100)
-        (Gen.integral $ Range.linear 0 1024))
-    (\x -> x^2 + 2 * x + 1)
+        (Gen.integral @_ @Int $ Range.linear 0 1024))
+    (\x -> x^(2::Int) + 2 * x + 1)
 
 -- |
 -- @'joinFree'@ should be equal to @'join'@ for monads.
@@ -206,15 +207,15 @@ prop_bindFree_list :: Property
 prop_bindFree_list =
     let gen = Gen.list
             (Range.linear 0 10)
-            (Gen.integral $ Range.linear 0 1024)
-    in bindFree_property gen (\x -> [x^2, 2 * x, 1])
+            (Gen.integral @_ @Int $ Range.linear 0 1024)
+    in bindFree_property gen (\x -> [x^(2 :: Int), 2 * x, 1])
 
 prop_bindFree_nonempty :: Property
 prop_bindFree_nonempty =
     let gen = Gen.nonEmpty
             (Range.linear 0 10)
-            (Gen.integral $ Range.linear 0 1024)
-    in bindFree_property gen (\x -> x^2 :| [2 * x, 1])
+            (Gen.integral @_ @Int $ Range.linear 0 1024)
+    in bindFree_property gen (\x -> x^(2 :: Int) :| [2 * x, 1])
 
 tests :: IO Bool
 tests = H.checkParallel $$(H.discover)

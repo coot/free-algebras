@@ -8,12 +8,8 @@ import           Control.Applicative.Free (Ap)
 import qualified Control.Applicative.Free as Ap
 import           Control.Monad.Free (Free)
 import qualified Control.Monad.Free as Free
-import           Control.Monad (join)
-import           Data.List.NonEmpty (NonEmpty (..))
-import           Data.Foldable (fold)
 import           Data.Functor.Identity (Identity (..))
 import           Data.Functor.Coyoneda (Coyoneda (..), lowerCoyoneda)
-import           Data.Monoid (Sum (..))
 import           Data.Proxy (Proxy (..))
 import           Hedgehog (Property, PropertyT, Gen, property, (===))
 import qualified Hedgehog as H
@@ -49,7 +45,7 @@ genCoyoneda f = do
         True  -> return $ Coyoneda id (f a)
         False -> do
             x <- Gen.int $ Range.linear 0 100 
-            return $ Coyoneda (\x -> x + a) (f x)
+            return $ Coyoneda (\y -> y + a) (f x)
 
 toOdd :: Integral n => n -> Maybe n
 toOdd x = if x `mod` 2 == 0
@@ -58,7 +54,7 @@ toOdd x = if x `mod` 2 == 0
 
 -- |
 -- Generated `Ap Maybe` with arbitrary depth.
-genAp :: forall f x . Show x
+genAp :: forall x . Show x
       => Gen x
       -> Gen (x -> x)
       -> Gen (Ap Maybe x)
@@ -73,7 +69,7 @@ genAp gen genf = Gen.sized $ \s -> go s
         return $ Ap.Pure f <*> ap
 
 genApIdentity
-    :: forall f x . Show x
+    :: forall x . Show x
     => Gen x
     -> Gen (x -> x)
     -> Gen (Ap Identity x)
@@ -127,20 +123,18 @@ foldMapFree1_property gen_mfa gen_fa fd mfd
         H.assert $ fd_id (Proxy :: Proxy m) fd fa == fd fa
         H.assert $ mfd_id mfd mfa == mfd mfa
     where
-    fd_id :: forall a
-          .  Proxy m
+    fd_id :: Proxy m
           -> (forall x. f x -> d x)
           -> (forall x. f x -> d x)
     fd_id _ nat =
-        let nat' :: forall a . m f a -> d a
+        let nat' :: forall y . m f y -> d y
             nat' = foldNatFree nat
         in unFoldNatFree nat'
 
-    mfd_id :: forall a
-           .  (forall x. m f x -> d x)
+    mfd_id :: (forall x. m f x -> d x)
            -> (forall x. m f x -> d x)
     mfd_id nat =
-        let nat' :: forall a . f a -> d a
+        let nat' :: forall y . f y -> d y
             nat' = unFoldNatFree nat
         in foldNatFree nat'
 
@@ -148,11 +142,12 @@ prop_foldMapFree1_coyoneda :: Property
 prop_foldMapFree1_coyoneda
     = foldMapFree1_property
         (genCoyoneda toOdd)
-        (Gen.maybe $ Gen.integral (Range.linear 0 1000))
+        (Gen.maybe $ Gen.integral @_ @Int (Range.linear 0 1000))
         id
         foldFree1
 
 prop_foldMapFree1_ap :: Property
+prop_foldMapFree1_ap
     = foldMapFree1_property
         (genAp (Gen.word8 (Range.linear 0 254)) genIntToInt)
         (Gen.maybe $ Gen.word8 (Range.linear 0 254))
@@ -189,12 +184,12 @@ prop_foldFree1_coyoneda =
 
 prop_foldFree1_ap :: Property
 prop_foldFree1_ap = foldFree1_property
-    (H.forAllWith (show . Ap.retractAp) $ genAp (Gen.integral $ Range.linear 0 100) genIntToInt)
+    (H.forAllWith (show . Ap.retractAp) $ genAp (Gen.integral @_ @Int $ Range.linear 0 100) genIntToInt)
     Ap.retractAp
 
 prop_foldFree1_free :: Property
 prop_foldFree1_free = foldFree1_property
-    (H.forAll $ genFree (Gen.integral $ Range.linear 0 100))
+    (H.forAll $ genFree (Gen.integral @_ @Int $ Range.linear 0 100))
     (Free.foldFree id)
 
 hoistFree1_property
@@ -235,7 +230,7 @@ prop_hoistFree1_ap = hoistFree1_property
 
 prop_hoistFree1_free :: Property
 prop_hoistFree1_free = hoistFree1_property
-    (genFree (Gen.integral $ Range.linear 0 100))
+    (genFree (Gen.integral @_ @Int $ Range.linear 0 100))
     show
     (==)
     (maybe (Left ()) Right)

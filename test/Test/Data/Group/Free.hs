@@ -8,12 +8,12 @@ import           Data.Semigroup (Semigroup (..))
 import           Data.Group (invert)
 import           Data.DList (DList)
 import qualified Data.DList as DList
-import           Hedgehog (Property, PropertyT, Gen, property, (===))
+import           Hedgehog (Property, Gen, property, (===))
 import qualified Hedgehog as H
 import qualified Hedgehog.Gen as Gen
 import qualified Hedgehog.Range as Range
 
-import           Data.Group.Free (FreeGroup, fromDList, normalize)
+import           Data.Group.Free (fromDList, normalize)
 
 genDList :: Gen a -> Gen (DList (Either a a))
 genDList gen = do
