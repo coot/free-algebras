@@ -68,11 +68,12 @@ test-suite free-algebras-test
       Test.Control.Algebra.Free
       Test.Data.Algebra.Free
       Test.Data.Group.Free
+      Test.Data.Semigroup.SSet
       Paths_free_algebras
   hs-source-dirs:
       test
   default-extensions: ConstraintKinds DataKinds DeriveFunctor EmptyDataDecls FlexibleInstances FlexibleContexts KindSignatures InstanceSigs MultiParamTypeClasses OverloadedStrings PolyKinds RankNTypes ScopedTypeVariables TupleSections TypeApplications TypeFamilies
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N -Wall -Werror
   build-depends:
       base            >= 4.9 && <5
     , constraints

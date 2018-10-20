@@ -9,7 +9,7 @@ module Data.Semigroup.SSet
     , S (..)
     ) where
 
-import           Data.Semigroup (Semigroup (..), Endo (..), Sum (..))
+import           Data.Semigroup (Semigroup (..), Endo (..), Sum (..), Product (..))
 import           Data.Functor.Const (Const (..))
 import           Data.Functor.Identity (Identity (..))
 import qualified Data.Functor.Product as Functor (Product)
@@ -39,7 +39,7 @@ class Semigroup s => SSet s a where
 rep :: SSet s a => s -> Endo a
 rep s = Endo (act s)
 
-instance {-# OVERLAPPING #-} Semigroup s => SSet s s where
+instance {-# OVERLAPPABLE #-} Semigroup s => SSet (s) (s) where
     act = (<>)
 
 instance (SSet s a, SSet s b) => SSet s (a, b) where
@@ -104,6 +104,7 @@ instance SSet (Endo a) a where
 -- |
 -- A newtype wrapper to avoid overlapping instances.
 newtype S s = S { runS :: s }
+  deriving (Eq, Show, Ord)
 
 instance Semigroup m => Semigroup (S m) where
     S s <> S s' = S $ s <> s'
@@ -113,12 +114,6 @@ instance Monoid m => Monoid (S m) where
 #if __GLASGOW_HASKELL__ < 804
     S s `mappend` S s' = S $ s `mappend` s'
 #endif
-
--- instance SSet s a => SSet (S s) a where
-  -- act (S s) a = act s a
-
--- instance {-# OVERLAPPABLE #-} SSet s a => SSet (S s) (Endo a) where
-    -- act s (Endo f) = Endo $ act s . f
 
 instance SSet s a => SSet (S s) (Endo a) where
     act (S s) (Endo f) = Endo $ act s . f
@@ -140,3 +135,9 @@ instance (Functor f, Functor h, SSet s a) => SSet s (Functor.Product f h a) wher
 
 instance (Functor f, Functor h, SSet s a) => SSet s (Functor.Sum f h a) where
     act = fact
+
+instance Num s => SSet (Sum s) s where
+    act (Sum n) s = n + s
+
+instance Num s => SSet (Product s) s where
+    act (Product n) s = n * s

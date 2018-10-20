@@ -10,6 +10,9 @@ module Data.Monoid.MSet
     , Endo (..)
     , rep
     , fact
+#if __GLASGOW_HASKELL__ < 804
+    , fmact
+#endif
     , FreeMSet (..)
     , hoistFreeMSet
     , foldrMSet
@@ -58,21 +61,21 @@ import           Data.Algebra.Free
 -- between groups necessarily preserves inverses).
 #if __GLASGOW_HASKELL__ >= 804
 class (Monoid m, SSet m a) => MSet m a where
-  mact :: m -> a -> a
-  mact = act
+    mact :: m -> a -> a
+    mact = act
 #else
 class Monoid m => MSet m a where
-  mact :: m -> a -> a
+    mact :: m -> a -> a
 #endif
 
-instance Monoid m => MSet m m where
+instance {-# OVERLAPPABLE #-} Monoid m => MSet m m where
 #if __GLASGOW_HASKELL__ < 804
-  mact = mappend
+   mact = mappend
 #endif
 
 instance (MSet m a, MSet m b) => MSet m (a, b) where
 #if __GLASGOW_HASKELL__ < 804
-  mact m (a, b) = (mact m a, mact m b)
+    mact m (a, b) = (mact m a, mact m b)
 #endif
 
 instance (MSet m a, MSet m b, MSet m c) => MSet m (a, b, c) where
@@ -120,17 +123,10 @@ instance (MSet m a, Ord a) => MSet m (Set a) where
     mact m as = Set.map (mact m) as
 #endif
 
-{--
-  - instance {-# OVERLAPPABLE #-} (Functor f, MSet m a) => MSet m (f a) where
-  -     act m fa = fmap (act m) fa
-  --}
-
-
 #if __GLASGOW_HASKELL__ < 804
 fmact :: (Functor f, MSet s a) => s -> f a -> f a
 fmact s = fmap (mact s)
 #endif
-
 
 instance MSet m a => MSet m (Identity a) where
 #if __GLASGOW_HASKELL__ < 804
@@ -170,13 +166,6 @@ instance MSet m b => MSet m (a -> b) where
 instance MSet (Endo a) a where
 #if __GLASGOW_HASKELL__ < 804
     mact = appEndo
-#endif
-
-#if __GLASGOW_HASKELL__ >= 804
--- instance {-# OVERLAPPABLE #-} (Monoid m, SSet m a) => MSet (S m) a
-#else
--- instance {-# OVERLAPPABLE #-} MSet m a => MSet (S m) a where
-    -- S m `mact` a = m `mact` a
 #endif
 
 instance MSet m b => MSet (S m) (Endo b) where
