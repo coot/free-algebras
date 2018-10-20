@@ -15,7 +15,7 @@
 }:
 mkDerivation {
   pname = "free-algebras-examples";
-  version = "0.0.3.0";
+  version = "0.0.4.0";
   src = nixpkgs.lib.sourceFilesBySuffices ./.
     [ ".hs" "LICENSE" "ChangeLog.md" "free-algebras-examples.cabal" ];
   libraryHaskellDepends = [
