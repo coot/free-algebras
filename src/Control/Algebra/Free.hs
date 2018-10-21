@@ -94,7 +94,7 @@ class FreeAlgebra1 (m :: (Type -> Type) -> Type -> Type) where
 
     -- | The freeness property.
     foldNatFree
-        :: forall (d :: Type -> Type) f a .
+        :: forall d f a .
            ( AlgebraType  m d
            , AlgebraType0 m f
            )
