@@ -24,6 +24,7 @@ source-repository head
 library
   exposed-modules:
       Control.Algebra.Free
+      Control.Algebra.Free2
       Control.Monad.Action
       Data.Algebra.Free
       Data.Algebra.Pointed
