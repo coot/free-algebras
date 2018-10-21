@@ -28,7 +28,7 @@ library
   hs-source-dirs:
       src
   default-extensions: ConstraintKinds DataKinds DeriveFunctor EmptyDataDecls FlexibleInstances FlexibleContexts KindSignatures InstanceSigs MultiParamTypeClasses OverloadedStrings PolyKinds RankNTypes ScopedTypeVariables TupleSections TypeApplications TypeFamilies
-  ghc-options: -Wall -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -Werror -Wno-deprecations
+  ghc-options: -Wall -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -Wno-deprecations
   build-depends:
       base            >= 4.9 && <5
     , binary

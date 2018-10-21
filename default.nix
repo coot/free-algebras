@@ -21,7 +21,7 @@ let
     then lib.doBenchmark
     else nixpkgs.lib.id;
   doDev = if dev
-    then drv: lib.enableCabalFlag drv "develop"
+    then drv: lib.appendConfigureFlag drv "--ghc-option -Werror"
     else nixpkgs.lib.id;
 
   free-algebras = doDev(doHaddock(doTest(doBench(

@@ -21,11 +21,6 @@ source-repository head
   type: git
   location: https://github.com/coot/free-algebras
 
-flag develop
-  description: Set -Werror flag
-  manual: True
-  default: False
-
 library
   exposed-modules:
       Control.Algebra.Free
@@ -55,10 +50,7 @@ library
     , mtl             >= 2.2 && <2.3
     , natural-numbers >= 0.1 && <0.2
     , transformers    >= 0.5 && <0.6
-  if flag(develop)
-    ghc-options: -Werror -Wall -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -Wno-deprecations
-  else
-    ghc-options: -Wall -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -Wno-deprecations
+  ghc-options: -Wall -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -Wno-deprecations
   default-language: Haskell2010
 
 test-suite free-algebras-test
@@ -74,9 +66,9 @@ test-suite free-algebras-test
   hs-source-dirs:
       test
   default-extensions: ConstraintKinds DataKinds DeriveFunctor EmptyDataDecls FlexibleInstances FlexibleContexts KindSignatures InstanceSigs MultiParamTypeClasses OverloadedStrings PolyKinds RankNTypes ScopedTypeVariables TupleSections TypeApplications TypeFamilies
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N -Wall -Werror
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N -Wall
   build-depends:
-      base            >= 4.9 && <5
+      base            >= 4.9 && < 5
     , constraints
     , containers
     , data-fix
