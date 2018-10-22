@@ -271,19 +271,7 @@ assocFree1 = case forget1 @m @f of
     Proof Dict -> case codom1 @m @f of
         Proof Dict -> case forget1 @m @(m f) of
             Proof Dict -> case codom1 @m @(m f) of
-                Proof Dict -> case forget1 @m @(m (m f)) of
-                    Proof Dict -> fmap g <$> foldNatFree f
-    where
-        f :: forall x .
-             ( AlgebraType0 m f
-             , AlgebraType0 m (m f)
-             )
-          => f x
-          -> m (m f) x
-        f = hoistFree1 liftFree . liftFree
-
-        g :: m f a -> f a
-        g = foldFree1
+                Proof Dict -> fmap foldFree1 <$> foldNatFree (hoistFree1 liftFree . liftFree)
 {-# INLINE assocFree1 #-}
 
 -- |
