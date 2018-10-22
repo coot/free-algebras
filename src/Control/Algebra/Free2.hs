@@ -20,6 +20,10 @@ import           Data.Kind (Type)
 
 import           Data.Algebra.Free (AlgebraType, AlgebraType0, Proof (..), proof)
 
+-- |
+-- Free algebra similar to @'FreeAlgebra1'@ and @'FreeAlgebra'@, but for types
+-- of kind @Type -> Type -> Type@.  Examples include free categories, free
+-- arrows, etc.
 class FreeAlgebra2 (m :: (Type -> Type -> Type) -> Type -> Type -> Type) where
     liftFree2    :: AlgebraType0 m f => f a b -> m f a b
     foldNatFree2 :: forall d f a b .
@@ -66,7 +70,7 @@ hoistFree2 :: forall m f g a b .
               , AlgebraType0 m g
               , AlgebraType0 m f
               )
-           => (forall x y. f x y -> g x y) -- ^ a functor from @f@ to @g@
+           => (forall x y. f x y -> g x y)
            -> m f a b
            -> m g a b
 hoistFree2 nat = case codom2 @m @g of
@@ -102,7 +106,7 @@ bindFree2 :: forall m f g a b .
              , AlgebraType0 m f
              )
           => m f a b
-          -> (forall x y . f x y -> m g x y) -- ^ functor from @f@ to @g@
+          -> (forall x y . f x y -> m g x y)
           -> m g a b
 bindFree2 mfa nat = case codom2 @m @g of
     Proof Dict -> foldNatFree2 nat mfa
