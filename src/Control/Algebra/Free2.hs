@@ -11,6 +11,7 @@ module Control.Algebra.Free2
     , hoistFreeH2
     , joinFree2
     , bindFree2
+    , assocFree2
     ) where
 
 import           Control.Monad (join)
@@ -106,3 +107,17 @@ bindFree2 :: forall m f g a b .
 bindFree2 mfa nat = case codom2 @m @g of
     Proof Dict -> foldNatFree2 nat mfa
 {-# INLINE bindFree2 #-}
+
+assocFree2 :: forall m f a b .
+              ( FreeAlgebra2 m
+              , AlgebraType  m f
+              , Functor (m (m f) a)
+              )
+           => m f a (m f a b)
+           -> m (m f) a (f a b)
+assocFree2 = case forget2 @m @f of
+    Proof Dict -> case codom2 @m @f of
+        Proof Dict -> case forget2 @m @(m f) of
+            Proof Dict -> case codom2 @m @(m f) of
+                Proof Dict -> fmap foldFree2 <$> foldNatFree2 (hoistFree2 liftFree2 . liftFree2)
+{-# INLINE assocFree2 #-}
