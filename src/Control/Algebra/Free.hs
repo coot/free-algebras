@@ -134,6 +134,7 @@ wrapFree
     => f (m f a)
     -> m f a
 wrapFree = join . liftFree
+{-# INLINE wrapFree #-}
 
 -- |
 -- @'FreeAlgebra1' m@ implies that @m f@ is a foldable.
@@ -159,6 +160,7 @@ foldFree1 :: forall m f a .
           -> f a
 foldFree1 = case forget1 @m @f of
     Proof Dict -> foldNatFree id
+{-# INLINE foldFree1 #-}
 
 -- |
 -- @'unFoldNatFree'@ is an inverse of @'foldNatFree'@
@@ -198,6 +200,7 @@ hoistFree1 :: forall m f g a .
            -> m g a
 hoistFree1 nat = case codom1 @m @g of
     Proof Dict -> foldNatFree (liftFree . nat)
+{-# INLINE hoistFree1 #-}
 
 -- |
 -- @
@@ -219,6 +222,7 @@ hoistFreeH :: forall m n f a .
         => m f a
         -> n f a
 hoistFreeH = foldNatFree liftFree
+{-# INLINE hoistFreeH #-}
 
 -- |
 -- @'joinFree1'@ makes @m@ a monad in some subcatgory of types of kind @Type -> Type@
@@ -233,6 +237,7 @@ joinFree1 :: forall m f a .
 joinFree1 = case codom1 @m @f of
     Proof Dict -> case forget1 @m @(m f) of
         Proof Dict -> foldFree1
+{-# INLINE joinFree1 #-}
 
 -- |
 -- Bind operator for the @'joinFree1'@ monad, this is just @'foldNatFree'@ in
@@ -253,6 +258,7 @@ bindFree1 :: forall m f g a .
           -> m g a
 bindFree1 mfa nat = case codom1 @m @g of
     Proof Dict -> foldNatFree nat mfa
+{-# INLINE bindFree1 #-}
 
 assocFree1 :: forall m f a .
               ( FreeAlgebra1 m
@@ -278,6 +284,7 @@ assocFree1 = case forget1 @m @f of
 
         g :: m f a -> f a
         g = foldFree1
+{-# INLINE assocFree1 #-}
 
 -- |
 -- @'Fix' (m f)@ is the initial /algebra/ of type @'AlgebraType' m@ and
@@ -307,6 +314,7 @@ iterFree1 :: forall m f a .
           -> m f a
           -> a
 iterFree1 f = runIdentity . foldNatFree @_ @Identity (Identity . f)
+{-# INLINE iterFree1 #-}
 
 -- Instances
 
@@ -555,6 +563,7 @@ class Monad m => MonadList m where
 
 mappend1_ :: MonadList m => a -> a -> m a
 mappend1_ a b = return a `mappend1` return b
+{-# INLINE mappend1_ #-}
 
 instance Monad m => MonadList (ListT m) where
     mempty1 = ListT (return [])
