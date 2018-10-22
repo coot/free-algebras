@@ -39,6 +39,7 @@ wrapFree2 :: forall m f a b .
           => f a (m f a b)
           -> m f a b
 wrapFree2 = join . liftFree2
+{-# INLINE wrapFree2 #-}
 
 foldFree2 :: forall m f a b .
              ( FreeAlgebra2 m
@@ -48,6 +49,7 @@ foldFree2 :: forall m f a b .
           -> f a b
 foldFree2 = case forget2 @m @f of
     Proof Dict -> foldNatFree2 id
+{-# INLINE foldFree2 #-}
 
 unFoldNatFree2
     :: ( FreeAlgebra2 m
@@ -56,6 +58,7 @@ unFoldNatFree2
     => (forall x y. m f x y -> d x y)
     -> f a b -> d a b
 unFoldNatFree2 nat = nat . liftFree2
+{-# INLINE unFoldNatFree2 #-}
 
 hoistFree2 :: forall m f g a b .
               ( FreeAlgebra2 m
@@ -67,6 +70,7 @@ hoistFree2 :: forall m f g a b .
            -> m g a b
 hoistFree2 nat = case codom2 @m @g of
     Proof Dict -> foldNatFree2 (liftFree2 . nat)
+{-# INLINE hoistFree2 #-}
 
 hoistFreeH2 :: forall m n f a b .
            ( FreeAlgebra2 m
@@ -78,6 +82,7 @@ hoistFreeH2 :: forall m n f a b .
         => m f a b
         -> n f a b
 hoistFreeH2 = foldNatFree2 liftFree2
+{-# INLINE hoistFreeH2 #-}
 
 joinFree2 :: forall m f a b .
              ( FreeAlgebra2 m
@@ -88,6 +93,7 @@ joinFree2 :: forall m f a b .
 joinFree2 = case codom2 @m @f of
     Proof Dict -> case forget2 @m @(m f) of
         Proof Dict -> foldFree2
+{-# INLINE joinFree2 #-}
 
 bindFree2 :: forall m f g a b .
              ( FreeAlgebra2 m
@@ -99,3 +105,4 @@ bindFree2 :: forall m f g a b .
           -> m g a b
 bindFree2 mfa nat = case codom2 @m @g of
     Proof Dict -> foldNatFree2 nat mfa
+{-# INLINE bindFree2 #-}
