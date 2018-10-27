@@ -31,3 +31,4 @@
 - `Num a => SSet (Sum a) a` and `Num a => SSet (Product a) a` instances
 - `Num a => MSet (Sum a) a` and `Num a => MSet (Product a) a` instances
 - removed some overlapping instances for `SSet` and `MSet`
+- `Control.Algebra.Free2` module
