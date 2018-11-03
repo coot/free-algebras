@@ -1,7 +1,7 @@
 {}:
 with builtins;
 let
-  rev = "61deecdc34fc609d0f805b434101f3c8ae3b807a";
+  rev = "722fcbbb80b2142583e9266efe77992f8e32ac4c";
   url = "https://github.com/NixOS/nixpkgs/archive/${rev}.tar.gz";
   config =
     { packageOverrides = super:
@@ -12,11 +12,7 @@ let
           packages = super.haskell.packages // {
             ghc861 = super.haskell.packages.ghc861.override {
               overrides = self: super: {
-                free = super.callPackage ./free.nix {};
-                contravariant = super.callPackage ./contravariant-1.5.nix {};
-                cabal-doctest = super.callPackage ./cabal-doctest-1.0.6.nix {};
-                doctest = super.callPackage ./doctest-0.16.0.1.nix {};
-                Cabal = super.callPackage ./Cabal-2.4.0.1.nix {};
+                hoopl_3_10_2_2 = self.callPackage ./hoopl-3.10.2.2.nix {};
               };
             };
             ghc802 = super.haskell.packages.ghc802.override {

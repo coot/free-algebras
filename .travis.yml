@@ -9,15 +9,20 @@ script:
 - cachix push free-algebras ./result-fa ./result-ex
 matrix:
   include:
-  - name: ghc843
-    env: COMPILER="ghc843"
+  - name: ghc861
+    env: COMPILER="ghc861"
+  - name: ghc844
+    env: COMPILER="ghc844"
   - name: ghc822
     env: COMPILER="ghc822"
   - name: ghc802
     env: COMPILER="ghc802"
 
-  - name: ghc843
-    env: COMPILER="ghc843"
+  - name: ghc861
+    env: COMPILER="ghc861"
+    os: osx
+  - name: ghc844
+    env: COMPILER="ghc844"
     os: osx
   - name: ghc822
     env: COMPILER="ghc822"
