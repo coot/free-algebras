@@ -23,7 +23,7 @@ import           Data.Algebra.Free (AlgebraType, AlgebraType0, Proof (..), proof
 -- |
 -- Free algebra similar to @'FreeAlgebra1'@ and @'FreeAlgebra'@, but for types
 -- of kind @Type -> Type -> Type@.  Examples include free categories, free
--- arrows, etc.
+-- arrows, etc (see 'free-category' package).
 class FreeAlgebra2 (m :: (Type -> Type -> Type) -> Type -> Type -> Type) where
     liftFree2    :: AlgebraType0 m f => f a b -> m f a b
     foldNatFree2 :: forall d f a b .
