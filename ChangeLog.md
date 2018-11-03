@@ -1,5 +1,11 @@
 # Changelog for free-algebras
 
+## Version 0.0.6.0
+- `Num a => SSet (Sum a) a` and `Num a => SSet (Product a) a` instances
+- `Num a => MSet (Sum a) a` and `Num a => MSet (Product a) a` instances
+- removed some overlapping instances for `SSet` and `MSet`
+- `Control.Algebra.Free2` module, see `free-category` package for applications.
+
 ## Version 0.0.5.1
 - Improved documentation
 
@@ -28,7 +34,3 @@
 - Simplified `Proof` type.
 
 ## Unreleased changes
-- `Num a => SSet (Sum a) a` and `Num a => SSet (Product a) a` instances
-- `Num a => MSet (Sum a) a` and `Num a => MSet (Product a) a` instances
-- removed some overlapping instances for `SSet` and `MSet`
-- `Control.Algebra.Free2` module

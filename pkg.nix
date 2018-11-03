@@ -27,7 +27,7 @@ let
 in
 mkDerivation {
   pname = "free-algebras";
-  version = "0.0.5.1";
+  version = "0.0.6.0";
   src = lib.cleanSourceWith { filter = srcFilter ./.; src = ./.; };
   libraryHaskellDepends = [
     base
