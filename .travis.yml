@@ -31,6 +31,10 @@ matrix:
   - name: ghc802
     env: COMPILER="ghc802"
     os: osx
+cache:
+  timeout: 600
+  directories:
+    - /nix/store
 env:
   global:
     secure: QuO7Rg6p93Db3br6Zc6jytMrxnSgJc2KihvsC0UtFqFVdZL6feii3sVSQjfzr0QUn1c/cKLu05RC302yuOxOFewDPANQf7CRA40I1R5rSIHhl55zU82dwtvd6sPv4/I0QO1dDzQh9aXmu1ltnetauFPXc6N17Ez6E0544e7Cxx9gskTn1pwI/Lj3KpZbZORd1mB8lJzrtJMokd88EEYyfwrOObY8qeKHBLJHhglG5tdWxbk1NihEJTE1X4JKgm+5+cS802WtGRChbJwrCKhDCEGhiuYBwWxzIhS7VYQ4fOiqc87FMN0BI6t780gzVjpvQ4pyeVf5gQTa6Hv3BD9LtgYKrnhgIgpu3l9N/6RWdM6Cr6BNq30a7kM2D7kXIuUN/6ouL8qKzcdOieFIzgx53/h5q91UtjuyIa4VQVPwVtkHpjIv7bugsMZiWVfQ11mrlk2flkqy+xj6/BDUmUw+6jXNPrFHjcqn5XbvNajuCY02C1thqcFgo2KRmoLnWLYBKT31GuyUfpcKo/HVVif4nAeM62bQcHB5G7voHcA79oVumyb9EhrZw9i+qpvANM6zT7141Heq2PYLfmWm4UJFoa9TBLBmyOtRRZX1wJDFJAptkY5d4Oxxlb/yaCpcNmnFLQ6smncpQDk9lmo4s/s9hn3zefyY3eTkQLMt5KWAjuk=
