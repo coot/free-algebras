@@ -6,6 +6,7 @@ script:
 - cachix use free-algebras
 - nix-build --arg dev true -A free-algebras -o result-fa --argstr compiler $COMPILER
 - nix-build --arg dev true -A examples      -o result-ex --argstr compiler $COMPILER
+after_success:
 - cachix push free-algebras ./result-fa ./result-ex
 matrix:
   include:
