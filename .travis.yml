@@ -19,15 +19,15 @@ matrix:
   - name: ghc802
     env: COMPILER="ghc802"
 
-  - name: ghc861
-    env: COMPILER="ghc861"
-    os: osx
+  # - name: ghc861
+    # env: COMPILER="ghc861"
+    # os: osx
   - name: ghc844
     env: COMPILER="ghc844"
     os: osx
-  - name: ghc822
-    env: COMPILER="ghc822"
-    os: osx
+  # - name: ghc822
+    # env: COMPILER="ghc822"
+    # os: osx
   - name: ghc802
     env: COMPILER="ghc802"
     os: osx
