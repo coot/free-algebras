@@ -1,12 +1,12 @@
-{ compiler ? "ghc844"
-, haddock ? true
-, test ? true
-, benchmarks ? false
-, dev ? true
+{ compiler   ? "ghc844",
+  haddock    ? true,
+  test       ? true,
+  benchmarks ? false,
+  dev        ? true
 }:
 with builtins;
 let
-  nixpkgs = import ./nix/nixpkgs.nix { };
+  nixpkgs = import ./nix/nixpkgs.nix {};
 
   lib = nixpkgs.haskell.lib;
   callPackage = nixpkgs.haskell.packages.${compiler}.callPackage;
@@ -31,4 +31,4 @@ let
     callPackage ./examples/pkg.nix
       { inherit free-algebras nixpkgs; }))));
 in
-{ inherit free-algebras examples; }
+  { inherit free-algebras examples; }
