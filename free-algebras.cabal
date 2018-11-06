@@ -30,10 +30,8 @@ library
       Data.Algebra.Pointed
       Data.Group.Free
       Data.Monoid.Abelian
-      Data.Monoid.MSet
       Data.Semigroup.Abelian
       Data.Semigroup.SemiLattice
-      Data.Semigroup.SSet
   other-modules:
       Paths_free_algebras
   hs-source-dirs:
@@ -61,8 +59,6 @@ test-suite free-algebras-test
       Test.Control.Algebra.Free
       Test.Data.Algebra.Free
       Test.Data.Group.Free
-      Test.Data.Semigroup.SSet
-      Test.Data.Monoid.MSet
       Paths_free_algebras
   hs-source-dirs:
       test

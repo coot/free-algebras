@@ -35,7 +35,6 @@ module Data.Algebra.Free.Monadicity
     , k_inv_semigroup_append
     , k_inv_pointed
     , k_inv_group_invert
-    , k_inv_act
     ) where
 
 import           Prelude
@@ -48,7 +47,6 @@ import           Data.Proxy (Proxy (..))
 
 import           Data.Group.Free (FreeGroupL)
 import qualified Data.Group.Free as FreeGroup
-import           Data.Monoid.MSet (FreeMSet (..))
 import           Data.Algebra.Free
     ( FreeAlgebra (..)
     , AlgebraType0
@@ -374,8 +372,3 @@ k_inv_pointed = foldFreeMAlg (FreeMAlg Nothing)
 -- @'invert'@ deduced from @FreeAlg FreeGroupL@ @MAlg@ instance.
 k_inv_group_invert :: (MAlg FreeGroupL a, Eq a) => a -> a
 k_inv_group_invert a = foldFreeMAlg (FreeMAlg (FreeGroup.fromList [Left a]))
-
--- |
--- @'act'@ deduced from @FreeAlg FreeMSet@ @MAlg@ instance.
-k_inv_act :: (MAlg (FreeMSet m) a, Monoid m) => m -> a -> a
-k_inv_act m a = foldFreeMAlg $ FreeMAlg $ FreeMSet (m, a)

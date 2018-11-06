@@ -34,3 +34,4 @@
 - Simplified `Proof` type.
 
 ## Unreleased changes
+- removed actions (MSet, SSet), use `monoid-extras` or `semigroups-actions` packages
