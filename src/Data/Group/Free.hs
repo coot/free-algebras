@@ -92,7 +92,7 @@ instance Eq a => Semigroup (FreeGroup a) where
 
 instance Eq a => Monoid (FreeGroup a) where
     mempty = FreeGroup DList.empty
-#if __GLASGOW_HASKELL__ <= 822
+#if __GLASGOW_HASKELL__ <= 802
     mappend = (<>)
 #endif
 
@@ -138,7 +138,7 @@ instance Eq a => Semigroup (FreeGroupL a) where
 
 instance Eq a => Monoid (FreeGroupL a) where
     mempty = FreeGroupL []
-#if __GLASGOW_HASKELL__ <= 822
+#if __GLASGOW_HASKELL__ <= 802
     mappend = (<>)
 #endif
 

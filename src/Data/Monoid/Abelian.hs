@@ -24,7 +24,7 @@ instance Ord a => AbelianSemigroup (FreeAbelianMonoid a)
 
 instance Ord a => Monoid (FreeAbelianMonoid a) where
     mempty = FreeAbelianMonoid Map.empty
-#if __GLASGOW_HASKELL__ <= 822
+#if __GLASGOW_HASKELL__ <= 802
     mappend = (<>)
 #endif
 
