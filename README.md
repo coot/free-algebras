@@ -1,6 +1,6 @@
 # Free Algebras
 [![Maintainer: coot](https://img.shields.io/badge/maintainer-coot-lightgrey.svg)](http://github.com/coot)
-[![Travis Build Status](https://travis-ci.org/coot/free-algebras.svg?branch=master)](https://travis-ci.org/coot/free-algebras)
+[![CircleCI](https://circleci.com/gh/coot/free-algebras/tree/master.svg?style=svg)](https://circleci.com/gh/coot/free-algebras/tree/master)
 
 Universal algebra approach (which is compatible with categorical approach) to
 free algebras (including higher order structures like functors, applicative

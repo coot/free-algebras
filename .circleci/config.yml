@@ -1,0 +1,76 @@
+version: 2.1
+defaults: &defaults
+  docker:
+    - image: nixos/nix
+commands:
+  setup:
+    description: "setup environment"
+    steps:
+      - run:
+          name: "nix"
+          command: |
+            nix-channel --add https://nixos.org/channels/nixpkgs-unstable nixpkgs
+            nix-channel --update
+      - run:
+          name: "install"
+          command: |
+            nix-env -f "<nixpkgs>" -iA cachix
+            nix-env -f "<nixpkgs>" -i openssh
+            nix-env -f "<nixpkgs>" -i git
+      - run:
+          name: "cachix"
+          command: |
+            cachix use free-algebras
+      - checkout
+  cachix-push:
+    description: "cachix push"
+    parameters:
+      o:
+        type: string
+        default: "./result"
+    steps:
+      - run:
+          name: "cachix push"
+          command: cachix push free-algebras ./result
+jobs:
+  GHC861:
+    <<: *defaults
+    steps:
+      - setup
+      - run:
+          name: "GHC 861"
+          command:
+            nix-build release.nix -A free-algebras --argstr compiler ghc861
+      - cachix-push
+  GHC844:
+    <<: *defaults
+    steps:
+      - setup
+      - run:
+          name: "GHC 844"
+          command: nix-build release.nix -A free-algebras --argstr compiler ghc844
+      - cachix-push
+  GHC822:
+    <<: *defaults
+    steps:
+      - setup
+      - run:
+          name: "GHC 822"
+          command: nix-build release.nix -A free-algebras --argstr compiler ghc822
+      - cachix-push
+  GHC802:
+    <<: *defaults
+    steps:
+      - setup
+      - run:
+          name: "GHC 802"
+          command: nix-build release.nix -A free-algebras --argstr compiler ghc802
+      - cachix-push
+
+workflows:
+  build:
+    jobs:
+      - GHC861
+      - GHC844
+      - GHC822
+      - GHC802
