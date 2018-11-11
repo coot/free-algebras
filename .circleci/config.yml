@@ -31,7 +31,7 @@ commands:
     steps:
       - run:
           name: "cachix push"
-          command: cachix push free-algebras ./result
+          command: cachix push free-algebras << parameters.o >>
 jobs:
   GHC861:
     <<: *defaults
