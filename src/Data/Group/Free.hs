@@ -123,7 +123,13 @@ normalizeL
     :: Eq a
     => [Either a a]
     -> [Either a a]
-normalizeL = DList.toList . normalize . DList.fromList
+normalizeL = foldr fn []
+    where
+    fn a []     = [a]
+    fn a as@(b:bs) = case (a, b) of
+      (Left x,  Right y) | x == y -> bs
+      (Right x, Left y)  | x == y -> bs
+      _                           -> a : as
 
 -- |
 -- Smart constructors
