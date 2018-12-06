@@ -8,7 +8,6 @@
  -}
 module Data.Group.Free
     ( FreeGroup
-    , cons
     , fromDList
     , toDList
     , normalize
@@ -80,29 +79,6 @@ normalize = DList.foldr fn DList.empty
                 (Left x,  Right y) | x == y -> bs
                 (Right x, Left y)  | x == y -> bs
                 _                           -> DList.cons a as
-
--- | Cons a generator (@'Right' x@) or its inverse (@'Left' x@) to the left
--- hand side of a 'FreeGroupL'.
---
--- Complexity: @O(n)@
-cons
-    :: Eq a
-    => Either a a
-    -> FreeGroup a
-    -> FreeGroup a
-cons a (FreeGroup as) = FreeGroup (cons_ a as)
-
-cons_
-    :: Eq a
-    => Either a a
-    -> DList (Either a a)
-    -> DList (Either a a)
-cons_ a = DList.list (DList.singleton a) $ \b bs ->
-    case (a, b) of
-      (Left x,  Right y) | x == y -> bs
-      (Right x, Left y)  | x == y -> bs
-      _                           -> a `DList.cons` b `DList.cons` bs
-
 
 -- |
 -- Smart constructor which normalizes a list.
