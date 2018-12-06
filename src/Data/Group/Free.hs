@@ -8,11 +8,13 @@
  -}
 module Data.Group.Free
     ( FreeGroup
+    , cons
     , fromDList
     , toDList
     , normalize
 
     , FreeGroupL
+    , consL
     , fromList
     , toList
     , normalizeL
@@ -62,7 +64,7 @@ instance Monad FreeGroup where
 -- Normalize a list, i.e. remove adjusten inverses from a word, i.e.
 -- @ab⁻¹ba⁻¹c = c@
 --
--- Complexity: @O(n)@
+-- Complexity: @O(n^2)@
 normalize
     :: Eq a
     => DList (Either a a)
@@ -78,6 +80,29 @@ normalize = DList.foldr fn DList.empty
                 (Left x,  Right y) | x == y -> bs
                 (Right x, Left y)  | x == y -> bs
                 _                           -> DList.cons a as
+
+-- | Cons a generator (@'Right' x@) or its inverse (@'Left' x@) to the left
+-- hand side of a 'FreeGroupL'.
+--
+-- Complexity: @O(n)@
+cons
+    :: Eq a
+    => Either a a
+    -> FreeGroup a
+    -> FreeGroup a
+cons a (FreeGroup as) = FreeGroup (cons_ a as)
+
+cons_
+    :: Eq a
+    => Either a a
+    -> DList (Either a a)
+    -> DList (Either a a)
+cons_ a = DList.list (DList.singleton a) $ \b bs ->
+    case (a, b) of
+      (Left x,  Right y) | x == y -> bs
+      (Right x, Left y)  | x == y -> bs
+      _                           -> a `DList.cons` b `DList.cons` bs
+
 
 -- |
 -- Smart constructor which normalizes a list.
@@ -123,13 +148,21 @@ normalizeL
     :: Eq a
     => [Either a a]
     -> [Either a a]
-normalizeL = foldr fn []
-    where
-    fn a []     = [a]
-    fn a as@(b:bs) = case (a, b) of
-      (Left x,  Right y) | x == y -> bs
-      (Right x, Left y)  | x == y -> bs
-      _                           -> a : as
+normalizeL = foldr consL_ []
+
+-- | Cons a generator (@'Right' x@) or its inverse (@'Left' x@) to the left
+-- hand side of a 'FreeGroupL'.
+--
+-- Complexity: @O(1)@
+consL :: Eq a => Either a a -> FreeGroupL a -> FreeGroupL a
+consL a (FreeGroupL as) = FreeGroupL (consL_ a as)
+
+consL_ :: Eq a => Either a a -> [Either a a] -> [Either a a]
+consL_ a [] = [a]
+consL_ a as@(b:bs) = case (a, b) of
+    (Left x,  Right y) | x == y -> bs
+    (Right x, Left y)  | x == y -> bs
+    _                           -> a : as
 
 -- |
 -- Smart constructors
@@ -140,7 +173,7 @@ toList :: FreeGroupL a -> [Either a a]
 toList = runFreeGroupL
 
 instance Eq a => Semigroup (FreeGroupL a) where
-    FreeGroupL as <> FreeGroupL bs = FreeGroupL $ normalizeL (as ++ bs)
+    FreeGroupL as <> FreeGroupL bs = FreeGroupL $ foldr consL_ bs as
 
 instance Eq a => Monoid (FreeGroupL a) where
     mempty = FreeGroupL []
