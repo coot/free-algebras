@@ -1,5 +1,5 @@
 name:           free-algebras
-version:        0.0.6.0
+version:        0.0.7.0
 synopsis:       Free algebras in Haskell.
 description:    Universal algebra approach to free algebras including higher kinded algebraic structures like functors, applicative functors or monads.
 category:       Algebra, Control, Monads

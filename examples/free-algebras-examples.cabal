@@ -1,5 +1,5 @@
 name:           free-algebras-examples
-version:        0.0.4.0
+version:        0.0.7.0
 synopsis:       Example usage of (higher) free algebras (free monads).
 description:    Please see the README on GitHub at <https://github.com/coot/free-algebras#readme>
 category:       Example, DSL
