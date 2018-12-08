@@ -35,6 +35,7 @@ import           Prelude
 
 import           Data.Constraint (Dict (..))
 import           Data.Proxy (Proxy (..))
+import           Data.Kind (Type)
 
 import           Control.Algebra.Free
 
@@ -72,9 +73,12 @@ data AlgHom m a b where
 unAlgHom :: AlgHom m a b -> a x -> b x
 unAlgHom (AlgHom f) = f
 
-forget_ :: forall m a b . FreeAlgebra1 m => AlgHom m a b -> Hom m a b
-forget_ (AlgHom f) = case forget1 @m @a of
-    Proof Dict -> case forget1 @m @b of
+forget_ :: forall (m :: (Type -> Type) -> Type -> Type) a b .
+           FreeAlgebra1 m
+        => AlgHom m a b
+        -> Hom m a b
+forget_ (AlgHom f) = case forget1 :: Proof (AlgebraType0 m a) (m a) of
+    Proof Dict -> case forget1 :: Proof (AlgebraType0 m b) (m b) of
         Proof Dict -> Hom f
 
 idAlgHom :: AlgebraType m a => AlgHom m a a
@@ -104,7 +108,7 @@ psi :: forall m a d .
          )
       => AlgHom m (m a) d
       -> Hom m a d
-psi (AlgHom f) = case forget1 @m @d of
+psi (AlgHom f) = case forget1 :: Proof (AlgebraType0 m d) (m d) of
     Proof Dict -> Hom $ unFoldNatFree f
 
 -- |
@@ -117,8 +121,8 @@ phi :: forall m a d .
         )
      => Hom m a d
      -> AlgHom m (m a) d
-phi (Hom f) = case codom1 @m @a of
-    Proof Dict -> case forget1 @m @(m a) of
+phi (Hom f) = case codom1 :: Proof (AlgebraType m (m a)) (m a) of
+    Proof Dict -> case forget1 :: Proof (AlgebraType0 m (m a)) (m (m a)) of
         Proof Dict -> AlgHom $ foldNatFree f
 
 -- |
@@ -129,19 +133,19 @@ unit :: forall m a .
         , AlgebraType0 m a
         )
      => Hom m a (m a)
-unit = case codom1 @m @a of
-    Proof Dict -> case forget1 @m @(m a) of
+unit = case codom1 :: Proof (AlgebraType m (m a)) (m a) of
+    Proof Dict -> case forget1 :: Proof (AlgebraType0 m (m a)) (m (m a)) of
         Proof Dict -> psi (AlgHom id)
 
 -- |
 -- [counit](https://en.wikipedia.org/wiki/Adjoint_functors#Definition_via_counit%E2%80%93unit_adjunction)
 -- of the adjunction, which boils down to @'foldMapFree' id@.
-counit :: forall m d .
+counit :: forall (m :: (Type -> Type) -> Type -> Type) d . 
           ( FreeAlgebra1 m
           , AlgebraType  m d
           )
        => AlgHom m (m d) d
-counit = case forget1 @m @d of
+counit = case forget1 :: Proof (AlgebraType0 m d) (m d) of
     Proof Dict -> phi (Hom id)
 
 -- |
@@ -180,8 +184,8 @@ joinF :: forall  m f .
          , AlgebraType0 m (FreeMAlg m (FreeMAlg m f))
          )
       => Hom m (FreeMAlg m (FreeMAlg m f)) (FreeMAlg m f)
-joinF = case codom1 @m @f of
-    Proof Dict -> case forget1 @m @(m f) of
+joinF = case codom1 :: Proof (AlgebraType m (m f)) (m f) of
+    Proof Dict -> case forget1 :: Proof (AlgebraType0 m (m f)) (m (m f)) of
         Proof Dict -> Hom $ \(FreeMAlg mma) -> FreeMAlg $ joinFree1 $ hoistFree1 runFreeMAlg mma
 
 
@@ -193,7 +197,7 @@ joinF' :: forall  m a .
          , AlgebraType0 m a
          )
       => Hom m (m (m a)) (m a)
-joinF' = case codom1 @m @a of
+joinF' = case codom1 :: Proof (AlgebraType m (m a)) (m a) of
     Proof Dict -> forget_ counit
 
 -- |
@@ -205,8 +209,8 @@ bindF :: forall m f g a .
       => FreeMAlg m f a
       -> Hom m f (FreeMAlg m g)
       -> FreeMAlg m g a
-bindF (FreeMAlg ma) (Hom f) = case codom1 @m @f of
-    Proof Dict -> case forget1 @m @(m f) of
+bindF (FreeMAlg ma) (Hom f) = case codom1 :: Proof (AlgebraType m (m f)) (m f) of
+    Proof Dict -> case forget1 :: Proof (AlgebraType0 m (m f)) (m (m f)) of
         Proof Dict -> FreeMAlg $ ma `bindFree1` (runFreeMAlg . f)
 
 -- |
