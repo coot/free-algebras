@@ -3,6 +3,8 @@
 ## Version 0.0.7.0
 - Poly kinded `Control.Algebra.Free.FreeAlgebra` and
   `Control.Algebra.Free2.FreeAlgebra2`
+- removed actions (MSet, SSet), use `monoid-extras` or `semigroups-actions`
+  packages
 
 ## Version 0.0.6.0
 - `Num a => SSet (Sum a) a` and `Num a => SSet (Product a) a` instances
@@ -38,4 +40,3 @@
 - Simplified `Proof` type.
 
 ## Unreleased changes
-- removed actions (MSet, SSet), use `monoid-extras` or `semigroups-actions` packages
