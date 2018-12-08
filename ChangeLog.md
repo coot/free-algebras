@@ -1,5 +1,9 @@
 # Changelog for free-algebras
 
+## Version 0.0.7.0
+- Poly kinded `Control.Algebra.Free.FreeAlgebra` and
+  `Control.Algebra.Free2.FreeAlgebra2`
+
 ## Version 0.0.6.0
 - `Num a => SSet (Sum a) a` and `Num a => SSet (Product a) a` instances
 - `Num a => MSet (Sum a) a` and `Num a => MSet (Product a) a` instances
