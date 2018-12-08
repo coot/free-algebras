@@ -49,7 +49,7 @@ import           Control.Monad.RWS.Strict as S (RWST (..))
 import           Control.Monad.State.Class (MonadState (..))
 import qualified Control.Monad.State.Lazy as L (StateT (..))
 import qualified Control.Monad.State.Strict as S (StateT (..))
-import           Control.Monad.Trans (lift)
+import           Control.Monad.Trans.Class (MonadTrans (..))
 import           Control.Monad.Trans.Maybe (MaybeT (..))
 import           Control.Monad.Writer.Class (MonadWriter (..))
 import qualified Control.Monad.Writer.Lazy as L (WriterT (..))
@@ -88,7 +88,7 @@ import           Data.Algebra.Free (AlgebraType, AlgebraType0, Proof (..), proof
 -- * @MFunctor@ via @hoist = hoistFree1@
 -- * @MMonad@ via @embed = flip bindFree1@
 -- * @MonadTrans@ via @lift = liftFree@
-class FreeAlgebra1 (m :: (Type -> Type) -> Type -> Type) where
+class FreeAlgebra1 (m :: (k -> Type) -> k -> Type) where
     -- | Natural transformation that embeds generators into @m@.
     liftFree :: AlgebraType0 m f => f a -> m f a
 
@@ -127,7 +127,10 @@ class FreeAlgebra1 (m :: (Type -> Type) -> Type -> Type) where
 -- The @'Monad'@ constrain will be satisfied for many monads through the
 -- @'AlgebraType m'@ constraint.
 wrapFree
-    :: ( FreeAlgebra1 m
+    :: forall (m :: (Type -> Type) -> Type -> Type)
+              (f :: Type -> Type) 
+              a .
+       ( FreeAlgebra1 m
        , AlgebraType0 m f
        , Monad (m f)
        )
@@ -158,7 +161,7 @@ foldFree1 :: forall m f a .
              )
           => m f a
           -> f a
-foldFree1 = case forget1 @m @f of
+foldFree1 = case forget1 :: Proof (AlgebraType0 m f) (m f) of
     Proof Dict -> foldNatFree id
 {-# INLINE foldFree1 #-}
 
@@ -198,7 +201,7 @@ hoistFree1 :: forall m f g a .
            => (forall x. f x -> g x) -- ^ a natural transformation @f ~> g@
            -> m f a
            -> m g a
-hoistFree1 nat = case codom1 @m @g of
+hoistFree1 nat = case codom1 :: Proof (AlgebraType m (m g)) (m g) of
     Proof Dict -> foldNatFree (liftFree . nat)
 {-# INLINE hoistFree1 #-}
 
@@ -234,8 +237,8 @@ joinFree1 :: forall m f a .
              )
           => m (m f) a
           -> m f a
-joinFree1 = case codom1 @m @f of
-    Proof Dict -> case forget1 @m @(m f) of
+joinFree1 = case codom1 :: Proof (AlgebraType m (m f)) (m f) of
+    Proof Dict -> case forget1 :: Proof (AlgebraType0 m (m f)) (m (m f)) of
         Proof Dict -> foldFree1
 {-# INLINE joinFree1 #-}
 
@@ -256,7 +259,7 @@ bindFree1 :: forall m f g a .
           => m f a
           -> (forall x . f x -> m g x) -- ^ natural transformation @f ~> m g@
           -> m g a
-bindFree1 mfa nat = case codom1 @m @g of
+bindFree1 mfa nat = case codom1 :: Proof (AlgebraType m (m g)) (m g) of
     Proof Dict -> foldNatFree nat mfa
 {-# INLINE bindFree1 #-}
 
@@ -267,10 +270,10 @@ assocFree1 :: forall m f a .
               )
            => m f (m f a)
            -> m (m f) (f a)
-assocFree1 = case forget1 @m @f of
-    Proof Dict -> case codom1 @m @f of
-        Proof Dict -> case forget1 @m @(m f) of
-            Proof Dict -> case codom1 @m @(m f) of
+assocFree1 = case forget1 :: Proof (AlgebraType0 m f) (m f) of
+    Proof Dict -> case codom1 :: Proof (AlgebraType m (m f)) (m f) of
+        Proof Dict -> case forget1 :: Proof (AlgebraType0 m (m f)) (m (m f)) of
+            Proof Dict -> case codom1 :: Proof (AlgebraType m (m (m f))) (m (m f)) of
                 Proof Dict -> fmap foldFree1 <$> foldNatFree (hoistFree1 liftFree . liftFree)
 {-# INLINE assocFree1 #-}
 
@@ -301,7 +304,7 @@ iterFree1 :: forall m f a .
           => (forall x . f x -> x)
           -> m f a
           -> a
-iterFree1 f = runIdentity . foldNatFree @_ @Identity (Identity . f)
+iterFree1 f = runIdentity . foldNatFree (Identity . f)
 {-# INLINE iterFree1 #-}
 
 -- Instances
@@ -483,11 +486,13 @@ instance FreeAlgebra1 (S.WriterT w) where
 -- |
 -- Algebras of the same type as @'L.ReaderT'@ monad is the class of all reader
 -- monads.
+--
+-- TODO: take advantage of poly-kinded `ReaderT`
 type instance AlgebraType0 (ReaderT r) m = ( Monad m )
 type instance AlgebraType  (ReaderT r) m = ( MonadReader r m )
 -- |
 -- @'ReaderT'@ is a free monad in the class of all @'MonadReader'@ monads.
-instance FreeAlgebra1 (ReaderT r) where
+instance FreeAlgebra1 (ReaderT r :: (Type -> Type) -> Type -> Type) where
     liftFree = lift
     foldNatFree nat (ReaderT g) =
         ask >>= nat . g
