@@ -4,6 +4,7 @@ module Control.Monad.Action where
 
 import           Control.Monad (join)
 import           Data.Functor.Const (Const (..))
+import           Data.Kind (Type)
 
 import           Control.Algebra.Free
     ( AlgebraType0
@@ -50,7 +51,8 @@ instance ( Monad m
 
 -- |
 -- Free algebra associated with the @'MAction' constraint.
-newtype FreeMAction m f a = FreeMAction { runFreeMAction :: m (f a) }
+newtype FreeMAction (m :: Type -> Type) (f :: Type -> Type) a =
+    FreeMAction { runFreeMAction :: m (f a) }
     deriving (Show, Eq, Ord, Functor)
 
 instance (Monad m, Functor f) => MAction m (FreeMAction m f) where
