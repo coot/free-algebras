@@ -7,7 +7,7 @@
 with builtins;
 let
   default = import ./default.nix {inherit benchmarks compiler dev haddock test;};
-  nixpkgs = import ./nix/nixpkgs.nix {};
+  nixpkgs = import ./nix/nixpkgs.nix { inherit compiler; };
 in
   {
     free-algebras = if nixpkgs.lib.inNixShell
