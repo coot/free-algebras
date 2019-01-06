@@ -14,7 +14,7 @@ commands:
       - run:
           name: "install"
           command: |
-            nix-env -f "<nixpkgs>" -iA cachix
+            nix-env -f "<nixpkgs>" -iA cachix -f https://cachix.org/api/v1/install
             nix-env -f "<nixpkgs>" -i openssh
             nix-env -f "<nixpkgs>" -i git
       - run:
