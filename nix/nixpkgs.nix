@@ -5,7 +5,7 @@ let
           || compiler == "ghc822"
           || compiler == "ghc844"
     then "722fcbbb80b2142583e9266efe77992f8e32ac4c"
-    else "cb95a3c1d1b6cd9da65650be269436cbe9e265fa";
+    else "535a6db25f749f32c524b341f7fbc22cf57de4e1";
   url = "https://github.com/NixOS/nixpkgs/archive/${rev}.tar.gz";
   config =
     { packageOverrides = super:
@@ -14,6 +14,11 @@ let
       in {
         haskell = super.haskell // {
           packages = super.haskell.packages // {
+            ghc863 = super.haskell.packages.ghc863.override {
+              overrides = self: super: {
+                hoopl_3_10_2_2 = self.callPackage ./hoopl-3.10.2.2.nix {};
+              };
+            };
             ghc862 = super.haskell.packages.ghc862.override {
               overrides = self: super: {
                 hoopl_3_10_2_2 = self.callPackage ./hoopl-3.10.2.2.nix {};
