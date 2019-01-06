@@ -60,30 +60,31 @@ instance Monad FreeGroup where
     FreeGroup as >>= f = FreeGroup $ as >>= runFreeGroup . either f f
 
 -- |
--- Normalize a list, i.e. remove adjusten inverses from a word, i.e.
--- @ab⁻¹ba⁻¹c = c@
+-- Normalize a @Dlist@, i.e. remove adjusten inverses from a word, i.e.
+-- @ab⁻¹ba⁻¹c = c@.  Note that this function is implemented using
+-- @'normalizeL'@, implemnting it directly on @DList@s would be @O(n^2)@
+-- instead of @O(n)@.
 --
--- Complexity: @O(n^2)@
+-- /Complexity:/ @O(n)@
 normalize
     :: Eq a
     => DList (Either a a)
     -> DList (Either a a)
-normalize = DList.foldr fn DList.empty
-    where
-    fn a as = case as of
-        DList.Nil -> DList.singleton a
-        _         ->
-            let b  = DList.head as
-                bs = DList.tail as
-            in case (a, b) of
-                (Left x,  Right y) | x == y -> bs
-                (Right x, Left y)  | x == y -> bs
-                _                           -> DList.cons a as
+normalize = DList.fromList . normalizeL . DList.toList
 
 -- |
--- Smart constructor which normalizes a list.
+-- Smart constructor which normalizes a dlist.
+--
+-- /Complexity:/ @O(n)@
 fromDList :: Eq a => DList (Either a a) -> FreeGroup a
-fromDList = FreeGroup . normalize
+fromDList = freeGroupFromList . DList.toList
+
+-- |
+-- Construct a FreeGroup from a list.
+--
+-- /Complextiy:/ @O(n)@
+freeGroupFromList :: Eq a => [Either a a] -> FreeGroup a
+freeGroupFromList = FreeGroup . DList.fromList . normalizeL
 
 toDList :: FreeGroup a -> DList (Either a a)
 toDList = runFreeGroup
@@ -114,12 +115,16 @@ instance FreeAlgebra FreeGroup where
     forget = proof
 
 -- |
--- Free group in the class of groups which multiplication is strict on the left, i.e.
+-- Free group in the class of groups which multiplication is strict on the
+-- left, i.e.
 --
 -- prop> undefined <> a = undefined
 newtype FreeGroupL a = FreeGroupL { runFreeGroupL :: [Either a a] }
     deriving (Show, Eq, Ord)
 
+-- | Like @'normalize'@ but for lists.
+--
+-- /Complexity:/ @O(n)@
 normalizeL
     :: Eq a
     => [Either a a]
@@ -129,7 +134,7 @@ normalizeL = foldr consL_ []
 -- | Cons a generator (@'Right' x@) or its inverse (@'Left' x@) to the left
 -- hand side of a 'FreeGroupL'.
 --
--- Complexity: @O(1)@
+-- /Complexity:/ @O(1)@
 consL :: Eq a => Either a a -> FreeGroupL a -> FreeGroupL a
 consL a (FreeGroupL as) = FreeGroupL (consL_ a as)
 
@@ -141,7 +146,9 @@ consL_ a as@(b:bs) = case (a, b) of
     _                           -> a : as
 
 -- |
--- Smart constructors
+-- Smart constructor which normalizes a list.
+--
+-- /Complexity:/ @O(n)@
 fromList :: Eq a => [Either a a] -> FreeGroupL a
 fromList = FreeGroupL . normalizeL
 
