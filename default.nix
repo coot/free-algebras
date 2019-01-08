@@ -9,7 +9,7 @@ let
   nixpkgs = import ./nix/nixpkgs.nix { inherit compiler; };
 
   lib = nixpkgs.haskell.lib;
-  callPackage = nixpkgs.haskell.packages.${compiler}.callPackage;
+  callCabal2nix = nixpkgs.haskell.packages.${compiler}.callCabal2nix;
 
   doHaddock = if haddock
     then lib.doHaddock
@@ -23,12 +23,23 @@ let
   doDev = if dev
     then drv: lib.appendConfigureFlag drv "--ghc-option -Werror"
     else nixpkgs.lib.id;
+  docNoSeprateOutput = drv: lib.overrideCabal drv (drv: { enableSeparateDocOutput = false; });
+  srcFilter = src: path: type:
+    let relPath = nixpkgs.lib.removePrefix (toString src + "/") (toString path);
+    in 
+       nixpkgs.lib.hasPrefix "src" relPath
+    || nixpkgs.lib.hasPrefix "test" relPath
+    || nixpkgs.lib.any
+        (a: a == relPath)
+        [ "Setup.hs" "cabal.project" "ChangeLog.md" "free-algebras.cabal" "LICENSE"];
 
-  free-algebras = doDev(doHaddock(doTest(doBench(
-    callPackage ./pkg.nix
-      { inherit nixpkgs; }))));
-  examples = doDev(doHaddock(doTest(doBench(
-    callPackage ./examples/pkg.nix
-      { inherit free-algebras nixpkgs; }))));
-in
-  { inherit free-algebras examples; }
+  free-algebras = docNoSeprateOutput(doDev(doHaddock(doTest(doBench(
+    lib.overrideCabal (callCabal2nix "free-algebras" ./. {})
+      (drv: {src = nixpkgs.lib.cleanSourceWith { filter = srcFilter drv.src; src = drv.src; };})
+  )))));
+  examples = docNoSeprateOutput(doDev(doHaddock(doTest(doBench(
+    lib.overrideCabal (callCabal2nix "examples" ./examples { inherit free-algebras; })
+      (drv: {src = nixpkgs.lib.sourceFilesBySuffices drv.src [ ".hs" "LICENSE" "ChangeLog.md" "examples.cabal" ];})
+  )))));
+
+in { inherit free-algebras examples; }
