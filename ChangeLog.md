@@ -40,3 +40,6 @@
 - Simplified `Proof` type.
 
 ## Unreleased changes
+- `Data.Group.Free.normalize` and `Data.Group.Free.normalizeL` are not both
+  `O(n)`, but the former is implemented using the latter (e.g. transforms
+  `DList` to a list).
