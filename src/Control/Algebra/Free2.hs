@@ -1,4 +1,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE PolyKinds           #-}
+{-# LANGUAGE RankNTypes          #-}
+
 module Control.Algebra.Free2
     ( FreeAlgebra2 (..)
     , Proof (..)

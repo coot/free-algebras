@@ -7,7 +7,7 @@ homepage:       https://github.com/coot/free-algebras#readme
 bug-reports:    https://github.com/coot/free-algebras/issues
 author:         Marcin Szamotulski
 maintainer:     profunctor@pm.me
-copyright:      (c) 2018 Marcin Szamotulski
+copyright:      (c) 2018-2019 Marcin Szamotulski
 license:        MPL-2.0
 license-file:   LICENSE
 build-type:     Simple
@@ -15,7 +15,7 @@ cabal-version:  >= 1.10
 extra-source-files:
     ChangeLog.md
     README.md
-tested-with:    GHC==8.0.2, GHC==8.2.2, GHC==8.4.3, GHC==8.6.1
+tested-with:    GHC==8.0.2, GHC==8.2.2, GHC==8.4.4, GHC==8.6.3
 
 source-repository head
   type: git
@@ -36,23 +36,6 @@ library
       Paths_free_algebras
   hs-source-dirs:
       src
-  default-extensions:
-      ConstraintKinds
-      DataKinds
-      DeriveFunctor
-      EmptyDataDecls
-      FlexibleInstances
-      FlexibleContexts
-      KindSignatures
-      InstanceSigs
-      MultiParamTypeClasses
-      OverloadedStrings
-      PolyKinds
-      RankNTypes
-      ScopedTypeVariables
-      TupleSections
-      TypeApplications
-      TypeFamilies
   build-depends:
       base            >= 4.9 && <5
     , constraints     >= 0.8 && <0.11.0 

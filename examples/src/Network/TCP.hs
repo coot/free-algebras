@@ -1,5 +1,9 @@
-{-# LANGUAGE ExplicitForAll #-}
-{-# LANGUAGE GADTs          #-}
+{-# LANGUAGE ExplicitForAll      #-}
+{-# LANGUAGE GADTs               #-}
+{-# LANGUAGE DeriveFunctor       #-}
+{-# LANGUAGE TypeApplications    #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+
 {- An example implementation of TCP protocol over Send / Receive primitives.
  - There are two layers: first DSL can only know how to send and receive
  - messagse (through a socket).  On top of this there is a TCP DSL which can

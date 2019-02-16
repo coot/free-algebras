@@ -21,7 +21,7 @@ let
     then lib.doBenchmark
     else nixpkgs.lib.id;
   doDev = if dev
-    then drv: lib.appendConfigureFlag drv "--ghc-option -Werror"
+    then drv: lib.appendConfigureFlag drv "--ghc-option -Werror --ghc-option -Wall"
     else nixpkgs.lib.id;
   docNoSeprateOutput = drv: lib.overrideCabal drv (drv: { enableSeparateDocOutput = false; });
   srcFilter = src: path: type:

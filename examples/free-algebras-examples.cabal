@@ -27,24 +27,12 @@ library
       Paths_free_algebras_examples
   hs-source-dirs:
       src
-  default-extensions:
-    ConstraintKinds
-    DataKinds
-    DeriveFunctor
-    EmptyDataDecls
-    FlexibleContexts
-    FlexibleInstances
-    InstanceSigs
-    KindSignatures
-    MultiParamTypeClasses
-    OverloadedStrings
-    PolyKinds
-    RankNTypes
-    ScopedTypeVariables
-    TupleSections
-    TypeApplications
-    TypeFamilies
-  ghc-options: -Wall -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -Wno-deprecations
+  ghc-options:
+    -Wall
+    -Wincomplete-record-updates
+    -Wincomplete-uni-patterns
+    -Wredundant-constraints
+    -Wno-deprecations
   build-depends:
       base            >= 4.9 && <5
     , binary

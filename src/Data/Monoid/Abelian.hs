@@ -1,4 +1,6 @@
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE CPP          #-}
+{-# LANGUAGE TypeFamilies #-}
+
 module Data.Monoid.Abelian
     ( FreeAbelianMonoid (..)
     ) where

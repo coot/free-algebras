@@ -1,5 +1,7 @@
 {-# LANGUAGE CPP                  #-}
+{-# LANGUAGE DeriveFunctor        #-}
 {-# LANGUAGE UndecidableInstances #-}
+
 module Data.Algebra.Pointed
     ( Pointed (..)
     , PointedMonoid (..)

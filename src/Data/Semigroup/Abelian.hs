@@ -1,3 +1,5 @@
+{-# LANGUAGE TypeFamilies #-}
+
 module Data.Semigroup.Abelian
     ( AbelianSemigroup
     , FreeAbelianSemigroup

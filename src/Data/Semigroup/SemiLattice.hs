@@ -1,4 +1,6 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE TypeFamilies               #-}
+
 module Data.Semigroup.SemiLattice
     ( FreeSemiLattice
     , fromNonEmpty

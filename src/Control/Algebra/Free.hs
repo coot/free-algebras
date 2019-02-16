@@ -1,5 +1,14 @@
 {-# LANGUAGE GADTs                      #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE InstanceSigs               #-}
+{-# LANGUAGE PolyKinds                  #-}
+{-# LANGUAGE RankNTypes                 #-}
+{-# LANGUAGE ScopedTypeVariables        #-}
+{-# LANGUAGE TypeFamilies               #-}
+
+-- 'ListT' transformer is depreciated
+{-# OPTIONS_GHC -Wno-deprecations       #-}
+
 module Control.Algebra.Free
     ( -- Higher free algebra class
       FreeAlgebra1 (..)

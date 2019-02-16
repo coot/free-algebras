@@ -1,5 +1,8 @@
-{-# LANGUAGE GADTs #-}
-{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE GADTs             #-}
+{-# LANGUAGE KindSignatures    #-}
+{-# LANGUAGE RankNTypes        #-}
+{-# LANGUAGE FlexibleInstances #-}
+
 module Control.Category.Free where
 
 import           Prelude hiding (id, (.))
