@@ -3,7 +3,7 @@
 ## Version 0.0.7.1
 - `Data.Group.Free.normalize` and `Data.Group.Free.normalizeL` are not both
   `O(n)`, but the former is implemented using the latter (e.g. transforms
-  `DList` to a list).
+  `DList` to a list), by Justin Le (https://github.com/mstsg)
 
 ## Version 0.0.7.0
 - Poly kinded `Control.Algebra.Free.FreeAlgebra` and
