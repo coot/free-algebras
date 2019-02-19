@@ -124,6 +124,8 @@ class FreeAlgebra (m :: Type -> Type)  where
 -- |
 -- Inverse of @'foldMapFree'@
 --
+-- It is uniquelly determined by its universal property (by Yonneda lemma):
+--
 -- prop> unFoldMapFree id = returnFree
 --
 -- Note that @'unFoldMapFree' id@ is the unit of the
@@ -138,8 +140,6 @@ unFoldMapFree f = f . returnFree
 
 -- |
 -- All types which satisfy @'FreeAlgebra'@ constraint are foldable.
---
--- It is uniquelly determined by its universal property (by Yonneda lemma):
 --
 -- prop> foldFree . returnFree == id
 --
