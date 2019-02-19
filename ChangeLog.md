@@ -1,5 +1,8 @@
 # Changelog for free-algebras
 
+## Version 0.0.7.2
+- Enhanced documentation, and properly attributed fix in ChangeLog.
+
 ## Version 0.0.7.1
 - `Data.Group.Free.normalize` and `Data.Group.Free.normalizeL` are not both
   `O(n)`, but the former is implemented using the latter (e.g. transforms
