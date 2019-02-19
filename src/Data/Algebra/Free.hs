@@ -15,7 +15,7 @@ module Data.Algebra.Free
       -- ** Type level witnesses
     , Proof (..)
     , proof
-    , -- ** Algebra type
+    , -- ** Algebra types \/ constraints
       AlgebraType
     , AlgebraType0
       -- * Combinators
@@ -139,11 +139,23 @@ unFoldMapFree f = f . returnFree
 -- |
 -- All types which satisfy @'FreeAlgebra'@ constraint are foldable.
 --
+-- It is uniquelly determined by its universal property (by Yonneda lemma):
+--
 -- prop> foldFree . returnFree == id
 --
 -- @foldFree@ is the
 -- [unit](https://ncatlab.org/nlab/show/unit+of+an+adjunction) of the
 -- adjunction imposed by @FreeAlgebra@ constraint.
+--
+-- Examples:
+--
+-- > foldFree @[] = foldMap id
+-- >              = foldr (<>) mempty
+-- > foldFree @NonEmpty
+-- >              = foldr1 (<>)
+--
+-- Note that @foldFree@ replaces the abstract \/ free algebraic operation in
+-- @m a@ to concrete one in @a@.
 foldFree
     :: forall m a .
        ( FreeAlgebra  m

@@ -15,7 +15,7 @@ module Control.Algebra.Free
       -- ** Type level witnesses
     , Proof (..)
     , proof
-      -- ** Higher algebra type
+      -- ** Higher algebra type \/ constraints
     , AlgebraType0
     , AlgebraType
       -- * Combinators
@@ -163,7 +163,7 @@ wrapFree = join . liftFree
 --
 -- * @'Data.Functor.Coyoneda.lowerCoyoneda' :: 'Functor' f => 'Coyoneda' f a -> f a@
 -- * @'Control.Applicative.Free.retractAp' :: 'Applicative' f => 'Ap' f a -> f a@
--- * @'Control.Monad.Free.foldFree' :: 'Monad' m => (forall x. f x -> m x) -> 'Free' f a -> m a@
+-- * @'Control.Monad.Free.retract' :: 'Monad' f => 'Free' f a -> f a@
 foldFree1 :: forall m f a .
              ( FreeAlgebra1 m
              , AlgebraType  m f
@@ -176,6 +176,8 @@ foldFree1 = case forget1 :: Proof (AlgebraType0 m f) (m f) of
 
 -- |
 -- @'unFoldNatFree'@ is an inverse of @'foldNatFree'@
+--
+-- It is uniquelly determined by its universal property (by Yonneda lemma):
 --
 -- prop> unFoldNatFree id = ruturnFree1
 --
@@ -192,7 +194,11 @@ unFoldNatFree nat = nat . liftFree
 
 -- |
 -- This is a functor instance for @m@ when considered as an endofuctor of some
--- subcategory of @Type -> Type@ (e.g. endofunctors of _Hask_).
+-- subcategory of @Type -> Type@ (e.g. endofunctors of /Hask/) and it satisfies
+-- the functor laws:
+--
+-- prop> hoistFree1 id = id
+-- prop> hoistFree1 f . hoistFree1 g = hoistFree1 (f . g)
 --
 -- It can be specialized to:
 --
@@ -289,6 +295,7 @@ assocFree1 = case forget1 :: Proof (AlgebraType0 m f) (m f) of
 -- |
 -- @'Fix' (m f)@ is the initial /algebra/ of type @'AlgebraType' m@ and
 -- @'AlgebraType0' f@.
+--
 cataFree1 :: forall m f a .
              ( FreeAlgebra1 m
              , AlgebraType  m f
