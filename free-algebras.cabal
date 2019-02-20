@@ -46,7 +46,6 @@ library
     , groups          >= 0.3 && <0.5
     , kan-extensions  >= 4.1 && <6.0
     , mtl             >= 2.2 && <2.3
-    , natural-numbers >= 0.1 && <0.2
     , transformers    >= 0.5 && <0.6
   ghc-options:
     -Wall
@@ -100,6 +99,5 @@ test-suite free-algebras-test
     , hedgehog
     , kan-extensions
     , mtl
-    , natural-numbers
     , transformers
   default-language: Haskell2010

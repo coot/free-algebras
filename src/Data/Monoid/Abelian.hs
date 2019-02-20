@@ -8,7 +8,7 @@ module Data.Monoid.Abelian
 import           Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
 import           Data.Semigroup (Semigroup (..), stimes)
-import           Data.Natural (Natural)
+import           Numeric.Natural (Natural)
 
 import           Data.Algebra.Free (AlgebraType, AlgebraType0, FreeAlgebra (..), proof)
 import           Data.Semigroup.Abelian (AbelianSemigroup)
