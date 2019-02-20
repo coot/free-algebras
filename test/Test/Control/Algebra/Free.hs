@@ -18,13 +18,13 @@ import qualified Hedgehog.Range as Range
 
 import           Data.Algebra.Free ( AlgebraType )
 import           Control.Algebra.Free
-    ( AlgebraType0
-    , FreeAlgebra1 (..)
-    , unFoldNatFree
-    , foldFree1
-    , hoistFree1
-    , iterFree1
-    )
+                    ( AlgebraType0
+                    , FreeAlgebra1 (..)
+                    , unFoldNatFree
+                    , foldFree1
+                    , hoistFree1
+                    , iterFree1
+                    )
 
 genIntToInt :: Integral n => Gen (n -> n)
 genIntToInt = do
