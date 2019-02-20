@@ -50,3 +50,4 @@
 ## Unreleased changes
 - Changed internal representation of FreeAbelianSemigroup: use Natural
 - removed `natural-number` dependency and use `Numeric.Natural.Natural` instead.
+- Applicative instance for `FreeMAction`

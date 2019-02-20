@@ -9,14 +9,15 @@ module Control.Monad.Action where
 
 import           Control.Monad (join)
 import           Data.Functor.Const (Const (..))
+import           Data.Functor.Compose (Compose (..))
 import           Data.Kind (Type)
 
 import           Control.Algebra.Free
-    ( AlgebraType0
-    , AlgebraType
-    , FreeAlgebra1 (..)
-    , proof
-    )
+                    ( AlgebraType0
+                    , AlgebraType
+                    , FreeAlgebra1 (..)
+                    , proof
+                    )
 import           Data.Algebra.Pointed (Pointed (point))
 import           Data.Algebra.Free (FreeAlgebra, foldFree)
 
@@ -57,17 +58,30 @@ instance ( Monad m
 -- |
 -- Free algebra associated with the @'MAction' constraint.
 newtype FreeMAction (m :: Type -> Type) (f :: Type -> Type) a =
-    FreeMAction { runFreeMAction :: m (f a) }
+    FreeMAction {
+        runFreeMAction :: m (f a)
+    }
     deriving (Show, Eq, Ord, Functor)
 
+instance (Applicative m, Applicative f) => Applicative (FreeMAction m f) where
+
+    pure = FreeMAction . getCompose . pure
+
+    FreeMAction mfa <*> FreeMAction mfb =
+        FreeMAction $ getCompose $ Compose mfa <*> Compose mfb
+
+
 instance (Monad m, Functor f) => MAction m (FreeMAction m f) where
-    mact mfa = FreeMAction $ join $ runFreeMAction <$> mfa
+
+    mact mfa = FreeMAction $ mfa >>= runFreeMAction
+
 
 type instance AlgebraType  (FreeMAction m) f = MAction m f
 type instance AlgebraType0 (FreeMAction m) f = Functor f
 instance Monad m => FreeAlgebra1 (FreeMAction m) where
     liftFree = FreeMAction . return
-    foldNatFree nat (FreeMAction mfa) = mact $ nat <$> mfa
+    foldNatFree nat (FreeMAction mfa)
+             = mact $ nat <$> mfa
 
-    codom1  = proof
-    forget1 = proof
+    codom1   = proof
+    forget1  = proof
