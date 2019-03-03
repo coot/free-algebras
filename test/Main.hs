@@ -3,6 +3,7 @@ module Main
    ) where
 
 import           Control.Monad (unless)
+import           System.IO (hSetEncoding, stdout, utf8)
 import           System.Exit (exitFailure)
 
 import qualified Test.Control.Algebra.Free (tests)
@@ -17,6 +18,7 @@ runTests tests = do
 
 main :: IO ()
 main = do
+    hSetEncoding stdout utf8
     runTests
         [ Test.Control.Algebra.Free.tests
         , Test.Data.Algebra.Free.tests
