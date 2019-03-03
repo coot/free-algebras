@@ -16,7 +16,6 @@ import           Control.Algebra.Free
                     ( AlgebraType0
                     , AlgebraType
                     , FreeAlgebra1 (..)
-                    , proof
                     )
 import           Data.Algebra.Pointed (Pointed (point))
 import           Data.Algebra.Free (FreeAlgebra, foldFree)
@@ -82,6 +81,3 @@ instance Monad m => FreeAlgebra1 (FreeMAction m) where
     liftFree = FreeMAction . return
     foldNatFree nat (FreeMAction mfa)
              = mact $ nat <$> mfa
-
-    codom1   = proof
-    forget1  = proof

@@ -31,7 +31,6 @@ import           Data.Algebra.Free
                     ( AlgebraType
                     , AlgebraType0
                     , FreeAlgebra (..)
-                    , proof
                     )
 
 -- |
@@ -110,6 +109,3 @@ instance FreeAlgebra FreeAbelianSemigroup where
 
         toNonEmpty_ :: Map a Natural -> NonEmpty a
         toNonEmpty_ = NE.fromList . concatMap (uncurry replicate_) . Map.toList
-
-    codom  = proof
-    forget = proof

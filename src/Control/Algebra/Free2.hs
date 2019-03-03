@@ -1,3 +1,4 @@
+{-# LANGUAGE DefaultSignatures   #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE PolyKinds           #-}
 {-# LANGUAGE RankNTypes          #-}
@@ -42,6 +43,8 @@ import           Data.Algebra.Free (AlgebraType, AlgebraType0, Proof (..), proof
 --
 class FreeAlgebra2 (m :: (k -> k -> Type) -> k -> k -> Type) where
 
+    {-# MINIMAL liftFree2, foldNatFree2 #-}
+
     -- |
     -- Lift a graph @f@ satsifying the constraint @'AlgebraType0'@ to
     -- a free its object @m f@.
@@ -79,6 +82,10 @@ class FreeAlgebra2 (m :: (k -> k -> Type) -> k -> k -> Type) where
                AlgebraType0 m f
             => Proof (AlgebraType m (m f)) (m f)
 
+    default codom2 :: forall a. AlgebraType m (m a)
+                   => Proof (AlgebraType m (m a)) (m a)
+    codom2 = proof
+
     -- | 
     -- A proof that each type @f :: k -> k -> Type@ satisfying the
     -- @Algebra m f@ constraint also satisfies @AlgebraType0 m f@.  This
@@ -88,8 +95,12 @@ class FreeAlgebra2 (m :: (k -> k -> Type) -> k -> k -> Type) where
     -- satisfy the @AlgebraType0 m@ constraint.
     --
     forget2 :: forall (f :: k -> k -> Type).
-               AlgebraType  m f
+               AlgebraType m f
             => Proof (AlgebraType0 m f) (m f)
+
+    default forget2 :: forall a. AlgebraType0 m a
+                    => Proof (AlgebraType0 m a) (m a)
+    forget2 = proof
 
 --
 -- Combinaators

@@ -10,7 +10,7 @@ import qualified Data.Map.Strict as Map
 import           Data.Semigroup (Semigroup (..), stimes)
 import           Numeric.Natural (Natural)
 
-import           Data.Algebra.Free (AlgebraType, AlgebraType0, FreeAlgebra (..), proof)
+import           Data.Algebra.Free (AlgebraType, AlgebraType0, FreeAlgebra (..))
 import           Data.Semigroup.Abelian (AbelianSemigroup)
 
 -- |
@@ -46,6 +46,3 @@ instance FreeAlgebra FreeAbelianMonoid where
 
     foldMapFree g (FreeAbelianMonoid as)
                  = Map.foldMapWithKey (\a n -> stimes n $ g a) as
-
-    codom        = proof
-    forget       = proof
