@@ -59,12 +59,22 @@ test-suite tests
   type: exitcode-stdio-1.0
   main-is: Main.hs
   other-modules:
+      Control.Algebra.Free
+      Control.Algebra.Free2
+      Control.Monad.Action
+      Data.Algebra.Free
+      Data.Algebra.Pointed
+      Data.Group.Free
+      Data.Monoid.Abelian
+      Data.Semigroup.Abelian
+      Data.Semigroup.SemiLattice
       Test.Control.Algebra.Free
       Test.Data.Algebra.Free
       Test.Data.Group.Free
       Paths_free_algebras
   hs-source-dirs:
       test
+      src
   default-extensions:
       ConstraintKinds
       DataKinds
@@ -88,15 +98,14 @@ test-suite tests
       -with-rtsopts=-N
       -Wall
   build-depends:
-      base            >= 4.9 && < 5
+      base           >= 4.9 && < 5
     , constraints
     , containers
     , data-fix
     , dlist
     , free
-    , free-algebras
     , groups
-    , hedgehog
+    , hedgehog       >= 0.6 && < 0.7
     , kan-extensions
     , mtl
     , transformers
