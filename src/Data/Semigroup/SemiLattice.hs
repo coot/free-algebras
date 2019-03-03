@@ -19,7 +19,6 @@ import           Data.Algebra.Free
     ( AlgebraType
     , AlgebraType0
     , FreeAlgebra (..)
-    , proof
     )
 import           Data.Semigroup.Abelian (AbelianSemigroup)
 
@@ -55,6 +54,3 @@ type instance AlgebraType  FreeSemiLattice a = (Ord a, SemiLattice a)
 instance FreeAlgebra FreeSemiLattice where
     returnFree a = FreeSemiLattice $ Set.singleton a
     foldMapFree f (FreeSemiLattice as) = sconcat $ fmap f $ NE.fromList $ Set.toList as
-
-    codom  = proof
-    forget = proof

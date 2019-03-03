@@ -1,4 +1,5 @@
 {-# LANGUAGE GADTs                      #-}
+{-# LANGUAGE DefaultSignatures          #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE InstanceSigs               #-}
 {-# LANGUAGE PolyKinds                  #-}
@@ -98,6 +99,9 @@ import           Data.Algebra.Free (AlgebraType, AlgebraType0, Proof (..), proof
 -- * @MMonad@ via @embed = flip bindFree1@
 -- * @MonadTrans@ via @lift = liftFree@
 class FreeAlgebra1 (m :: (k -> Type) -> k -> Type) where
+
+    {-# MINIMAL liftFree, foldNatFree #-}
+
     -- | Natural transformation that embeds generators into @m@.
     liftFree :: AlgebraType0 m f => f a -> m f a
 
@@ -120,11 +124,19 @@ class FreeAlgebra1 (m :: (k -> Type) -> k -> Type) where
     -- m f@.
     codom1  :: forall f. AlgebraType0 m f => Proof (AlgebraType m (m f)) (m f)
 
+    default codom1 :: forall a. AlgebraType m (m a)
+                   => Proof (AlgebraType m (m a)) (m a)
+    codom1 = proof
+
     -- |
     -- A proof that the forgetful functor from the full subcategory of types of
     -- kind @Type -> Type@ satisfying @'AlgebraType' m f@ constraint to types
     -- satisfying @'AlgebraType0' m f@ is well defined.
     forget1 :: forall f. AlgebraType  m f => Proof (AlgebraType0 m f) (m f)
+
+    default forget1 :: forall a. AlgebraType0 m a
+                    => Proof (AlgebraType0 m a) (m a)
+    forget1 = proof
 
 -- |
 -- Anything that carries @'FreeAlgebra1'@ constraint is also an instance of
@@ -333,9 +345,6 @@ instance FreeAlgebra1 Coyoneda where
     liftFree = liftCoyoneda
     foldNatFree nat (Coyoneda ba fx) = ba <$> nat fx
 
-    codom1  = proof
-    forget1 = proof
-
 -- |
 -- Algebras of the same type as @'Ap'@ are the applicative functors.
 type instance AlgebraType0 Ap g = Functor g
@@ -347,26 +356,17 @@ instance FreeAlgebra1 Ap where
     liftFree  = Ap.liftAp
     foldNatFree = Ap.runAp
 
-    codom1  = proof
-    forget1 = proof
-
 type instance AlgebraType0 Fast.Ap g = Functor g
 type instance AlgebraType  Fast.Ap g = Applicative g
 instance FreeAlgebra1 Fast.Ap where
     liftFree  = Fast.liftAp
     foldNatFree = Fast.runAp
 
-    codom1  = proof
-    forget1 = proof
-
 type instance AlgebraType0 Final.Ap g = Functor g
 type instance AlgebraType  Final.Ap g = Applicative g
 instance FreeAlgebra1 Final.Ap where
     liftFree  = Final.liftAp
     foldNatFree = Final.runAp
-
-    codom1  = proof
-    forget1 = proof
 
 -- |
 -- @'Day' f f@ newtype wrapper.  It is isomorphic with @'Ap' f@ for applicative
@@ -392,9 +392,6 @@ instance FreeAlgebra1 DayF where
     foldNatFree nat (DayF day)
         = Day.dap . Day.trans2 nat . Day.trans1 nat $ day
 
-    codom1  = proof
-    forget1 = proof
-
 -- |
 -- Algebras of the same type as @'Free'@ monad is the class of all monads.
 type instance AlgebraType0 Free f = Functor f
@@ -405,26 +402,17 @@ instance FreeAlgebra1 Free where
     liftFree    = Free.liftF
     foldNatFree = Free.foldFree
 
-    codom1  = proof
-    forget1 = proof
-
 type instance AlgebraType0 Church.F f = Functor f
 type instance AlgebraType  Church.F m = Monad m
 instance FreeAlgebra1 Church.F where
     liftFree    = Church.liftF
     foldNatFree = Church.foldF
 
-    codom1  = proof
-    forget1 = proof
-
 type instance AlgebraType0 Alt f = Functor f
 type instance AlgebraType  Alt m = Alternative m
 instance FreeAlgebra1 Alt where
     liftFree    = Alt.liftAlt
     foldNatFree = Alt.runAlt
-
-    codom1  = proof
-    forget1 = proof
 
 -- |
 -- Algebras of the same type as @'L.StateT'@ monad is the class of all state
@@ -448,9 +436,6 @@ instance FreeAlgebra1 (L.StateT s) where
         put s
         return a
 
-    codom1  = proof
-    forget1 = proof
-
 -- |
 -- Algebras of the same type as @'S.StateT'@ monad is the class of all state
 -- monads.
@@ -467,9 +452,6 @@ instance FreeAlgebra1 (S.StateT s) where
         put s
         return a
 
-    codom1  = proof
-    forget1 = proof
-
 -- |
 -- Algebras of the same type as @'L.WriterT'@ monad is the class of all writer
 -- monads.
@@ -480,9 +462,6 @@ type instance AlgebraType  (L.WriterT w) m = ( MonadWriter w m )
 instance FreeAlgebra1 (L.WriterT w) where
     liftFree = lift
     foldNatFree nat (L.WriterT m) = fst <$> nat m
-
-    codom1  = proof
-    forget1 = proof
 
 -- |
 -- Algebras of the same type as @'S.WriterT'@ monad is the class of all writer
@@ -495,9 +474,6 @@ type instance AlgebraType  (S.WriterT w) m = ( MonadWriter w m )
 instance FreeAlgebra1 (S.WriterT w) where
     liftFree = lift
     foldNatFree nat (S.WriterT m) = fst <$> nat m
-
-    codom1  = proof
-    forget1 = proof
 
 -- |
 -- Algebras of the same type as @'L.ReaderT'@ monad is the class of all reader
@@ -512,9 +488,6 @@ instance FreeAlgebra1 (ReaderT r :: (Type -> Type) -> Type -> Type) where
     liftFree = lift
     foldNatFree nat (ReaderT g) =
         ask >>= nat . g
-
-    codom1  = proof
-    forget1 = proof
 
 -- |
 -- Algebras of the same type as @'S.ReaderT'@ monad is the class of all reader
@@ -531,9 +504,6 @@ instance FreeAlgebra1 (ExceptT e) where
             Left e  -> throwError e
             Right a -> return a
 
-    codom1  = proof
-    forget1 = proof
-
 type instance AlgebraType0 (L.RWST r w s) m = ( Monad m, Monoid w )
 type instance AlgebraType  (L.RWST r w s) m = MonadRWS r w s m
 instance FreeAlgebra1 (L.RWST r w s) where
@@ -546,9 +516,6 @@ instance FreeAlgebra1 (L.RWST r w s) where
         tell w
         return a
 
-    codom1  = proof
-    forget1 = proof
-
 type instance AlgebraType0 (S.RWST r w s) m = ( Monad m, Monoid w )
 type instance AlgebraType  (S.RWST r w s) m = MonadRWS r w s m
 instance FreeAlgebra1 (S.RWST r w s) where
@@ -560,9 +527,6 @@ instance FreeAlgebra1 (S.RWST r w s) where
         put s'
         tell w
         return a
-
-    codom1  = proof
-    forget1 = proof
 
 -- |
 -- Algebra type for @'ListT'@ monad transformer.
@@ -588,9 +552,6 @@ instance FreeAlgebra1 ListT where
         a <- foldM (\x y -> x `mappend1_` y) empty as
         return a
 
-    codom1  = proof
-    forget1 = proof
-
 -- $monadContT
 --
 -- @'ContT' r m@ is not functorial in @m@, so there is no chance it can admit
@@ -614,6 +575,3 @@ instance FreeAlgebra1 MaybeT where
         nat mma >>= \ma -> case ma of
             Nothing -> point
             Just a  -> return a
-
-    codom1  = proof
-    forget1 = proof

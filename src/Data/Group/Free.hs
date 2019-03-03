@@ -32,7 +32,6 @@ import           Data.Algebra.Free
                     ( AlgebraType
                     , AlgebraType0
                     , FreeAlgebra (..)
-                    , proof
                     )
 
 -- |
@@ -116,9 +115,6 @@ instance FreeAlgebra FreeGroup where
             as' = DList.tail as
         in either (invert . f) f a' `mappend` foldMapFree f (FreeGroup as')
 
-    codom  = proof
-    forget = proof
-
 -- |
 -- Free group in the class of groups which multiplication is strict on the
 -- left, i.e.
@@ -179,6 +175,3 @@ instance FreeAlgebra FreeGroupL where
     foldMapFree _ (FreeGroupL []) = mempty
     foldMapFree f (FreeGroupL (a : as)) =
         either (invert . f) f a `mappend` foldMapFree f (FreeGroupL as)
-
-    codom  = proof
-    forget = proof
