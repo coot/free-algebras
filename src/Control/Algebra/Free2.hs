@@ -246,5 +246,5 @@ assocFree2 = case forget2 :: Proof (AlgebraType0 m f) (m f) of
     Proof Dict -> case codom2 :: Proof (AlgebraType m (m f)) (m f) of
         Proof Dict -> case forget2 :: Proof (AlgebraType0 m (m f)) (m (m f)) of
             Proof Dict -> case codom2 :: Proof (AlgebraType m (m (m f))) (m (m f)) of
-                Proof Dict -> fmap foldFree2 <$> foldNatFree2 (hoistFree2 liftFree2 . liftFree2)
+                Proof Dict -> fmap foldFree2 . foldNatFree2 (hoistFree2 liftFree2 . liftFree2)
 {-# INLINE assocFree2 #-}

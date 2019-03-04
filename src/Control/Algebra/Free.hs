@@ -301,7 +301,7 @@ assocFree1 = case forget1 :: Proof (AlgebraType0 m f) (m f) of
     Proof Dict -> case codom1 :: Proof (AlgebraType m (m f)) (m f) of
         Proof Dict -> case forget1 :: Proof (AlgebraType0 m (m f)) (m (m f)) of
             Proof Dict -> case codom1 :: Proof (AlgebraType m (m (m f))) (m (m f)) of
-                Proof Dict -> fmap foldFree1 <$> foldNatFree (hoistFree1 liftFree . liftFree)
+                Proof Dict -> fmap foldFree1 . foldNatFree (hoistFree1 liftFree . liftFree)
 {-# INLINE assocFree1 #-}
 
 -- |
