@@ -14,7 +14,6 @@ import           Control.Monad.Free (Free)
 import qualified Control.Monad.Free as Free
 import           Data.Functor.Identity (Identity (..))
 import           Data.Functor.Coyoneda (Coyoneda (..), lowerCoyoneda)
-import           Data.Proxy (Proxy (..))
 import           Hedgehog (Property, PropertyT, Gen, property, (===))
 import qualified Hedgehog as H
 import qualified Hedgehog.Gen as Gen
@@ -107,12 +106,13 @@ genFreeIdentity gen = Gen.sized go
 foldMapFree1_property
     :: forall m f d a
     .  ( FreeAlgebra1 m
-       , AlgebraType m d
-       , AlgebraType m f
+       , AlgebraType  m d
+       , AlgebraType  m f
        , AlgebraType0 m f
-       , Show a
+       , Show    a
        , Show (f a)
-       , Eq (d a)
+       , Eq   (f a)
+       , Eq   (d a)
        , Show (d a)
        )
     => Gen (m f a)
@@ -124,23 +124,20 @@ foldMapFree1_property gen_mfa gen_fa fd mfd
     = property $ do
         mfa <- H.forAllWith (show . foldFree1) gen_mfa
         fa  <- H.forAll gen_fa
-        H.assert $ fd_id (Proxy :: Proxy m) fd fa == fd fa
-        H.assert $ mfd_id mfd mfa == mfd mfa
-    where
-    fd_id :: Proxy m
-          -> (forall x. f x -> d x)
-          -> (forall x. f x -> d x)
-    fd_id _ nat =
-        let nat' :: forall y . m f y -> d y
-            nat' = foldNatFree nat
-        in unFoldNatFree nat'
-
-    mfd_id :: (forall x. m f x -> d x)
-           -> (forall x. m f x -> d x)
-    mfd_id nat =
-        let nat' :: forall y . f y -> d y
-            nat' = unFoldNatFree nat
-        in foldNatFree nat'
+        H.assert $
+            unFoldNatFree (foldNatFree fd :: forall x. m f x -> d x) fa
+          ==
+            fd fa
+        H.assert $
+            foldNatFree (unFoldNatFree mfd :: forall y. f y -> d y) mfa
+          ==
+            mfd mfa
+        -- this is a consequence of the first property since
+        -- `foldFree1 = foldNatFree id`
+        H.assert $
+            unFoldNatFree (foldFree1 @m) fa
+          ==
+            fa
 
 prop_foldMapFree1_coyoneda :: Property
 prop_foldMapFree1_coyoneda
@@ -199,17 +196,17 @@ prop_foldFree1_free = foldFree1_property
 hoistFree1_property
     :: forall m f g a
     .  ( FreeAlgebra1 m
-       , AlgebraType m f
-       , AlgebraType m (m g)
+       , AlgebraType  m f
+       , AlgebraType  m (m g)
        , AlgebraType0 m f
-       , AlgebraType m g
+       , AlgebraType  m g
        , AlgebraType0 m g
        )
     => Gen (m f a)
     -> (m f a -> String)
     -> (m g a -> m g a -> Bool)
-    -> (forall x. f x -> g x)
-    -> ((forall x . f x -> g x) -> m f a -> m g a)
+    -> (forall  x.   f x -> g x)
+    -> ((forall x. f x -> g x) -> m f a -> m g a)
     -- ^ reference hoist impelentation
     -> Property
 hoistFree1_property gen show_mfa eq_mga nat refImpl = property $ do
@@ -243,17 +240,17 @@ prop_hoistFree1_free = hoistFree1_property
 iterFree1_property
     :: forall m f a
     .  ( FreeAlgebra1 m
-       , AlgebraType m f
+       , AlgebraType  m f
        , AlgebraType0 m f
-       , AlgebraType m Identity
+       , AlgebraType  m Identity
        , AlgebraType0 m Identity
        , Eq a
        , Show a
        )
     => Gen (m f a)
     -> (m f a -> String)
-    -> (forall x. f x -> x)
-    -> ((forall x . f x -> x) -> m f a -> a)
+    -> (forall x.  f x -> x)
+    -> ((forall x. f x -> x) -> m f a -> a)
     -- ^ reference implementation
     -> Property
 iterFree1_property gen show_mfa nat refImpl = property $ do
@@ -280,7 +277,6 @@ prop_iterFree1_ap = iterFree1_property
     (show . Ap.retractAp)
     runIdentity
     Ap.iterAp
-    where
 
 tests :: IO Bool
 tests = H.checkParallel $$(H.discover)
