@@ -1,7 +1,9 @@
 name:           free-algebras
 version:        0.0.7.2
 synopsis:       Free algebras in Haskell.
-description:    Universal algebra approach to free algebras including higher kinded algebraic structures like functors, applicative functors or monads.
+description:    Universal algebra approach to free algebras including higher
+                kinded algebraic structures like functors, applicative
+                functors, monads or categories .
 category:       Algebra, Control, Monads
 homepage:       https://github.com/coot/free-algebras#readme
 bug-reports:    https://github.com/coot/free-algebras/issues
@@ -76,22 +78,6 @@ test-suite tests
       test
       src
   default-extensions:
-      ConstraintKinds
-      DataKinds
-      DeriveFunctor
-      EmptyDataDecls
-      FlexibleInstances
-      FlexibleContexts
-      KindSignatures
-      InstanceSigs
-      MultiParamTypeClasses
-      OverloadedStrings
-      PolyKinds
-      RankNTypes
-      ScopedTypeVariables
-      TupleSections
-      TypeApplications
-      TypeFamilies
   ghc-options:
       -threaded
       -rtsopts

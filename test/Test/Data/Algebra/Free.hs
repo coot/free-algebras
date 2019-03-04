@@ -1,4 +1,7 @@
-{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TemplateHaskell     #-}
+{-# LANGUAGE TypeApplications    #-}
+
 module Test.Data.Algebra.Free
     ( tests
     ) where
@@ -13,16 +16,16 @@ import qualified Hedgehog.Gen as Gen
 import qualified Hedgehog.Range as Range
 
 import           Data.Algebra.Free
-    ( AlgebraType
-    , AlgebraType0
-    , FreeAlgebra (..)
-    , foldFree
-    , unFoldMapFree
-    , natFree
-    , fmapFree
-    , joinFree
-    , bindFree
-    )
+                    ( AlgebraType
+                    , AlgebraType0
+                    , FreeAlgebra (..)
+                    , foldFree
+                    , unFoldMapFree
+                    , natFree
+                    , fmapFree
+                    , joinFree
+                    , bindFree
+                    )
 
 natFree_property
     :: ( FreeAlgebra  f

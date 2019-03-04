@@ -1,5 +1,9 @@
-{-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE LambdaCase      #-}
+{-# LANGUAGE LambdaCase          #-}
+{-# LANGUAGE RankNTypes          #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TemplateHaskell     #-}
+{-# LANGUAGE TypeApplications    #-}
+
 module Test.Control.Algebra.Free
     ( tests
     ) where
