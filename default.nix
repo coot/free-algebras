@@ -26,7 +26,7 @@ let
   docNoSeprateOutput = drv: lib.overrideCabal drv (drv: { enableSeparateDocOutput = false; });
   srcFilter = src: path: type:
     let relPath = nixpkgs.lib.removePrefix (toString src + "/") (toString path);
-    in 
+    in
        nixpkgs.lib.hasPrefix "src" relPath
     || nixpkgs.lib.hasPrefix "test" relPath
     || nixpkgs.lib.any
