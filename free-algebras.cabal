@@ -34,8 +34,6 @@ library
       Data.Monoid.Abelian
       Data.Semigroup.Abelian
       Data.Semigroup.SemiLattice
-  other-modules:
-      Paths_free_algebras
   hs-source-dirs:
       src
   build-depends:
@@ -73,11 +71,9 @@ test-suite tests
       Test.Control.Algebra.Free
       Test.Data.Algebra.Free
       Test.Data.Group.Free
-      Paths_free_algebras
   hs-source-dirs:
       test
       src
-  default-extensions:
   ghc-options:
       -threaded
       -rtsopts
