@@ -15,11 +15,10 @@ import           Data.Set (Set)
 import qualified Data.Set as Set
 import           Data.Void (Void)
 
-import           Data.Algebra.Free
-    ( AlgebraType
-    , AlgebraType0
-    , FreeAlgebra (..)
-    )
+import           Data.Algebra.Free ( AlgebraType
+                                   , AlgebraType0
+                                   , FreeAlgebra (..)
+                                   )
 import           Data.Semigroup.Abelian (AbelianSemigroup)
 
 -- |
