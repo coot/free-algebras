@@ -118,7 +118,7 @@ wrapFree2 :: forall (m :: (Type -> Type -> Type) -> Type -> Type -> Type)
           => f a (m f a b)
           -> m f a b
 wrapFree2 = join . liftFree2
-{-# INLINE wrapFree2 #-}
+{-# INLINABLE wrapFree2 #-}
 
 -- | Like @'foldFree'@ or @'foldFree1'@ but for graphs.
 -- 
@@ -141,7 +141,7 @@ foldFree2 :: forall (m :: (k -> k -> Type) -> k -> k -> Type)
           -> f a b
 foldFree2 = case forget2 :: Proof (AlgebraType0 m f) (m f) of
     Proof Dict -> foldNatFree2 id
-{-# INLINE foldFree2 #-}
+{-# INLINABLE foldFree2 #-}
 
 -- | 
 -- Inverse of @'foldNatFree2'@.
@@ -160,7 +160,7 @@ unFoldNatFree2
     => (forall x y. m f x y -> d x y)
     -> f a b -> d a b
 unFoldNatFree2 nat = nat . liftFree2
-{-# INLINE unFoldNatFree2 #-}
+{-# INLINABLE unFoldNatFree2 #-}
 
 -- |
 -- Hoist the underlying graph in the free structure.
@@ -183,7 +183,7 @@ hoistFree2 :: forall (m :: (k -> k -> Type) -> k -> k -> Type)
            -> m g a b
 hoistFree2 nat = case codom2 :: Proof (AlgebraType m (m g)) (m g) of
     Proof Dict -> foldNatFree2 (liftFree2 . nat)
-{-# INLINE hoistFree2 #-}
+{-# INLINABLE hoistFree2 #-}
 
 -- |
 -- Hoist the top level free structure.
@@ -198,7 +198,7 @@ hoistFreeH2 :: forall m n f a b .
         => m f a b
         -> n f a b
 hoistFreeH2 = foldNatFree2 liftFree2
-{-# INLINE hoistFreeH2 #-}
+{-# INLINABLE hoistFreeH2 #-}
 
 -- |
 -- @'FreeAlgebra2' m@ is a monad on some subcategory of graphs (types of kind
@@ -215,7 +215,7 @@ joinFree2 :: forall (m :: (k -> k -> Type) -> k -> k -> Type)
 joinFree2 = case codom2 :: Proof (AlgebraType m (m f)) (m f) of
     Proof Dict -> case forget2 :: Proof (AlgebraType0 m (m f)) (m (m f)) of
         Proof Dict -> foldFree2
-{-# INLINE joinFree2 #-}
+{-# INLINABLE joinFree2 #-}
 
 -- |
 -- @bind@ of the monad defined by @m@ on the subcategory of graphs (typed of
@@ -231,7 +231,7 @@ bindFree2 :: forall m f g a b .
           -> m g a b
 bindFree2 mfa nat = case codom2 :: Proof (AlgebraType m (m g)) (m g) of
     Proof Dict -> foldNatFree2 nat mfa
-{-# INLINE bindFree2 #-}
+{-# INLINABLE bindFree2 #-}
 
 assocFree2 :: forall (m :: (Type -> Type -> Type) -> Type -> Type -> Type)
                      (f :: Type -> Type -> Type)
@@ -247,4 +247,4 @@ assocFree2 = case forget2 :: Proof (AlgebraType0 m f) (m f) of
         Proof Dict -> case forget2 :: Proof (AlgebraType0 m (m f)) (m (m f)) of
             Proof Dict -> case codom2 :: Proof (AlgebraType m (m (m f))) (m (m f)) of
                 Proof Dict -> fmap foldFree2 . foldNatFree2 (hoistFree2 liftFree2 . liftFree2)
-{-# INLINE assocFree2 #-}
+{-# INLINABLE assocFree2 #-}

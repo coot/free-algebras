@@ -82,7 +82,7 @@ newtype Proof (c :: Constraint) (a :: l) = Proof (Dict c)
 -- @'Proof'@ smart constructor.
 proof :: c => Proof (c :: Constraint) (a :: l)
 proof = Proof Dict
-{-# INLINE proof #-}
+{-# INLINABLE proof #-}
 
 -- |
 -- A lawful instance has to guarantee that @'unFoldFree'@ is an inverse of
@@ -149,7 +149,7 @@ unFoldMapFree
     => (m a -> d)
     -> (a -> d)
 unFoldMapFree f = f . returnFree
-{-# INLINE unFoldMapFree #-}
+{-# INLINABLE unFoldMapFree #-}
 
 -- |
 -- All types which satisfy @'FreeAlgebra'@ constraint are foldable.
@@ -178,7 +178,7 @@ foldFree
     -> a
 foldFree ma = case forget @m @a of
     Proof Dict -> foldMapFree id ma
-{-# INLINE foldFree #-}
+{-# INLINABLE foldFree #-}
 
 -- |
 -- The canonical quotient map from a free algebra of a wider class to a free
@@ -203,7 +203,7 @@ natFree :: forall m n a .
         => m a
         -> n a
 natFree = foldMapFree returnFree
-{-# INLINE natFree #-}
+{-# INLINABLE natFree #-}
 
 -- |
 -- All types which satisfy @'FreeAlgebra'@ constraint are functors.
@@ -218,7 +218,7 @@ fmapFree :: forall m a b .
          -> m b
 fmapFree f ma = case codom @m @b of
     Proof Dict -> foldMapFree (returnFree . f) ma
-{-# INLINE fmapFree #-}
+{-# INLINABLE fmapFree #-}
 
 -- |
 -- @'FreeAlgebra'@ constraint implies @Monad@ constrain.
@@ -230,7 +230,7 @@ joinFree :: forall m a .
          -> m a
 joinFree mma = case codom @m @a of
     Proof Dict -> foldFree mma
-{-# INLINE joinFree #-}
+{-# INLINABLE joinFree #-}
 
 -- |
 -- The monadic @'bind'@ operator.  @'returnFree'@ is the corresponding
@@ -245,7 +245,7 @@ bindFree :: forall m a b .
          -> m b
 bindFree ma f = case codom @m @b of
     Proof Dict -> foldMapFree f ma
-{-# INLINE bindFree #-}
+{-# INLINABLE bindFree #-}
 
 -- |
 -- @'Fix' m@ is the initial algebra in the category of algebras of type
