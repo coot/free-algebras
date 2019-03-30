@@ -1,11 +1,20 @@
+{-# LANGUAGE CPP                        #-}
 {-# LANGUAGE GADTs                      #-}
+{-# LANGUAGE ConstraintKinds            #-}
 {-# LANGUAGE DefaultSignatures          #-}
+{-# LANGUAGE FlexibleInstances          #-}
+{-# LANGUAGE FlexibleContexts           #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE InstanceSigs               #-}
 {-# LANGUAGE PolyKinds                  #-}
 {-# LANGUAGE RankNTypes                 #-}
 {-# LANGUAGE ScopedTypeVariables        #-}
 {-# LANGUAGE TypeFamilies               #-}
+{-# LANGUAGE TypeOperators              #-}
+#if __GLASGOW_HASKELL__ >= 806
+{-# LANGUAGE QuantifiedConstraints      #-}
+{-# LANGUAGE UndecidableInstances       #-}
+#endif
 
 -- 'ListT' transformer is depreciated
 {-# OPTIONS_GHC -Wno-deprecations       #-}
@@ -34,12 +43,16 @@ module Control.Algebra.Free
     , DayF (..)
     , dayToAp
     , apToDay
+
+      -- * Free construction in continuation passing style
+    , Free1 (..)
       -- * Various classes (higher algebra types)
     , MonadList (..)
     , MonadMaybe (..)
+
     ) where
 
-import           Control.Applicative (Alternative)
+import           Control.Applicative (Alternative, liftA2)
 import           Control.Applicative.Free (Ap)
 import qualified Control.Applicative.Free as Ap
 import qualified Control.Applicative.Free.Fast as Fast
@@ -65,7 +78,7 @@ import           Control.Monad.Writer.Class (MonadWriter (..))
 import qualified Control.Monad.Writer.Lazy as L (WriterT (..))
 import qualified Control.Monad.Writer.Strict as S (WriterT (..))
 import           Data.Constraint (Dict (..))
-import           Data.Kind (Type)
+import           Data.Kind (Constraint, Type)
 import           Data.Fix (Fix, cataM)
 import           Data.Functor.Coyoneda (Coyoneda (..), liftCoyoneda)
 import           Data.Functor.Day (Day (..))
@@ -551,6 +564,77 @@ instance FreeAlgebra1 ListT where
         empty <- mempty1
         a <- foldM (\x y -> x `mappend1_` y) empty as
         return a
+
+-- |
+-- Free construction for kinds @'Type' -> 'Type'@.  @'Free1' 'Functor'@ is
+-- isomorhpic to @'Coyoneda'@ via @'hoistFreeH'@, and @'Free1' 'Applicative'@
+-- is isomorphic to @'Ap'@ (also via @'hoistFreeH'@).
+--
+-- Note: useful instance are only provided for ghc-8.6 using quantified
+-- constraints.
+newtype Free1 (c :: (Type -> Type) -> Constraint)
+              (f ::  Type -> Type)
+              a
+      = Free1 {
+          runFree1 :: forall g. c g => (forall x. f x -> g x) -> g a
+        }
+
+#if __GLASGOW_HASKELL__ >= 806
+--
+-- instances for @'Free1'@ using quantified constraints
+--
+
+-- |
+-- @'Free1'@ is a functor whenever @c f@ implies @'Functor' f@ .
+--
+instance (forall h. c h => Functor h)
+         => Functor (Free1 c f) where
+
+    fmap :: forall a b. (a -> b) -> Free1 c f a -> Free1 c f b
+    fmap f (Free1 g) = Free1 $ \h -> fmap f (g h)
+
+    a <$ Free1 g = Free1 $ \h -> a <$ g h
+
+-- |
+-- @'Free1'@ is an applicative functor whenever @c f@ implies 
+-- @'Applicative' f@.
+--
+instance (forall h. c h => Applicative h)
+         => Applicative (Free1 c f) where
+
+    pure a = Free1 $ \_ -> pure a
+
+    Free1 f <*> Free1 g = Free1 $ \h -> f h <*> g h
+
+    liftA2 f (Free1 x) (Free1 y) = Free1 $ \h -> liftA2 f (x h) (y h)
+
+    Free1 f *> Free1 g = Free1 $ \h -> f h *> g h
+
+    Free1 f <* Free1 g = Free1 $ \h -> f h <* g h
+
+
+-- |
+-- @'Free1'@ is a monad whenever @c f@ implies 
+-- @'Monad' f@.
+instance (forall h. c h => Monad h)
+         => Monad (Free1 c f) where
+
+    return = pure
+
+    Free1 f >>= k = Free1 $ \h ->
+        f h >>= (\a -> case k a of Free1 l -> l h)
+
+    Free1 f >> Free1 g = Free1 $ \h -> f h >> g h
+
+    fail s = Free1 $ \_ -> fail s
+
+type instance AlgebraType0 (Free1 c) f = ()
+type instance AlgebraType  (Free1 c) f = (c f)
+instance (forall f. c (Free1 c f)) => FreeAlgebra1 (Free1 c) where
+    liftFree = \fa -> Free1 $ \g -> g fa
+    foldNatFree nat (Free1 f) = f nat
+
+#endif
 
 -- $monadContT
 --
