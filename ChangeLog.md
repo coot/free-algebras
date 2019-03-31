@@ -52,4 +52,5 @@
   `codom2` / `forget2`, what simplifies writting instances.
 - Changed internal representation of FreeAbelianSemigroup: use Natural
 - removed `natural-number` dependency and use `Numeric.Natural.Natural` instead.
-- Applicative instance for `FreeMAction`
+- Applicative instance for `FreeMAction`.
+- Added `Free1` type.
