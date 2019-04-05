@@ -52,14 +52,22 @@ module Control.Algebra.Free
 
     ) where
 
-import           Control.Applicative (Alternative, liftA2)
+import           Control.Applicative ( Alternative (..)
+#if __GLASGOW_HASKELL__ >= 806
+                                     , liftA2
+#endif
+                                     )
 import           Control.Applicative.Free (Ap)
 import qualified Control.Applicative.Free as Ap
 import qualified Control.Applicative.Free.Fast as Fast
 import qualified Control.Applicative.Free.Final as Final
 import           Control.Alternative.Free (Alt (..))
 import qualified Control.Alternative.Free as Alt
-import           Control.Monad (foldM, join)
+#if __GLASGOW_HASKELL__ >= 806
+import           Control.Monad ( MonadPlus (..), foldM, join)
+#else
+import           Control.Monad (                 foldM, join)
+#endif
 import           Control.Monad.Except (ExceptT (..), MonadError (..))
 import           Control.Monad.Free (Free)
 import qualified Control.Monad.Free as Free
@@ -77,6 +85,9 @@ import           Control.Monad.Trans.Maybe (MaybeT (..))
 import           Control.Monad.Writer.Class (MonadWriter (..))
 import qualified Control.Monad.Writer.Lazy as L (WriterT (..))
 import qualified Control.Monad.Writer.Strict as S (WriterT (..))
+#if __GLASGOW_HASKELL__ >= 806
+import           Control.Monad.Zip (MonadZip (..))
+#endif
 import           Data.Constraint (Dict (..))
 import           Data.Kind (Constraint, Type)
 import           Data.Fix (Fix, cataM)
@@ -628,10 +639,42 @@ instance (forall h. c h => Monad h)
 
     fail s = Free1 $ \_ -> fail s
 
+
+instance (forall h. c h => Alternative h)
+         => Alternative (Free1 c f) where
+    empty = Free1 $ \_ -> empty
+
+    Free1 f <|> Free1 g = Free1 $ \h -> f h <|> g h
+
+    some (Free1 f) = Free1 $ \h -> some (f h)
+
+    many (Free1 f) = Free1 $ \h -> many (f h)
+
+
+instance (forall h. c h => MonadPlus h)
+         => MonadPlus (Free1 c f) where
+
+    mzero = Free1 $ \_ -> mzero
+
+    Free1 f `mplus` Free1 g = Free1 $ \h -> f h `mplus` g h 
+
+
+instance (forall h. c h => MonadZip h)
+         => MonadZip (Free1 c f) where
+
+    Free1 f `mzip` Free1 g = Free1 $ \h -> f h `mzip` g h
+
+    mzipWith k (Free1 f) (Free1 g) = Free1 $ \h -> mzipWith k (f h) (g h)
+
+    munzip (Free1 f) = (Free1 $ \h -> fst (munzip (f h)), Free1 $ \h -> snd (munzip (f h)))
+
+
 type instance AlgebraType0 (Free1 c) f = ()
 type instance AlgebraType  (Free1 c) f = (c f)
 instance (forall f. c (Free1 c f)) => FreeAlgebra1 (Free1 c) where
+
     liftFree = \fa -> Free1 $ \g -> g fa
+
     foldNatFree nat (Free1 f) = f nat
 
 #endif
