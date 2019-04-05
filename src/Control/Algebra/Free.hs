@@ -1,3 +1,5 @@
+{-# LANGUAGE AllowAmbiguousTypes #-}
+
 {-# LANGUAGE CPP                        #-}
 {-# LANGUAGE GADTs                      #-}
 {-# LANGUAGE ConstraintKinds            #-}
@@ -572,9 +574,8 @@ instance FreeAlgebra1 ListT where
     liftFree = lift
     foldNatFree nat (ListT mas) = do
         as <- nat mas
-        empty <- mempty1
-        a <- foldM (\x y -> x `mappend1_` y) empty as
-        return a
+        empty1 <- mempty1
+        foldM (\x y -> x `mappend1_` y) empty1 as
 
 -- |
 -- Free construction for kinds @'Type' -> 'Type'@.  @'Free1' 'Functor'@ is
