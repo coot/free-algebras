@@ -54,3 +54,4 @@
 - removed `natural-number` dependency and use `Numeric.Natural.Natural` instead.
 - Applicative instance for `FreeMAction`.
 - Added `Free1` type.
+- Removed `constraints` dependency.

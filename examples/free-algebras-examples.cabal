@@ -37,7 +37,6 @@ library
       base            >= 4.9 && <5
     , binary
     , bytestring
-    , constraints
     , free
     , free-algebras
     , groups

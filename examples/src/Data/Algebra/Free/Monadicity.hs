@@ -49,7 +49,6 @@ module Data.Algebra.Free.Monadicity
 import           Prelude
 
 import           Data.Bifunctor (bimap)
-import           Data.Constraint (Dict (..))
 import           Data.List.NonEmpty (NonEmpty (..))
 import qualified Data.List.NonEmpty as NE
 import           Data.Proxy (Proxy (..))
@@ -108,8 +107,8 @@ unAlgHom (AlgHom f) = f
 
 forget_ :: forall m a b . FreeAlgebra m => AlgHom m a b -> Hom m a b
 forget_ (AlgHom f) = case forget @m @a of
-    Proof Dict -> case forget @m @b of
-        Proof Dict -> Hom f
+    Proof -> case forget @m @b of
+        Proof -> Hom f
 
 idAlgHom :: AlgebraType m a => AlgHom m a a
 idAlgHom = AlgHom id
@@ -139,7 +138,7 @@ psi :: forall m a d .
       => AlgHom m (m a) d
       -> Hom m a d
 psi (AlgHom f) = case forget @m @d of
-    Proof Dict -> Hom $ unFoldMapFree f
+    Proof -> Hom $ unFoldMapFree f
 
 -- |
 -- @φ :: (...) => Hom m a d -> AlgHom m (m a) d@
@@ -152,8 +151,8 @@ phi :: forall m a d .
      => Hom m a d
      -> AlgHom m (m a) d
 phi (Hom f) = case codom @m @a of
-    Proof Dict -> case forget @m @(m a) of
-        Proof Dict -> AlgHom $ foldMapFree f
+    Proof -> case forget @m @(m a) of
+        Proof -> AlgHom $ foldMapFree f
 
 -- |
 -- [unit](https://en.wikipedia.org/wiki/Adjoint_functors#Definition_via_counit%E2%80%93unit_adjunction)
@@ -164,8 +163,8 @@ unit :: forall m a .
         )
      => Hom m a (m a)
 unit = case codom @m @a of
-    Proof Dict -> case forget @m @(m a) of
-        Proof Dict -> psi (AlgHom id)
+    Proof -> case forget @m @(m a) of
+        Proof -> psi (AlgHom id)
 
 -- |
 -- [counit](https://en.wikipedia.org/wiki/Adjoint_functors#Definition_via_counit%E2%80%93unit_adjunction)
@@ -176,7 +175,7 @@ counit :: forall m d .
           )
        => AlgHom m (m d) d
 counit = case forget @m @d of
-    Proof Dict -> phi (Hom id)
+    Proof -> phi (Hom id)
 
 -- |
 -- The monad associated with the adjunction.  Note that it's isomorphic to
@@ -224,8 +223,8 @@ joinF :: forall  m a .
          )
       => Hom m (FreeMAlg m (FreeMAlg m a)) (FreeMAlg m a)
 joinF = case codom @m @a of
-    Proof Dict -> case forget @m @(m a) of
-        Proof Dict -> Hom $ \(FreeMAlg mma) -> FreeMAlg $ joinFree $ fmapFree runFreeMAlg mma
+    Proof -> case forget @m @(m a) of
+        Proof -> Hom $ \(FreeMAlg mma) -> FreeMAlg $ joinFree $ fmapFree runFreeMAlg mma
 
 -- |
 -- The same as @'joinF'@ but defined the same way as in categor theory text
@@ -236,7 +235,7 @@ joinF' :: forall  m a .
          )
       => Hom m (m (m a)) (m a)
 joinF' = case codom @m @a of
-    Proof Dict -> forget_ counit
+    Proof -> forget_ counit
 
 -- |
 -- bind of the @'FreeMAlg'@ monad
@@ -248,8 +247,8 @@ bindF :: forall m a b .
       -> Hom m a (FreeMAlg m b)
       -> FreeMAlg m b
 bindF (FreeMAlg ma) (Hom f) = case codom @m @a of
-    Proof Dict -> case forget @m @(m a) of
-        Proof Dict -> FreeMAlg $ ma `bindFree` (runFreeMAlg . f)
+    Proof -> case forget @m @(m a) of
+        Proof -> FreeMAlg $ ma `bindFree` (runFreeMAlg . f)
 
 -- |
 -- Algebras for a monad @m@
@@ -304,8 +303,8 @@ instance MAlg NonEmpty a => MAlg NonEmpty (b -> a) where
   -          , AlgebraType0 m (FreeMAlg m a)
   -          ) => MAlg m (FreeMAlg m a) where
   -     alg ma = case codom @m @a of
-  -         Proof Dict -> case forget @m @(m a) of
-  -             Proof Dict -> FreeMAlg $ joinFree $ fmapFree runFreeMAlg ma
+  -         Proof -> case forget @m @(m a) of
+  -             Proof -> FreeMAlg $ joinFree $ fmapFree runFreeMAlg ma
   --}
 
 -- So let's just capture it in a function.

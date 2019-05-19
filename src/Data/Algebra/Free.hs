@@ -15,7 +15,6 @@ module Data.Algebra.Free
       FreeAlgebra (..)
       -- ** Type level witnesses
     , Proof (..)
-    , proof
     , -- ** Algebra types \/ constraints
       AlgebraType
     , AlgebraType0
@@ -38,7 +37,6 @@ module Data.Algebra.Free
 
 import           Prelude
 
-import           Data.Constraint (Dict (..))
 import           Data.DList (DList)
 import           Data.DList as DList
 import           Data.Functor.Identity (Identity (..))
@@ -76,13 +74,8 @@ type family AlgebraType0 (f :: k) (a :: l) :: Constraint
 
 -- |
 -- A proof that constraint @c@ holds for type @a@.
-newtype Proof (c :: Constraint) (a :: l) = Proof (Dict c)
-
--- |
--- @'Proof'@ smart constructor.
-proof :: c => Proof (c :: Constraint) (a :: l)
-proof = Proof Dict
-{-# INLINABLE proof #-}
+data Proof (c :: Constraint) (a :: l) where
+    Proof :: c => Proof c a
 
 -- |
 -- A lawful instance has to guarantee that @'unFoldFree'@ is an inverse of
@@ -119,7 +112,7 @@ class FreeAlgebra (m :: Type -> Type)  where
 
     default codom :: forall a. AlgebraType m (m a)
                   => Proof (AlgebraType m (m a)) (m a)
-    codom = proof
+    codom = Proof
 
     -- |
     -- Proof that the forgetful functor from types @a@ satisfying @AgelbraType
@@ -128,7 +121,7 @@ class FreeAlgebra (m :: Type -> Type)  where
 
     default forget :: forall a. AlgebraType0 m a
                    => Proof (AlgebraType0 m a) (m a)
-    forget = proof
+    forget = Proof
 
 --
 -- Free combinators
@@ -177,7 +170,7 @@ foldFree
     => m a
     -> a
 foldFree ma = case forget @m @a of
-    Proof Dict -> foldMapFree id ma
+    Proof -> foldMapFree id ma
 {-# INLINABLE foldFree #-}
 
 -- |
@@ -217,7 +210,7 @@ fmapFree :: forall m a b .
          -> m a
          -> m b
 fmapFree f ma = case codom @m @b of
-    Proof Dict -> foldMapFree (returnFree . f) ma
+    Proof -> foldMapFree (returnFree . f) ma
 {-# INLINABLE fmapFree #-}
 
 -- |
@@ -229,7 +222,7 @@ joinFree :: forall m a .
          => m (m a)
          -> m a
 joinFree mma = case codom @m @a of
-    Proof Dict -> foldFree mma
+    Proof -> foldFree mma
 {-# INLINABLE joinFree #-}
 
 -- |
@@ -244,7 +237,7 @@ bindFree :: forall m a b .
          -> (a -> m b)
          -> m b
 bindFree ma f = case codom @m @b of
-    Proof Dict -> foldMapFree f ma
+    Proof -> foldMapFree f ma
 {-# INLINABLE bindFree #-}
 
 -- |

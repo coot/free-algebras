@@ -39,7 +39,6 @@ module Control.Algebra.Free.Monadicity
 
 import           Prelude
 
-import           Data.Constraint (Dict (..))
 import           Data.Proxy (Proxy (..))
 import           Data.Kind (Type)
 
@@ -84,8 +83,8 @@ forget_ :: forall (m :: (Type -> Type) -> Type -> Type) a b .
         => AlgHom m a b
         -> Hom m a b
 forget_ (AlgHom f) = case forget1 :: Proof (AlgebraType0 m a) (m a) of
-    Proof Dict -> case forget1 :: Proof (AlgebraType0 m b) (m b) of
-        Proof Dict -> Hom f
+    Proof -> case forget1 :: Proof (AlgebraType0 m b) (m b) of
+        Proof -> Hom f
 
 idAlgHom :: AlgebraType m a => AlgHom m a a
 idAlgHom = AlgHom id
@@ -115,7 +114,7 @@ psi :: forall m a d .
       => AlgHom m (m a) d
       -> Hom m a d
 psi (AlgHom f) = case forget1 :: Proof (AlgebraType0 m d) (m d) of
-    Proof Dict -> Hom $ unFoldNatFree f
+    Proof -> Hom $ unFoldNatFree f
 
 -- |
 -- @φ :: (...) => Hom m a d -> AlgHom m (m a) d@
@@ -128,8 +127,8 @@ phi :: forall m a d .
      => Hom m a d
      -> AlgHom m (m a) d
 phi (Hom f) = case codom1 :: Proof (AlgebraType m (m a)) (m a) of
-    Proof Dict -> case forget1 :: Proof (AlgebraType0 m (m a)) (m (m a)) of
-        Proof Dict -> AlgHom $ foldNatFree f
+    Proof -> case forget1 :: Proof (AlgebraType0 m (m a)) (m (m a)) of
+        Proof -> AlgHom $ foldNatFree f
 
 -- |
 -- [unit](https://en.wikipedia.org/wiki/Adjoint_functors#Definition_via_counit%E2%80%93unit_adjunction)
@@ -140,8 +139,8 @@ unit :: forall m a .
         )
      => Hom m a (m a)
 unit = case codom1 :: Proof (AlgebraType m (m a)) (m a) of
-    Proof Dict -> case forget1 :: Proof (AlgebraType0 m (m a)) (m (m a)) of
-        Proof Dict -> psi (AlgHom id)
+    Proof -> case forget1 :: Proof (AlgebraType0 m (m a)) (m (m a)) of
+        Proof -> psi (AlgHom id)
 
 -- |
 -- [counit](https://en.wikipedia.org/wiki/Adjoint_functors#Definition_via_counit%E2%80%93unit_adjunction)
@@ -152,7 +151,7 @@ counit :: forall (m :: (Type -> Type) -> Type -> Type) d .
           )
        => AlgHom m (m d) d
 counit = case forget1 :: Proof (AlgebraType0 m d) (m d) of
-    Proof Dict -> phi (Hom id)
+    Proof -> phi (Hom id)
 
 -- |
 -- The monad associated with the adjunction.  Note that it's isomorphic to
@@ -191,8 +190,8 @@ joinF :: forall  m f .
          )
       => Hom m (FreeMAlg m (FreeMAlg m f)) (FreeMAlg m f)
 joinF = case codom1 :: Proof (AlgebraType m (m f)) (m f) of
-    Proof Dict -> case forget1 :: Proof (AlgebraType0 m (m f)) (m (m f)) of
-        Proof Dict -> Hom $ \(FreeMAlg mma) -> FreeMAlg $ joinFree1 $ hoistFree1 runFreeMAlg mma
+    Proof -> case forget1 :: Proof (AlgebraType0 m (m f)) (m (m f)) of
+        Proof -> Hom $ \(FreeMAlg mma) -> FreeMAlg $ joinFree1 $ hoistFree1 runFreeMAlg mma
 
 
 -- |
@@ -204,7 +203,7 @@ joinF' :: forall  m a .
          )
       => Hom m (m (m a)) (m a)
 joinF' = case codom1 :: Proof (AlgebraType m (m a)) (m a) of
-    Proof Dict -> forget_ counit
+    Proof -> forget_ counit
 
 -- |
 -- bind of the @'FreeMAlg'@ monad
@@ -216,8 +215,8 @@ bindF :: forall m f g a .
       -> Hom m f (FreeMAlg m g)
       -> FreeMAlg m g a
 bindF (FreeMAlg ma) (Hom f) = case codom1 :: Proof (AlgebraType m (m f)) (m f) of
-    Proof Dict -> case forget1 :: Proof (AlgebraType0 m (m f)) (m (m f)) of
-        Proof Dict -> FreeMAlg $ ma `bindFree1` (runFreeMAlg . f)
+    Proof -> case forget1 :: Proof (AlgebraType0 m (m f)) (m (m f)) of
+        Proof -> FreeMAlg $ ma `bindFree1` (runFreeMAlg . f)
 
 -- |
 -- Algebras for a monad @m@

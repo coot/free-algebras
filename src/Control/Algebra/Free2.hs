@@ -16,7 +16,6 @@ module Control.Algebra.Free2
       FreeAlgebra2 (..)
       -- ** Type level witnesses
     , Proof (..)
-    , proof
       -- ** Algebra types \/ constraints
     , AlgebraType0
     , AlgebraType
@@ -32,10 +31,9 @@ module Control.Algebra.Free2
     ) where
 
 import           Control.Monad (join)
-import           Data.Constraint (Dict (..))
 import           Data.Kind (Type)
 
-import           Data.Algebra.Free (AlgebraType, AlgebraType0, Proof (..), proof)
+import           Data.Algebra.Free (AlgebraType, AlgebraType0, Proof (..))
 
 -- |
 -- Free algebra class similar to @'FreeAlgebra1'@ and @'FreeAlgebra'@, but for
@@ -84,7 +82,7 @@ class FreeAlgebra2 (m :: (k -> k -> Type) -> k -> k -> Type) where
 
     default codom2 :: forall a. AlgebraType m (m a)
                    => Proof (AlgebraType m (m a)) (m a)
-    codom2 = proof
+    codom2 = Proof
 
     -- | 
     -- A proof that each type @f :: k -> k -> Type@ satisfying the
@@ -100,7 +98,7 @@ class FreeAlgebra2 (m :: (k -> k -> Type) -> k -> k -> Type) where
 
     default forget2 :: forall a. AlgebraType0 m a
                     => Proof (AlgebraType0 m a) (m a)
-    forget2 = proof
+    forget2 = Proof
 
 --
 -- Combinaators
@@ -140,7 +138,7 @@ foldFree2 :: forall (m :: (k -> k -> Type) -> k -> k -> Type)
           => m f a b
           -> f a b
 foldFree2 = case forget2 :: Proof (AlgebraType0 m f) (m f) of
-    Proof Dict -> foldNatFree2 id
+    Proof -> foldNatFree2 id
 {-# INLINABLE foldFree2 #-}
 
 -- | 
@@ -182,7 +180,7 @@ hoistFree2 :: forall (m :: (k -> k -> Type) -> k -> k -> Type)
            -> m f a b
            -> m g a b
 hoistFree2 nat = case codom2 :: Proof (AlgebraType m (m g)) (m g) of
-    Proof Dict -> foldNatFree2 (liftFree2 . nat)
+    Proof -> foldNatFree2 (liftFree2 . nat)
 {-# INLINABLE hoistFree2 #-}
 
 -- |
@@ -213,8 +211,8 @@ joinFree2 :: forall (m :: (k -> k -> Type) -> k -> k -> Type)
           => m (m f) a b
           -> m f a b
 joinFree2 = case codom2 :: Proof (AlgebraType m (m f)) (m f) of
-    Proof Dict -> case forget2 :: Proof (AlgebraType0 m (m f)) (m (m f)) of
-        Proof Dict -> foldFree2
+    Proof -> case forget2 :: Proof (AlgebraType0 m (m f)) (m (m f)) of
+        Proof -> foldFree2
 {-# INLINABLE joinFree2 #-}
 
 -- |
@@ -230,7 +228,7 @@ bindFree2 :: forall m f g a b .
           -> (forall x y . f x y -> m g x y)
           -> m g a b
 bindFree2 mfa nat = case codom2 :: Proof (AlgebraType m (m g)) (m g) of
-    Proof Dict -> foldNatFree2 nat mfa
+    Proof -> foldNatFree2 nat mfa
 {-# INLINABLE bindFree2 #-}
 
 assocFree2 :: forall (m :: (Type -> Type -> Type) -> Type -> Type -> Type)
@@ -243,8 +241,8 @@ assocFree2 :: forall (m :: (Type -> Type -> Type) -> Type -> Type -> Type)
            => m f a (m f a b)
            -> m (m f) a (f a b)
 assocFree2 = case forget2 :: Proof (AlgebraType0 m f) (m f) of
-    Proof Dict -> case codom2 :: Proof (AlgebraType m (m f)) (m f) of
-        Proof Dict -> case forget2 :: Proof (AlgebraType0 m (m f)) (m (m f)) of
-            Proof Dict -> case codom2 :: Proof (AlgebraType m (m (m f))) (m (m f)) of
-                Proof Dict -> fmap foldFree2 . foldNatFree2 (hoistFree2 liftFree2 . liftFree2)
+    Proof -> case codom2 :: Proof (AlgebraType m (m f)) (m f) of
+        Proof -> case forget2 :: Proof (AlgebraType0 m (m f)) (m (m f)) of
+            Proof -> case codom2 :: Proof (AlgebraType m (m (m f))) (m (m f)) of
+                Proof -> fmap foldFree2 . foldNatFree2 (hoistFree2 liftFree2 . liftFree2)
 {-# INLINABLE assocFree2 #-}
