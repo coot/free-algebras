@@ -64,7 +64,7 @@ instance Monad FreeGroup where
     FreeGroup as >>= f = FreeGroup $ as >>= runFreeGroup . either f f
 
 -- |
--- Normalize a @Dlist@, i.e. remove adjusten inverses from a word, i.e.
+-- Normalize a @Dlist@, i.e. remove adjacent inverses from a word, i.e.
 -- @ab⁻¹ba⁻¹c = c@.  Note that this function is implemented using
 -- @'normalizeL'@, implemnting it directly on @DList@s would be @O(n^2)@
 -- instead of @O(n)@.
