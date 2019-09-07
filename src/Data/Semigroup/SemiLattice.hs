@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP                        #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE TypeFamilies               #-}
 
@@ -10,7 +11,12 @@ module Data.Semigroup.SemiLattice
 import           Data.List.NonEmpty (NonEmpty (..))
 import qualified Data.List.NonEmpty as NE
 import           Data.IntSet (IntSet)
-import           Data.Semigroup (All, Any, Semigroup, sconcat)
+import           Data.Semigroup ( All
+                                , Any
+#if __GLASGOW_HASKELL__ < 808
+                                , Semigroup
+#endif
+                                , sconcat)
 import           Data.Set (Set)
 import qualified Data.Set as Set
 import           Data.Void (Void)

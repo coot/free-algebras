@@ -636,7 +636,9 @@ instance (forall h. c h => Monad h)
 
     Free1 f >> Free1 g = Free1 $ \h -> f h >> g h
 
+#if __GLASGOW_HASKELL__ < 808
     fail s = Free1 $ \_ -> fail s
+#endif
 
 
 instance (forall h. c h => Alternative h)

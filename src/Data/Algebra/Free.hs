@@ -37,16 +37,25 @@ module Data.Algebra.Free
 
 import           Prelude
 
+#if __GLASGOW_HASKELL__ < 808
 import           Data.DList (DList)
+#endif
 import           Data.DList as DList
 import           Data.Functor.Identity (Identity (..))
 import           Data.Fix (Fix, cata)
 import           Data.Group (Group (..))
 import           Data.Kind (Constraint, Type)
 import           Data.List.NonEmpty (NonEmpty (..))
-import           Data.Monoid (Endo (..), Monoid (..), Dual (..))
-import           Data.Semigroup (Semigroup, (<>))
-
+import           Data.Monoid ( Endo (..)
+#if __GLASGOW_HASKELL__ < 808
+                             , Monoid (..)
+#endif
+                             , Dual (..))
+#if __GLASGOW_HASKELL__ < 808
+import           Data.Semigroup ( Semigroup
+                                , (<>)
+                                )
+#endif
 import           Data.Algebra.Pointed (Pointed (..))
 
 --
@@ -398,7 +407,7 @@ instance Semigroup (Free Monoid a) where
 
 instance Monoid (Free Monoid a) where
     mempty = Free (const mempty)
-#if __GLASGOW_HASKELL__ <= 822
+#if __GLASGOW_HASKELL__ <= 802
     mappend = (<>)
 #endif
 
@@ -423,7 +432,7 @@ instance Semigroup (Free Group a) where
 
 instance Monoid (Free Group a) where
     mempty = Free (const mempty)
-#if __GLASGOW_HASKELL__ <= 822
+#if __GLASGOW_HASKELL__ <= 802
     mappend = (<>)
 #endif
 

@@ -26,7 +26,9 @@ import           Data.DList (DList)
 import qualified Data.DList as DList
 import           Data.Bifunctor (bimap)
 import           Data.Group (Group (..))
+#if __GLASGOW_HASKELL__ < 808
 import           Data.Semigroup (Semigroup (..))
+#endif
 
 import           Data.Algebra.Free
                     ( AlgebraType
