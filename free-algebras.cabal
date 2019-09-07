@@ -17,7 +17,7 @@ cabal-version:  >= 1.10
 extra-source-files:
     ChangeLog.md
     README.md
-tested-with:    GHC==8.0.2, GHC==8.2.2, GHC==8.4.4, GHC==8.6.3
+tested-with:    GHC==8.0.2, GHC==8.2.2, GHC==8.4.4, GHC==8.6.3, GHC==8.8.1
 
 source-repository head
   type: git
@@ -85,7 +85,7 @@ test-suite tests
     , dlist
     , free
     , groups
-    , hedgehog       >= 0.6 && < 0.7
+    , hedgehog       >= 0.6 && < 1.1
     , kan-extensions
     , mtl
     , transformers

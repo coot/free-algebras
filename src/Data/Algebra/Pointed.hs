@@ -7,7 +7,7 @@ module Data.Algebra.Pointed
     , PointedMonoid (..)
     ) where
 
-#if __GLASGOW_HASKELL__ <= 822
+#if __GLASGOW_HASKELL__ <= 802
 import Data.Semigroup (Semigroup (..))
 #endif
 
@@ -29,7 +29,7 @@ instance Semigroup m => Semigroup (PointedMonoid m) where
 
 instance Monoid m => Monoid (PointedMonoid m) where
     mempty = PointedMonoid mempty
-#if __GLASGOW_HASKELL__ <= 822
+#if __GLASGOW_HASKELL__ <= 802
     mappend (PointedMonoid m) (PointedMonoid n) = PointedMonoid $ mappend m n
 #endif
 

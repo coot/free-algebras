@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP               #-}
 {-# LANGUAGE GADTs             #-}
 {-# LANGUAGE KindSignatures    #-}
 {-# LANGUAGE RankNTypes        #-}
@@ -10,7 +11,9 @@ import           Prelude hiding (id, (.))
 import           Control.Arrow (Kleisli (..))
 import           Control.Concurrent.MVar (MVar)
 import qualified Control.Concurrent.MVar as MVar
+#if __GLASGOW_HASKELL__ < 808
 import           Data.List.NonEmpty (NonEmpty (..))
+#endif
 import           Data.List.NonEmpty as NE
 
 import           Control.Category (Category (..))

@@ -1,9 +1,12 @@
+{-# LANGUAGE CPP             #-}
 {-# LANGUAGE TemplateHaskell #-}
 module Test.Data.Group.Free
     ( tests
     ) where
 
+#if __GLASGOW_HASKELL__ < 808
 import           Data.Semigroup (Semigroup (..))
+#endif
 import           Data.Bool (bool)
 import           Data.Group (invert)
 import           Data.DList (DList)

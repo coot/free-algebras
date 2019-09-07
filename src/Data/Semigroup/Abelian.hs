@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP          #-}
 {-# LANGUAGE TypeFamilies #-}
 
 module Data.Semigroup.Abelian
@@ -13,9 +14,14 @@ import qualified Data.List.NonEmpty as NE
 import           Data.Map (Map)
 import qualified Data.Map as Map
 import           Data.Set (Set)
+#if __GLASGOW_HASKELL__ < 808
 import           Data.Semigroup
-                    ( Semigroup (..)
-                    , All
+                    ( Semigroup (..),
+#else
+import           Data.Semigroup
+                    (
+#endif
+                      All
                     , Any
                     , Dual
                     , Max
