@@ -181,7 +181,17 @@ hoistFree2 :: forall (m :: (k -> k -> Type) -> k -> k -> Type)
            -> m g a b
 hoistFree2 nat = case codom2 :: Proof (AlgebraType m (m g)) (m g) of
     Proof -> foldNatFree2 (liftFree2 . nat)
-{-# INLINABLE hoistFree2 #-}
+{-# INLINABLE [1] hoistFree2 #-}
+
+{-# RULES
+
+"hositFree2/foldNatFree2"
+    forall (nat  :: forall (x :: k) (y :: k). g x y -> c x y)
+           (nat0 :: forall (x :: k) (y :: k). f x y -> g x y)
+           (f :: m f a b).
+    foldNatFree2 nat (hoistFree2 nat0 f) = foldNatFree2 (nat . nat0) f
+
+#-}
 
 -- |
 -- Hoist the top level free structure.
@@ -196,7 +206,14 @@ hoistFreeH2 :: forall m n f a b .
         => m f a b
         -> n f a b
 hoistFreeH2 = foldNatFree2 liftFree2
-{-# INLINABLE hoistFreeH2 #-}
+{-# INLINABLE [1] hoistFreeH2 #-}
+
+{-# RULES
+
+"hoistFreeH2/foldNatFree2" forall (nat :: forall (x :: k) (y :: k). f x y -> c x y)
+                                  (f :: AlgebraType m c => m f a b).
+                           foldNatFree2 nat (hoistFreeH2 f) = foldNatFree2 nat f
+#-}
 
 -- |
 -- @'FreeAlgebra2' m@ is a monad on some subcategory of graphs (types of kind
