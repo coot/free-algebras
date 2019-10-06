@@ -9,7 +9,7 @@ commands:
       - run:
           name: "nix"
           command: |
-            nix-channel --add https://nixos.org/channels/nixos-18.09
+            nix-channel --add https://nixos.org/channels/nixpkgs-unstable nixpkgs
             nix-channel --update
       - run:
           name: "install"
