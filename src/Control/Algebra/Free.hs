@@ -130,6 +130,10 @@ class FreeAlgebra1 (m :: (k -> Type) -> k -> Type) where
     liftFree :: AlgebraType0 m f => f a -> m f a
 
     -- | The freeness property.
+    --
+    -- prop> foldNatFree nat (liftFree m) = nat m
+    -- prop> foldNatFree nat . foldNatFree nat' = foldNatFree (foldNatFree nat . nat')
+    --
     foldNatFree
         :: forall d f a .
            ( AlgebraType  m d
