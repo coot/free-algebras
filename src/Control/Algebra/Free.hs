@@ -258,7 +258,17 @@ hoistFree1 :: forall m f g a .
            -> m g a
 hoistFree1 nat = case codom1 :: Proof (AlgebraType m (m g)) (m g) of
     Proof -> foldNatFree (liftFree . nat)
-{-# INLINABLE hoistFree1 #-}
+{-# INLINABLE [1] hoistFree1 #-}
+
+{-# RULES
+
+"hositFree1/foldNatFree"
+    forall (nat  :: forall (x :: k).  g x -> c x)
+           (nat0 :: forall (x :: k). f x -> g x)
+           (f :: m f a).
+    foldNatFree nat (hoistFree1 nat0 f) = foldNatFree (nat . nat0) f
+
+#-}
 
 -- |
 -- @
@@ -280,7 +290,14 @@ hoistFreeH :: forall m n f a .
         => m f a
         -> n f a
 hoistFreeH = foldNatFree liftFree
-{-# INLINABLE hoistFreeH #-}
+{-# INLINABLE [1] hoistFreeH #-}
+
+{-# RULES
+
+"hoistFreeH/foldNatFree" forall (nat :: forall (x :: k). f x -> c x)
+                                (f :: AlgebraType m c => m f a).
+                         foldNatFree nat (hoistFreeH f) = foldNatFree nat f
+#-}
 
 -- |
 -- @'joinFree1'@ makes @m@ a monad in some subcatgory of types of kind @Type -> Type@
