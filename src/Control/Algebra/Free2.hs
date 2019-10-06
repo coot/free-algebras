@@ -60,6 +60,9 @@ class FreeAlgebra2 (m :: (k -> k -> Type) -> k -> k -> Type) where
     -- satisfies the constraint @AlgebraType m d@ then we can construct
     -- a morphism from @m f@ to @d@.
     --
+    -- prop> foldNatFree2 nat (liftFree2 tr) = nat tr
+    -- prop> foldNatFree2 nat . foldNatFree2 nat' = foldNatFree2 (foldNatFree2 nat . nat')
+    --
     foldNatFree2 :: forall (d :: k -> k -> Type)
                            (f :: k -> k -> Type) a b .
                     ( AlgebraType  m d
@@ -100,11 +103,10 @@ class FreeAlgebra2 (m :: (k -> k -> Type) -> k -> k -> Type) where
                     => Proof (AlgebraType0 m a) (m a)
     forget2 = Proof
 
---
--- Combinaators
+-- Combinators
 --
 
--- | A version of @wrap@ from __free__ package but for graphs.
+-- | Version of @wrap@ from @free@ package but for graphs.
 --
 wrapFree2 :: forall (m :: (Type -> Type -> Type) -> Type -> Type -> Type)
                     (f :: Type -> Type -> Type)
@@ -215,9 +217,12 @@ hoistFreeH2 = foldNatFree2 liftFree2
                            foldNatFree2 nat (hoistFreeH2 f) = foldNatFree2 nat f
 #-}
 
--- |
--- @'FreeAlgebra2' m@ is a monad on some subcategory of graphs (types of kind
--- @k -> k -> Type@), @'joinFree'@ it is the @join@ of this monad.
+-- | 'FreeAlgebra2' m@ is a monad on some subcategory of graphs (types of kind
+-- @k -> k -> 'Type'@), 'joinFree' it is the 'join' of this monad.
+--
+-- prop> foldNatFree2 nat . joinFree2 = foldNatFree2 (foldNatFree2 nat)
+--
+-- This property is analogous to @foldMap f . concat = foldMap (foldMap f)@,
 --
 joinFree2 :: forall (m :: (k -> k -> Type) -> k -> k -> Type)
                     (f :: k -> k -> Type)
@@ -233,8 +238,10 @@ joinFree2 = case codom2 :: Proof (AlgebraType m (m f)) (m f) of
 {-# INLINABLE joinFree2 #-}
 
 -- |
--- @bind@ of the monad defined by @m@ on the subcategory of graphs (typed of
+-- @bind@ of the monad defined by @m@ on the subcategory of graphs (types of
 -- kind @k -> k -> Type@).
+--
+-- prop> foldNatFree2 nat (bindFree mf nat') = foldNatFree2 (foldNatFree2 nat . nat') mf
 --
 bindFree2 :: forall m f g a b .
              ( FreeAlgebra2 m
