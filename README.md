@@ -4,11 +4,13 @@
 
 Universal algebra approach (which is compatible with categorical approach) to
 free algebras (including higher order structures like functors, applicative
-functors or monads).  Mathematical introduction alongside with some Haskell
-ideas can be studied from [this](https://coot.me/posts/free-monads.html) blog
+functors or monads).  Mathematical introduction alongside with some of the
+Haskell ideas is exposed in this [blog](https://coot.me/posts/free-monads.html)
 post.
 
-Some examples:
+Examples:
+---------
+
 * [TCP as a free monad](https://github.com/coot/free-algebras/blob/master/examples/src/Network/TCP.hs)
 * [free categories](https://coot.me/posts/kleisli-categories-and-free-monads.html)
 * [free categories with monadic effects](https://coot.me/posts/categories-with-monadic-effects.html)
