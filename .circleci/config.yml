@@ -1,7 +1,9 @@
 version: 2.1
 defaults: &defaults
   docker:
-    - image: nixos/nix
+    - image: nixorg/nix:circleci
+      environment:
+        - USER: coot
 commands:
   setup:
     description: "setup environment"
