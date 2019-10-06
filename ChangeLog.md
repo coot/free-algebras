@@ -55,3 +55,4 @@
 - Applicative instance for `FreeMAction`.
 - Added `Free1` type.
 - Removed `constraints` dependency.
+- Renamed `Data.Semigroup.SemiLattice` to `Data.Semigroup.Semilattice`, also `FreeSemiLattice` renamed to `FreeSemilattice`.
