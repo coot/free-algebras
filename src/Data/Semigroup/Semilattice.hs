@@ -2,8 +2,8 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE TypeFamilies               #-}
 
-module Data.Semigroup.SemiLattice
-    ( FreeSemiLattice
+module Data.Semigroup.Semilattice
+    ( FreeSemilattice
     , fromNonEmpty
     , toNonEmpty
     ) where
@@ -30,32 +30,32 @@ import           Data.Semigroup.Abelian (AbelianSemigroup)
 -- |
 -- Class of abelian semigroups in which every element is idempontent, i.e.
 -- @a <> a = a@.
-class AbelianSemigroup m => SemiLattice m
+class AbelianSemigroup m => Semilattice m
 
-instance SemiLattice Void
-instance SemiLattice ()
-instance SemiLattice All
-instance SemiLattice Any
-instance Ord a => SemiLattice (Set a)
-instance SemiLattice IntSet
+instance Semilattice Void
+instance Semilattice ()
+instance Semilattice All
+instance Semilattice Any
+instance Ord a => Semilattice (Set a)
+instance Semilattice IntSet
 
 -- |
--- @'FreeSemiLattice'@ is a non empty set.
-newtype FreeSemiLattice a = FreeSemiLattice (Set a)
+-- @'FreeSemilattice'@ is a non empty set.
+newtype FreeSemilattice a = FreeSemilattice (Set a)
     deriving (Ord, Eq, Show, Semigroup)
 
-instance Ord a => AbelianSemigroup (FreeSemiLattice a)
+instance Ord a => AbelianSemigroup (FreeSemilattice a)
 
-instance Ord a => SemiLattice (FreeSemiLattice a)
+instance Ord a => Semilattice (FreeSemilattice a)
 
-fromNonEmpty :: Ord a => NonEmpty a -> FreeSemiLattice a
-fromNonEmpty = FreeSemiLattice . Set.fromList . NE.toList
+fromNonEmpty :: Ord a => NonEmpty a -> FreeSemilattice a
+fromNonEmpty = FreeSemilattice . Set.fromList . NE.toList
 
-toNonEmpty :: FreeSemiLattice a -> NonEmpty a
-toNonEmpty (FreeSemiLattice as) = NE.fromList $ Set.toList as
+toNonEmpty :: FreeSemilattice a -> NonEmpty a
+toNonEmpty (FreeSemilattice as) = NE.fromList $ Set.toList as
 
-type instance AlgebraType0 FreeSemiLattice a = Ord a
-type instance AlgebraType  FreeSemiLattice a = (Ord a, SemiLattice a)
-instance FreeAlgebra FreeSemiLattice where
-    returnFree a = FreeSemiLattice $ Set.singleton a
-    foldMapFree f (FreeSemiLattice as) = sconcat $ fmap f $ NE.fromList $ Set.toList as
+type instance AlgebraType0 FreeSemilattice a = Ord a
+type instance AlgebraType  FreeSemilattice a = (Ord a, Semilattice a)
+instance FreeAlgebra FreeSemilattice where
+    returnFree a = FreeSemilattice $ Set.singleton a
+    foldMapFree f (FreeSemilattice as) = sconcat $ fmap f $ NE.fromList $ Set.toList as
