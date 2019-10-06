@@ -1,5 +1,5 @@
 name:           free-algebras
-version:        0.0.7.2
+version:        0.0.8.0
 synopsis:       Free algebras in Haskell.
 description:    Universal algebra approach to free algebras including higher
                 kinded algebraic structures like functors, applicative
@@ -54,7 +54,7 @@ library
     -Wno-deprecations
   default-language: Haskell2010
 
-test-suite tests
+test-suite test-free-algebras
   type: exitcode-stdio-1.0
   main-is: Main.hs
   other-modules:

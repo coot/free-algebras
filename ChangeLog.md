@@ -1,5 +1,19 @@
 # Changelog for free-algebras
 
+## Version 0.0.8.0
+- Added two properties for each: `foldMapFree`, `foldNatFree` and
+  `foldNatFree2`.
+- Added default implementations of `codom` / `forget`, `codom1` / `forget` and
+  `codom2` / `forget2`, what simplifies writting instances.
+- Changed internal representation of FreeAbelianSemigroup: use Natural
+- removed `natural-number` dependency and use `Numeric.Natural.Natural` instead.
+- Applicative instance for `FreeMAction`.
+- Added `Free1` type.
+- Removed `constraints` dependency.
+- Renamed `Data.Semigroup.SemiLattice` to `Data.Semigroup.Semilattice`, also
+  `FreeSemiLattice` renamed to `FreeSemilattice`.
+- various optimisation (rewrite rules & inline pragmas)
+
 ## Version 0.0.7.2
 - Enhanced documentation, and properly attributed fix in ChangeLog.
 
@@ -46,13 +60,3 @@
 
 ## Version 0.0.2.0
 - Simplified `Proof` type.
-
-## Unreleased changes
-- Added default implementations of `codom` / `forget`, `codom1` / `forget` and
-  `codom2` / `forget2`, what simplifies writting instances.
-- Changed internal representation of FreeAbelianSemigroup: use Natural
-- removed `natural-number` dependency and use `Numeric.Natural.Natural` instead.
-- Applicative instance for `FreeMAction`.
-- Added `Free1` type.
-- Removed `constraints` dependency.
-- Renamed `Data.Semigroup.SemiLattice` to `Data.Semigroup.Semilattice`, also `FreeSemiLattice` renamed to `FreeSemilattice`.
