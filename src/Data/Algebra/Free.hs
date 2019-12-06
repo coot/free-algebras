@@ -108,7 +108,7 @@ class FreeAlgebra (m :: Type -> Type)  where
          . ( AlgebraType m d
            , AlgebraType0 m a
            )
-        => (a -> d)   -- ^ a mappping of generators of @m@ into @d@
+        => (a -> d)   -- ^ a mapping of generators of @m@ into @d@
         -> (m a -> d) -- ^ a homomorphism from @m a@ to @d@
 
     -- |
