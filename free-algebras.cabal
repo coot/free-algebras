@@ -17,6 +17,7 @@ cabal-version:  >= 1.10
 extra-source-files:
     ChangeLog.md
     README.md
+stability:      experimental
 tested-with:    GHC==8.0.2, GHC==8.2.2, GHC==8.4.4, GHC==8.6.3, GHC==8.8.1
 
 source-repository head
