@@ -1,9 +1,10 @@
 name:           free-algebras
 version:        0.0.8.0
-synopsis:       Free algebras in Haskell.
-description:    Universal algebra approach to free algebras including higher
-                kinded algebraic structures like functors, applicative
-                functors, monads or categories .
+synopsis:       Free algebras
+description:
+  Algebraic approach to free algebras, inspired by Univeral Algebra and
+  Category Theory, including higher kinded algebraic structures like functors,
+  applicative functors, monads or categories.
 category:       Algebra, Control, Monads
 homepage:       https://github.com/coot/free-algebras#readme
 bug-reports:    https://github.com/coot/free-algebras/issues
