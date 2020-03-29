@@ -1,41 +1,15 @@
-{ compiler ? "ghc844" }:
+{ compiler ? "ghc865" }:
 with builtins;
 let
-  rev = if   compiler == "ghc802"
-          || compiler == "ghc822"
-          || compiler == "ghc844"
-    then "722fcbbb80b2142583e9266efe77992f8e32ac4c"
-    else "57b66eb3f2a0e824c48759f2729370b1b9fd7660";
-  url = "https://github.com/NixOS/nixpkgs/archive/${rev}.tar.gz";
+  sources = import ./sources.nix {};
   config =
-    { packageOverrides = super:
+    { allowBroken = true;
+      packageOverrides = super:
       let self = super.pkgs;
           lib = super.haskell.lib;
       in {
         haskell = super.haskell // {
           packages = super.haskell.packages // {
-            ghc881 = super.haskell.packages.ghc881.override {
-              overrides = self: super: {
-                cabal-doctest = super.callPackage ./cabal-doctest-1.0.7.nix {};
-                haskell-src-exts = super.callPackage ./haskell-src-exts-1.21.1.nix {};
-                hedgehog = super.callPackage ./hedgehog-1.0.1.nix {};
-              };
-            };
-            ghc863 = super.haskell.packages.ghc863.override {
-              overrides = self: super: {
-                hoopl_3_10_2_2 = self.callPackage ./hoopl-3.10.2.2.nix {};
-              };
-            };
-            ghc862 = super.haskell.packages.ghc862.override {
-              overrides = self: super: {
-                hoopl_3_10_2_2 = self.callPackage ./hoopl-3.10.2.2.nix {};
-              };
-            };
-            ghc861 = super.haskell.packages.ghc861.override {
-              overrides = self: super: {
-                hoopl_3_10_2_2 = self.callPackage ./hoopl-3.10.2.2.nix {};
-              };
-            };
             ghc802 = super.haskell.packages.ghc802.override {
               overrides = self: super: {
                 ansi-terminal = super.callPackage ./ansi-terminal-0.6.3.1.nix {};
@@ -50,5 +24,7 @@ let
         };
       };
     };
-  nixpkgs = import (fetchTarball { inherit url; }) { inherit config; };
-in nixpkgs
+
+in if (compiler == "ghc802" || compiler == "ghc822" || compiler == "ghc844")
+  then import sources.nixpkgs-ghc802 { inherit config; }
+  else import sources.nixpkgs        { inherit config; }
