@@ -131,7 +131,8 @@ wrapFree2 = join . liftFree2
 -- It is the [unit](https://ncatlab.org/nlab/show/unit+of+an+adjunction) of
 -- adjuction defined by @'FreeAlgebra1'@ class.
 --
-foldFree2 :: forall (m :: (k -> k -> Type) -> k -> k -> Type)
+foldFree2 :: forall k
+                    (m :: (k -> k -> Type) -> k -> k -> Type)
                     (f :: k -> k -> Type)
                     a b .
              ( FreeAlgebra2 m
@@ -151,7 +152,8 @@ foldFree2 = case forget2 :: Proof (AlgebraType0 m f) (m f) of
 -- prop> unFoldNatFree id = liftFree2
 --
 unFoldNatFree2
-    :: forall (m :: (k -> k -> Type) -> k -> k -> Type)
+    :: forall k
+              (m :: (k -> k -> Type) -> k -> k -> Type)
               (f :: k -> k -> Type)
               d a b.
        ( FreeAlgebra2 m
@@ -171,7 +173,8 @@ unFoldNatFree2 nat = nat . liftFree2
 -- prop> hoistFree2 id = id
 -- prop> hoistFree2 f . hoistFree2 g = hoistFree2 (f . g)
 --
-hoistFree2 :: forall (m :: (k -> k -> Type) -> k -> k -> Type)
+hoistFree2 :: forall k
+                     (m :: (k -> k -> Type) -> k -> k -> Type)
                      (f :: k -> k -> Type)
                      g a b .
               ( FreeAlgebra2 m
@@ -188,8 +191,8 @@ hoistFree2 nat = case codom2 :: Proof (AlgebraType m (m g)) (m g) of
 {-# RULES
 
 "hositFree2/foldNatFree2"
-    forall (nat  :: forall (x :: k) (y :: k). g x y -> c x y)
-           (nat0 :: forall (x :: k) (y :: k). f x y -> g x y)
+    forall (nat  :: forall x y. g x y -> c x y)
+           (nat0 :: forall x y. f x y -> g x y)
            (f :: m f a b).
     foldNatFree2 nat (hoistFree2 nat0 f) = foldNatFree2 (nat . nat0) f
 
@@ -212,7 +215,7 @@ hoistFreeH2 = foldNatFree2 liftFree2
 
 {-# RULES
 
-"hoistFreeH2/foldNatFree2" forall (nat :: forall (x :: k) (y :: k). f x y -> c x y)
+"hoistFreeH2/foldNatFree2" forall (nat :: forall x y. f x y -> c x y)
                                   (f :: AlgebraType m c => m f a b).
                            foldNatFree2 nat (hoistFreeH2 f) = foldNatFree2 nat f
 #-}
@@ -224,7 +227,8 @@ hoistFreeH2 = foldNatFree2 liftFree2
 --
 -- This property is analogous to @foldMap f . concat = foldMap (foldMap f)@,
 --
-joinFree2 :: forall (m :: (k -> k -> Type) -> k -> k -> Type)
+joinFree2 :: forall k
+                    (m :: (k -> k -> Type) -> k -> k -> Type)
                     (f :: k -> k -> Type)
                     a b .
              ( FreeAlgebra2 m
