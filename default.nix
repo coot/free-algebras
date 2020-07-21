@@ -1,51 +1,42 @@
-{ compiler   ? "ghc865",
-  haddock    ? true,
-  test       ? true,
-  benchmarks ? false,
-  dev        ? true,
-  tags       ? true
+{ compiler ? "ghc865"
 }:
-with builtins;
-let
-  nixpkgs = import ./nix/nixpkgs.nix { inherit compiler; };
+let compiler-nix-name = compiler;
 
-  lib = nixpkgs.haskell.lib;
-  callCabal2nix = nixpkgs.haskell.packages.${compiler}.callCabal2nix;
-  haskellPackages = nixpkgs.haskell.packages.${compiler};
-  ghc-tags-plugin = nixpkgs.haskell.packages.${compiler}.ghc-tags-plugin;
+    sources = import ./nix/sources.nix {};
+    iohkNix = import sources.iohk-nix {};
+    haskellNix = import sources."haskell.nix" {};
+    nixpkgs = iohkNix.nixpkgs;
+    haskell-nix = haskellNix.pkgs.haskell-nix;
 
-  doHaddock = if haddock
-    then lib.doHaddock
-    else lib.dontHaddock;
-  doTest = if test
-    then lib.doCheck
-    else lib.dontCheck;
-  doBench = if benchmarks
-    then lib.doBenchmark
-    else nixpkgs.lib.id;
-  doDev = if dev
-    then drv: lib.appendConfigureFlag drv "--ghc-option -Werror --ghc-option -Wall"
-    else nixpkgs.lib.id;
-  extraDeps = if tags
-    then { inherit ghc-tags-plugin; }
-    else {};
-  docNoSeprateOutput = drv: lib.overrideCabal drv (drv: { enableSeparateDocOutput = false; });
-  srcFilter = src: path: type:
-    let relPath = nixpkgs.lib.removePrefix (toString src + "/") (toString path);
-    in
-       nixpkgs.lib.hasPrefix "src" relPath
-    || nixpkgs.lib.hasPrefix "test" relPath
-    || nixpkgs.lib.any
-        (a: a == relPath)
-        [ "Setup.hs" "cabal.project" "ChangeLog.md" "free-algebras.cabal" "LICENSE"];
+    # package set
+    pkgs = import nixpkgs
+              { config = haskellNix.config;
+                overlays = [ (_: _: { inherit freeAlgebrasPackages; }) ];
+              };
+    lib = pkgs.lib;
 
-  free-algebras = (docNoSeprateOutput(doDev(doHaddock(doTest(doBench(
-    lib.overrideCabal (callCabal2nix "free-algebras" ./. {})
-      (drv: {src = nixpkgs.lib.cleanSourceWith { filter = srcFilter drv.src; src = drv.src; };})
-  ))))));
-  examples = docNoSeprateOutput(doDev(doHaddock(doTest(doBench(
-    lib.overrideCabal (callCabal2nix "examples" ./examples { inherit free-algebras; })
-      (drv: {src = nixpkgs.lib.sourceFilesBySuffices drv.src [ ".hs" "LICENSE" "ChangeLog.md" "examples.cabal" ];})
-  )))));
+    # 'cleanGit' cleans a source directory based on the files known by git
+    src = haskell-nix.haskellLib.cleanGit {
+      name = "free-algebras";
+      src = ./.;
+    };
 
-in { inherit free-algebras examples; }
+    # unmodified packages
+    projectPackages = lib.attrNames
+      (haskell-nix.haskellLib.selectProjectPackages
+      (haskell-nix.cabalProject { inherit src compiler-nix-name; }));
+
+    # set GHC options
+    freeAlgebrasPackages = haskell-nix.cabalProject {
+        inherit src compiler-nix-name;
+        modules =
+          [
+            { packages =
+                lib.genAttrs
+                  projectPackages
+                  (name: { configureFlags = [ "--ghc-option=-Werror" ]; });
+            }
+          ];
+      };
+in pkgs.freeAlgebrasPackages
+

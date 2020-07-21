@@ -1,3 +1,4 @@
+cabal-version:  2.0
 name:           free-algebras
 version:        0.0.8.1
 synopsis:       Free algebras
@@ -14,12 +15,11 @@ copyright:      (c) 2018-2019 Marcin Szamotulski
 license:        MPL-2.0
 license-file:   LICENSE
 build-type:     Simple
-cabal-version:  >= 1.10
 extra-source-files:
     ChangeLog.md
     README.md
 stability:      experimental
-tested-with:    GHC==8.0.2, GHC==8.2.2, GHC==8.4.4, GHC==8.6.3, GHC==8.8.3
+tested-with:    GHC==8.6.5, GHC==8.8.3, GHC==8.10.1
 
 source-repository head
   type: git
