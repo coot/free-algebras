@@ -1,6 +1,6 @@
 cabal-version:  2.0
 name:           free-algebras
-version:        0.0.8.1
+version:        0.0.8.2
 synopsis:       Free algebras
 description:
   Algebraic approach to free algebras, inspired by Univeral Algebra and
@@ -11,7 +11,7 @@ homepage:       https://github.com/coot/free-algebras#readme
 bug-reports:    https://github.com/coot/free-algebras/issues
 author:         Marcin Szamotulski
 maintainer:     profunctor@pm.me
-copyright:      (c) 2018-2019 Marcin Szamotulski
+copyright:      (c) 2018-2020 Marcin Szamotulski
 license:        MPL-2.0
 license-file:   LICENSE
 build-type:     Simple
