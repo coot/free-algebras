@@ -22,10 +22,11 @@ module Data.Group.Free
     ) where
 
 import           Control.Monad (ap)
+import           Data.Bifunctor (bimap)
 import           Data.DList (DList)
 import qualified Data.DList as DList
-import           Data.Bifunctor (bimap)
 import           Data.Group (Group (..))
+import           Data.List (foldl')
 #if __GLASGOW_HASKELL__ < 808
 import           Data.Semigroup (Semigroup (..))
 #endif
@@ -105,7 +106,7 @@ instance Eq a => Monoid (FreeGroup a) where
 #endif
 
 instance Eq a => Group (FreeGroup a) where
-    invert (FreeGroup as) = FreeGroup $ foldl (\acu a -> either Right Left a `DList.cons` acu) DList.empty as
+    invert (FreeGroup as) = FreeGroup $ foldl' (\acu a -> either Right Left a `DList.cons` acu) DList.empty as
 
 type instance AlgebraType0 FreeGroup a = Eq a
 type instance AlgebraType  FreeGroup g = (Eq g, Group g)
@@ -168,7 +169,7 @@ instance Eq a => Monoid (FreeGroupL a) where
 #endif
 
 instance Eq a => Group (FreeGroupL a) where
-    invert (FreeGroupL as) = FreeGroupL $ foldl (\acu a -> either Right Left a : acu) [] as
+    invert (FreeGroupL as) = FreeGroupL $ foldl' (\acu a -> either Right Left a : acu) [] as
 
 type instance AlgebraType0 FreeGroupL a = Eq a
 type instance AlgebraType  FreeGroupL g = (Eq g, Group g)
