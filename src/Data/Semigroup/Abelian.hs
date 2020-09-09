@@ -39,11 +39,11 @@ import           Data.Algebra.Free
                     , FreeAlgebra (..)
                     )
 
--- |
--- Class of commutative monoids, e.g. with additional law:
+-- | Class of commutative monoids, e.g. with additional law:
 -- @
 --  a <> b = b <> a
 -- @
+--
 class Semigroup m => AbelianSemigroup m
 
 instance AbelianSemigroup Void
@@ -70,8 +70,7 @@ instance Ord a => AbelianSemigroup (Set a)
 
 instance AbelianSemigroup IntSet
 
--- |
--- Free abelian semigroup is isomorphic to a non empty map with keys @a@ and
+-- | Free abelian semigroup is isomorphic to a non empty map with keys @a@ and
 -- values positive natural numbers.
 --
 -- It is a monad on the full subcategory which satisfies the `Ord` constraint,
@@ -84,9 +83,9 @@ newtype FreeAbelianSemigroup a = FreeAbelianSemigroup (Map a Natural)
 toNonEmpty :: FreeAbelianSemigroup a -> NonEmpty (a, Natural)
 toNonEmpty (FreeAbelianSemigroup as) = NE.fromList . Map.toList $ as
 
--- |
--- Smart constructor which creates `FreeAbelianSemigroup` from a non empty list
--- of pairs @(a, n) :: (a, Natural)@ where @n > 0@.
+-- | Smart constructor which creates `FreeAbelianSemigroup` from a non empty
+-- list of pairs @(a, n) :: (a, Natural)@ where @n > 0@.
+--
 fromNonEmpty :: Ord a => NonEmpty (a, Natural) -> Maybe (FreeAbelianSemigroup a)
 fromNonEmpty = fmap (FreeAbelianSemigroup . Map.fromList) . go . NE.toList
     where

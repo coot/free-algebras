@@ -27,9 +27,9 @@ import           Data.Algebra.Free ( AlgebraType
                                    )
 import           Data.Semigroup.Abelian (AbelianSemigroup)
 
--- |
--- Class of abelian semigroups in which every element is idempontent, i.e.
+-- | Class of abelian semigroups in which every element is idempontent, i.e.
 -- @a <> a = a@.
+--
 class AbelianSemigroup m => Semilattice m
 
 instance Semilattice Void
@@ -39,8 +39,8 @@ instance Semilattice Any
 instance Ord a => Semilattice (Set a)
 instance Semilattice IntSet
 
--- |
--- @'FreeSemilattice'@ is a non empty set.
+-- | @'FreeSemilattice'@ is a non empty set.
+--
 newtype FreeSemilattice a = FreeSemilattice (Set a)
     deriving (Ord, Eq, Show, Semigroup)
 

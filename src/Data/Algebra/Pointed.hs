@@ -11,16 +11,16 @@ module Data.Algebra.Pointed
 import Data.Semigroup (Semigroup (..))
 #endif
 
--- |
--- Class of pointed sets
+-- | Class of pointed sets
+--
 class Pointed p where
     point :: p
 
 instance Pointed (Maybe a) where
     point = Nothing
 
--- |
--- @Monoid@ should be a subclass of @Pointed@.
+-- | @Monoid@ should be a subclass of @Pointed@.
+--
 newtype PointedMonoid m = PointedMonoid { runPointedMonoid :: m }
     deriving (Show, Eq, Ord, Functor)
 
