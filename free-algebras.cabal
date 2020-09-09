@@ -1,6 +1,6 @@
 cabal-version:  2.0
 name:           free-algebras
-version:        0.0.8.2
+version:        0.1.0.0
 synopsis:       Free algebras
 description:
   Algebraic approach to free algebras, inspired by Univeral Algebra and

@@ -5,7 +5,7 @@
 Universal algebra approach (which is compatible with categorical approach) to
 free algebras (including higher order structures like functors, applicative
 functors or monads).  Mathematical introduction alongside with some of the
-Haskell ideas is exposed in this [blog](https://coot.me/posts/free-monads.html)
+Haskell ideas is desribed in a [blog](https://coot.me/posts/free-monads.html)
 post.
 
 Examples:
