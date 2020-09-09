@@ -32,6 +32,7 @@ module Data.Algebra.Free
     , foldlFree'
       -- * General free type
     , Free (..)
+    , DNonEmpty (..)
     )
     where
 
@@ -46,6 +47,7 @@ import           Data.Fix (Fix, cata)
 import           Data.Group (Group (..))
 import           Data.Kind (Constraint, Type)
 import           Data.List.NonEmpty (NonEmpty (..))
+import qualified Data.List.NonEmpty as NonEmpty
 import           Data.Monoid ( Endo (..)
 #if __GLASGOW_HASKELL__ < 808
                              , Monoid (..)
@@ -358,6 +360,18 @@ instance FreeAlgebra NonEmpty where
     -- satisfy here
     foldMapFree f (a :| []) = f a
     foldMapFree f (a :| (b : bs)) = f a <> foldMapFree f (b :| bs)
+
+-- | 'DNonEmpty' is the free semigroup ihn the class of all semigroups.
+--
+newtype DNonEmpty a = DNonEmpty ([a] -> NonEmpty a)
+instance Semigroup (DNonEmpty a) where
+    DNonEmpty f <> DNonEmpty g = DNonEmpty (f . NonEmpty.toList . g)
+
+type instance AlgebraType0 DNonEmpty a = ()
+type instance AlgebraType  DNonEmpty m = Semigroup m
+instance FreeAlgebra DNonEmpty where
+    returnFree a = DNonEmpty (a :|)
+    foldMapFree f (DNonEmpty g) = foldMapFree f (g [])
 
 type instance AlgebraType0 [] a = ()
 type instance AlgebraType  [] m = Monoid m
