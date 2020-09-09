@@ -13,8 +13,7 @@ import           Numeric.Natural (Natural)
 import           Data.Algebra.Free (AlgebraType, AlgebraType0, FreeAlgebra (..))
 import           Data.Semigroup.Abelian (AbelianSemigroup)
 
--- |
--- Free abelian monoid.  Note that `FreeAbelianMonoid () ≅ Natural` as
+-- | Free abelian monoid.  Note that `FreeAbelianMonoid () ≅ Natural` as
 -- expected.
 --
 -- It is a monad on the full subcategory which satisfies the `Ord` constraint,

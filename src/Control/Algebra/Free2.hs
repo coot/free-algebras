@@ -3,8 +3,7 @@
 {-# LANGUAGE PolyKinds           #-}
 {-# LANGUAGE RankNTypes          #-}
 
--- |
--- A type class for free objects of kind @k -> k -> Type@, i.e. /graphs/ (we
+-- | A type class for free objects of kind @k -> k -> Type@, i.e. /graphs/ (we
 -- will use this name for types of this kind in this documentation).  Examples
 -- include various flavors of /free categories/ and /arrows/ which
 -- are not included in this package, see
@@ -35,24 +34,21 @@ import           Data.Kind (Type)
 
 import           Data.Algebra.Free (AlgebraType, AlgebraType0, Proof (..))
 
--- |
--- Free algebra class similar to @'FreeAlgebra1'@ and @'FreeAlgebra'@, but for
--- types of kind @k -> k -> Type@.
+-- | Free algebra class similar to @'FreeAlgebra1'@ and @'FreeAlgebra'@, but
+-- for types of kind @k -> k -> Type@.
 --
 class FreeAlgebra2 (m :: (k -> k -> Type) -> k -> k -> Type) where
 
     {-# MINIMAL liftFree2, foldNatFree2 #-}
 
-    -- |
-    -- Lift a graph @f@ satsifying the constraint @'AlgebraType0'@ to
-    -- a free its object @m f@.
+    -- | Lift a graph @f@ satsifying the constraint @'AlgebraType0'@ to a free
+    -- its object @m f@.
     --
     liftFree2    :: AlgebraType0 m f
                  => f a b
                  -> m f a b
 
-    -- |
-    -- This represents the theorem that @m f@ is indeed free object (as
+    -- | This represents the theorem that @m f@ is indeed free object (as
     -- in propositions as types).  The types of kind @k -> k -> Type@ form
     -- a category, where an arrow from @f :: k -> k -> Type@ to @d :: k ->
     -- k -> Type@ is represented by type @forall x y. f x y -> d x y@.
@@ -71,13 +67,12 @@ class FreeAlgebra2 (m :: (k -> k -> Type) -> k -> k -> Type) where
                  => (forall x y. f x y -> d x y)
                  -> (m f a b -> d a b)
 
-    -- |
-    -- A proof that for each @f@ satisfying @AlgebraType0 m f@, @m f@
+    -- | A proof that for each @f@ satisfying @AlgebraType0 m f@, @m f@
     -- satisfies @AlgebraType m (m f)@ constrant.  This means that @m@ is
-    -- a well defined /functor/ from the full sub-category of types of
-    -- kind @k -> k -> Type@ which satisfy the @AlgebraType0 m@ constraint
-    -- to the full subcategory of types of the same kind which satifsfy
-    -- the constraint @AlgebraType m@.
+    -- a well defined /functor/ from the full sub-category of types of kind @k
+    -- -> k -> Type@ which satisfy the @AlgebraType0 m@ constraint to the full
+    -- subcategory of types of the same kind which satifsfy the constraint
+    -- @AlgebraType m@.
     --
     codom2  :: forall (f :: k -> k -> Type).
                AlgebraType0 m f
@@ -87,13 +82,12 @@ class FreeAlgebra2 (m :: (k -> k -> Type) -> k -> k -> Type) where
                    => Proof (AlgebraType m (m a)) (m a)
     codom2 = Proof
 
-    -- | 
-    -- A proof that each type @f :: k -> k -> Type@ satisfying the
-    -- @Algebra m f@ constraint also satisfies @AlgebraType0 m f@.  This
-    -- states that there is a well defined /forgetful functor/ from the
-    -- category of types of kind @k -> k -> Type@ which satisfy the
-    -- @AlgebraType m@ to the category of types of the same kind which
-    -- satisfy the @AlgebraType0 m@ constraint.
+    -- | A proof that each type @f :: k -> k -> Type@ satisfying the @Algebra
+    -- m f@ constraint also satisfies @AlgebraType0 m f@.  This states that
+    -- there is a well defined /forgetful functor/ from the category of types
+    -- of kind @k -> k -> Type@ which satisfy the @AlgebraType m@ to the
+    -- category of types of the same kind which satisfy the @AlgebraType0 m@
+    -- constraint.
     --
     forget2 :: forall (f :: k -> k -> Type).
                AlgebraType m f
@@ -144,8 +138,7 @@ foldFree2 = case forget2 :: Proof (AlgebraType0 m f) (m f) of
     Proof -> foldNatFree2 id
 {-# INLINABLE foldFree2 #-}
 
--- | 
--- Inverse of @'foldNatFree2'@.
+-- | Inverse of @'foldNatFree2'@.
 --
 -- It is uniquelly determined by its universal property (by Yonneda lemma):
 --
@@ -164,11 +157,9 @@ unFoldNatFree2
 unFoldNatFree2 nat = nat . liftFree2
 {-# INLINABLE unFoldNatFree2 #-}
 
--- |
--- Hoist the underlying graph in the free structure.
--- This is a higher version of a functor (analogous to @'fmapFree'@, which
--- defined functor instance for @'FreeAlgebra'@ instances) and it satisfies the
--- functor laws:
+-- | Hoist the underlying graph in the free structure.  This is a higher
+-- version of a functor (analogous to @'fmapFree'@, which defined functor
+-- instance for @'FreeAlgebra'@ instances) and it satisfies the functor laws:
 --
 -- prop> hoistFree2 id = id
 -- prop> hoistFree2 f . hoistFree2 g = hoistFree2 (f . g)
@@ -198,8 +189,7 @@ hoistFree2 nat = case codom2 :: Proof (AlgebraType m (m g)) (m g) of
 
 #-}
 
--- |
--- Hoist the top level free structure.
+-- | Hoist the top level free structure.
 --
 hoistFreeH2 :: forall m n f a b .
            ( FreeAlgebra2 m
@@ -241,8 +231,7 @@ joinFree2 = case codom2 :: Proof (AlgebraType m (m f)) (m f) of
         Proof -> foldFree2
 {-# INLINABLE joinFree2 #-}
 
--- |
--- @bind@ of the monad defined by @m@ on the subcategory of graphs (types of
+-- | @bind@ of the monad defined by @m@ on the subcategory of graphs (types of
 -- kind @k -> k -> Type@).
 --
 -- prop> foldNatFree2 nat (bindFree mf nat') = foldNatFree2 (foldNatFree2 nat . nat') mf
