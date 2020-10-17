@@ -10,7 +10,7 @@ category:       Algebra, Control, Monads
 homepage:       https://github.com/coot/free-algebras#readme
 bug-reports:    https://github.com/coot/free-algebras/issues
 author:         Marcin Szamotulski
-maintainer:     profunctor@pm.me
+maintainer:     coot@coot.me
 copyright:      (c) 2018-2020 Marcin Szamotulski
 license:        MPL-2.0
 license-file:   LICENSE
@@ -19,13 +19,24 @@ extra-source-files:
     ChangeLog.md
     README.md
 stability:      experimental
-tested-with:    GHC==8.6.5, GHC==8.8.4, GHC==8.10.1
+tested-with:    GHC==8.6.5, GHC==8.8.4, GHC==8.10.2
 
 source-repository head
   type: git
   location: https://github.com/coot/free-algebras
 
+
+common ghc-options
+  ghc-options:
+    -Wall
+    -Wincomplete-record-updates
+    -Wincomplete-uni-patterns
+    -Wredundant-constraints
+    -Wno-deprecations
+
+
 library
+  import: ghc-options
   exposed-modules:
       Control.Algebra.Free
       Control.Algebra.Free2
@@ -48,12 +59,6 @@ library
     , kan-extensions  >= 4.1 && <6.0
     , mtl             >= 2.2 && <2.3
     , transformers    >= 0.5 && <0.6
-  ghc-options:
-    -Wall
-    -Wincomplete-record-updates
-    -Wincomplete-uni-patterns
-    -Wredundant-constraints
-    -Wno-deprecations
   default-language: Haskell2010
 
 test-suite test-free-algebras
