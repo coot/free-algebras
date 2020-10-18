@@ -1,0 +1,33 @@
+name: "POSIX"
+on: [push]
+
+jobs:
+  tests:
+    name: "free-algebras"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: cachix/install-nix-action@v10
+      - name: "cachix"
+        uses: cachix/cachix-action@v6
+        with:
+          name: "free-algebras"
+          signingKey: '${{ secrets.CACHIX_SIGNING_KEY }}'
+
+      - name: "nix"
+        run: |
+            echo 'substituters = https://hydra.iohk.io/' | sudo tee -a /etc/nix/nix.conf
+            echo 'trusted-public-keys = hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ=' | sudo tee -a /etc/nix/nix.conf
+
+      - name: "cachix iohk"
+        run: cachix use iohk
+
+      - name: "[GHC 8.6.5]  free-algebras"
+        run: |
+          nix-build default.nix --argstr compiler ghc865 -A free-algebras
+
+      - name: "[GHC 8.8.4]  free-algebras"
+        run: nix-build default.nix --argstr compiler ghc884 -A free-algebras
+
+      - name: "[GHC 8.10.2] free-algebras"
+        run: nix-build default.nix --argstr compiler ghc8102 -A free-algebras
