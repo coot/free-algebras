@@ -25,6 +25,9 @@ import           Control.Monad (ap)
 import           Data.Bifunctor (bimap)
 import           Data.DList (DList)
 import qualified Data.DList as DList
+#if MIN_VERSION_dlist(1,0,0)
+import           Data.DList.Unsafe (DList (..))
+#endif
 import           Data.Group (Group (..))
 import           Data.List (foldl')
 #if __GLASGOW_HASKELL__ < 808
@@ -114,7 +117,12 @@ instance FreeAlgebra FreeGroup where
     foldMapFree _ (FreeGroup DList.Nil) = mempty
     foldMapFree f (FreeGroup as)        =
         let a'  = DList.head as
+#if MIN_VERSION_dlist(1,0,0)
+            as' = case as of
+              UnsafeDList g -> UnsafeDList (drop 1 . g)
+#else
             as' = DList.tail as
+#endif
         in either (invert . f) f a' `mappend` foldMapFree f (FreeGroup as')
 
 -- | Free group in the class of groups which multiplication is strict on the

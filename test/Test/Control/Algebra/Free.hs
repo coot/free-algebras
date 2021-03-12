@@ -275,14 +275,14 @@ prop_iterFree1_free = iterFree1_property
     (genFreeIdentity (Gen.int $ Range.linear 0 1000))
     show
     runIdentity
-    Free.iter
+    (\f -> Free.iter f)
 
 prop_iterFree1_ap :: Property
 prop_iterFree1_ap = iterFree1_property
     (genApIdentity (Gen.int $ Range.linear 0 1000) genIntToInt)
     (show . Ap.retractAp)
     runIdentity
-    Ap.iterAp
+    (\f -> Ap.iterAp f)
 
 foldNatFree_liftFree_property
     :: forall m g f a proxy n.

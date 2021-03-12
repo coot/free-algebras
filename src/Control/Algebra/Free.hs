@@ -627,7 +627,7 @@ instance (forall h. c h => Functor h)
 -- | @'Free1'@ is an applicative functor whenever @c f@ implies @'Applicative'
 -- f@.
 --
-instance (forall h. c h => Applicative h)
+instance (forall h. c h => Applicative h, c (Free1 c f))
          => Applicative (Free1 c f) where
 
     pure a = Free1 $ \_ -> pure a
@@ -643,7 +643,7 @@ instance (forall h. c h => Applicative h)
 
 -- | @'Free1'@ is a monad whenever @c f@ implies @'Monad' f@.
 --
-instance (forall h. c h => Monad h)
+instance (forall h. c h => Monad h, c (Free1 c f))
          => Monad (Free1 c f) where
 
     return = pure
@@ -658,7 +658,7 @@ instance (forall h. c h => Monad h)
 #endif
 
 
-instance (forall h. c h => Alternative h)
+instance (forall h. c h => Alternative h, c (Free1 c f))
          => Alternative (Free1 c f) where
     empty = Free1 $ \_ -> empty
 
@@ -669,7 +669,7 @@ instance (forall h. c h => Alternative h)
     many (Free1 f) = Free1 $ \h -> many (f h)
 
 
-instance (forall h. c h => MonadPlus h)
+instance (forall h. c h => MonadPlus h, c (Free1 c f))
          => MonadPlus (Free1 c f) where
 
     mzero = Free1 $ \_ -> mzero
@@ -677,7 +677,7 @@ instance (forall h. c h => MonadPlus h)
     Free1 f `mplus` Free1 g = Free1 $ \h -> f h `mplus` g h 
 
 
-instance (forall h. c h => MonadZip h)
+instance (forall h. c h => MonadZip h, c (Free1 c f))
          => MonadZip (Free1 c f) where
 
     Free1 f `mzip` Free1 g = Free1 $ \h -> f h `mzip` g h

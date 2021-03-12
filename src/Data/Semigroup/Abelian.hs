@@ -60,7 +60,11 @@ instance Ord a => AbelianSemigroup (Max a)
 
 instance Ord a => AbelianSemigroup (Min a)
 
+#if __GLASGOW_HASKELL__ >= 900
+instance AbelianSemigroup a => AbelianSemigroup (Maybe a)
+#else
 instance AbelianSemigroup a => AbelianSemigroup (Option a)
+#endif
 
 instance Num a => AbelianSemigroup (Product a)
 

@@ -43,7 +43,11 @@ import           Data.DList (DList)
 #endif
 import           Data.DList as DList
 import           Data.Functor.Identity (Identity (..))
+#if MIN_VERSION_data_fix(0,3,0)
+import           Data.Fix (Fix, foldFix)
+#else
 import           Data.Fix (Fix, cata)
+#endif
 import           Data.Group (Group (..))
 import           Data.Kind (Constraint, Type)
 import           Data.List.NonEmpty (NonEmpty (..))
@@ -269,7 +273,11 @@ cataFree :: ( FreeAlgebra  m
             )
          => Fix m
          -> a
+#if MIN_VERSION_data_fix(0,3,0)
+cataFree = foldFix foldFree
+#else
 cataFree = cata foldFree
+#endif
 
 -- | A version of @'Data.Foldable.foldr'@, e.g. it can specialize to
 --
