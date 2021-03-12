@@ -1,4 +1,4 @@
-{ compiler ? "ghc865"
+{ compiler ? "ghc8104"
 }:
 let compiler-nix-name = compiler;
 
