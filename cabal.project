@@ -1,5 +1,3 @@
-index-state:    2020-10-10T00:00:00Z
-packages:       free-algebras.cabal
-                examples/free-algebras-examples.cabal
-jobs:           $ncpus
-haddock-hyperlink-source: true
+index-state:    2021-03-13T00:00:00Z
+packages:       .
+                examples

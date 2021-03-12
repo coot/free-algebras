@@ -1,6 +1,6 @@
 cabal-version:  2.0
 name:           free-algebras
-version:        0.1.0.0
+version:        0.1.0.1
 synopsis:       Free algebras
 description:
   Algebraic approach to free algebras, inspired by Univeral Algebra and
@@ -19,7 +19,7 @@ extra-source-files:
     ChangeLog.md
     README.md
 stability:      experimental
-tested-with:    GHC==8.6.5, GHC==8.8.4, GHC==8.10.2
+tested-with:    GHC==8.6.5, GHC==8.8.4, GHC==8.10.4
 
 source-repository head
   type: git
@@ -52,10 +52,10 @@ library
   build-depends:
       base            >= 4.9 && <5
     , containers      >= 0.4.2 && <0.7
-    , data-fix                  <0.3
-    , dlist           >= 0.8 && <0.9
+    , data-fix                  <0.4
+    , dlist           >= 0.8 && <1.1
     , free            >= 4.0 && <6.0
-    , groups          >= 0.3 && <0.5
+    , groups          >= 0.3 && <0.6
     , kan-extensions  >= 4.1 && <6.0
     , mtl             >= 2.2 && <2.3
     , transformers    >= 0.5 && <0.6
