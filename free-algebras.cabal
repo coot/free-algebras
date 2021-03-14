@@ -1,4 +1,4 @@
-cabal-version:  2.0
+cabal-version:  2.2
 name:           free-algebras
 version:        0.1.0.1
 synopsis:       Free algebras
