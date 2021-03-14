@@ -11,7 +11,7 @@ homepage:       https://github.com/coot/free-algebras#readme
 bug-reports:    https://github.com/coot/free-algebras/issues
 author:         Marcin Szamotulski
 maintainer:     coot@coot.me
-copyright:      (c) 2018-2020 Marcin Szamotulski
+copyright:      (c) 2018-2021 Marcin Szamotulski
 license:        MPL-2.0
 license-file:   LICENSE
 build-type:     Simple
