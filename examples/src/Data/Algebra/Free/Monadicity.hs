@@ -52,6 +52,7 @@ import           Data.Bifunctor (bimap)
 import           Data.List.NonEmpty (NonEmpty (..))
 import qualified Data.List.NonEmpty as NE
 import           Data.Proxy (Proxy (..))
+import           Data.Kind (Type)
 
 import           Data.Group.Free (FreeGroupL)
 import qualified Data.Group.Free as FreeGroup
@@ -180,7 +181,7 @@ counit = case forget @m @d of
 -- |
 -- The monad associated with the adjunction.  Note that it's isomorphic to
 -- @'FreeAlgebra' m => m a@.
-data FreeMAlg (m :: * -> *) (a :: *) where
+data FreeMAlg (m :: Type -> Type) (a :: Type) where
     FreeMAlg :: (FreeAlgebra m, AlgebraType0 m a) => m a -> FreeMAlg m a
 
 instance Show (m a) => Show (FreeMAlg m a) where
