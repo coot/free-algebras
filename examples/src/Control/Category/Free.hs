@@ -15,12 +15,13 @@ import qualified Control.Concurrent.MVar as MVar
 import           Data.List.NonEmpty (NonEmpty (..))
 #endif
 import           Data.List.NonEmpty as NE
+import           Data.Kind (Type)
 
 import           Control.Category (Category (..))
 
 -- |
 -- Free category
-data Cat :: (* -> * -> *) -> * -> * -> * where
+data Cat :: (Type -> Type -> Type) -> Type -> Type -> Type where
     Id :: Cat f a a
     (:.:) :: f b c -> Cat f a b -> Cat f a c
 

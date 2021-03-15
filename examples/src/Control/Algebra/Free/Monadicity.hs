@@ -44,7 +44,7 @@ import           Data.Kind (Type)
 
 import           Control.Algebra.Free
 
-data Hom m (a :: * -> *) (b :: * -> *) where
+data Hom m (a :: Type -> Type) (b :: Type -> Type) where
     Hom :: ( AlgebraType0 m a, AlgebraType0 m b )
         => (forall x. a x -> b x)
         -> Hom m a b
@@ -156,7 +156,7 @@ counit = case forget1 :: Proof (AlgebraType0 m d) (m d) of
 -- |
 -- The monad associated with the adjunction.  Note that it's isomorphic to
 -- @'FreeAlgebra1' m => m a@.
-data FreeMAlg (m :: (* -> *) -> * -> *) (f :: * -> *) (a :: *) where
+data FreeMAlg (m :: (Type -> Type) -> Type -> Type) (f :: Type -> Type) (a :: Type) where
     FreeMAlg :: (FreeAlgebra1 m, AlgebraType0 m f) => m f a -> FreeMAlg m f a
 
 runFreeMAlg :: FreeMAlg m f a -> m f a
