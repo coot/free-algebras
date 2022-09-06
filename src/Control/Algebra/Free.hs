@@ -651,8 +651,6 @@ instance (forall h. c h => Monad h, c (Free1 c f))
     Free1 f >>= k = Free1 $ \h ->
         f h >>= (\a -> case k a of Free1 l -> l h)
 
-    Free1 f >> Free1 g = Free1 $ \h -> f h >> g h
-
 #if __GLASGOW_HASKELL__ < 808
     fail s = Free1 $ \_ -> fail s
 #endif
