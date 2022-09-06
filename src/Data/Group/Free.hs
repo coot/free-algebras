@@ -30,9 +30,6 @@ import           Data.DList.Unsafe (DList (..))
 #endif
 import           Data.Group (Group (..))
 import           Data.List (foldl')
-#if __GLASGOW_HASKELL__ < 808
-import           Data.Semigroup (Semigroup (..))
-#endif
 
 import           Data.Algebra.Free
                     ( AlgebraType

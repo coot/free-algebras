@@ -38,9 +38,6 @@ module Data.Algebra.Free
 
 import           Prelude
 
-#if __GLASGOW_HASKELL__ < 808
-import           Data.DList (DList)
-#endif
 import           Data.DList as DList
 import           Data.Functor.Identity (Identity (..))
 #if MIN_VERSION_data_fix(0,3,0)
@@ -52,16 +49,7 @@ import           Data.Group (Group (..))
 import           Data.Kind (Constraint, Type)
 import           Data.List.NonEmpty (NonEmpty (..))
 import qualified Data.List.NonEmpty as NonEmpty
-import           Data.Monoid ( Endo (..)
-#if __GLASGOW_HASKELL__ < 808
-                             , Monoid (..)
-#endif
-                             , Dual (..))
-#if __GLASGOW_HASKELL__ < 808
-import           Data.Semigroup ( Semigroup
-                                , (<>)
-                                )
-#endif
+import           Data.Monoid (Endo (..), Dual (..))
 import           Data.Algebra.Pointed (Pointed (..))
 
 --
@@ -144,7 +132,7 @@ class FreeAlgebra (m :: Type -> Type)  where
 
 -- | Inverse of @'foldMapFree'@
 --
--- It is uniquelly determined by its universal property (by Yonneda lemma):
+-- It is uniquely determined by its universal property (by Yonneda lemma):
 --
 -- prop> unFoldMapFree id = returnFree
 --

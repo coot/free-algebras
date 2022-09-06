@@ -13,10 +13,8 @@
 {-# LANGUAGE ScopedTypeVariables        #-}
 {-# LANGUAGE TypeFamilies               #-}
 {-# LANGUAGE TypeOperators              #-}
-#if __GLASGOW_HASKELL__ >= 806
 {-# LANGUAGE QuantifiedConstraints      #-}
 {-# LANGUAGE UndecidableInstances       #-}
-#endif
 
 -- 'ListT' transformer is depreciated
 {-# OPTIONS_GHC -Wno-deprecations       #-}
@@ -54,9 +52,7 @@ module Control.Algebra.Free
     ) where
 
 import           Control.Applicative ( Alternative (..)
-#if __GLASGOW_HASKELL__ >= 806
                                      , liftA2
-#endif
                                      )
 import           Control.Applicative.Free (Ap)
 import qualified Control.Applicative.Free as Ap
@@ -64,11 +60,7 @@ import qualified Control.Applicative.Free.Fast as Fast
 import qualified Control.Applicative.Free.Final as Final
 import           Control.Alternative.Free (Alt (..))
 import qualified Control.Alternative.Free as Alt
-#if __GLASGOW_HASKELL__ >= 806
 import           Control.Monad ( MonadPlus (..), foldM, join)
-#else
-import           Control.Monad (                 foldM, join)
-#endif
 import           Control.Monad.Except (ExceptT (..), MonadError (..))
 import           Control.Monad.Free (Free)
 import qualified Control.Monad.Free as Free
@@ -86,9 +78,7 @@ import           Control.Monad.Trans.Maybe (MaybeT (..))
 import           Control.Monad.Writer.Class (MonadWriter (..))
 import qualified Control.Monad.Writer.Lazy as L (WriterT (..))
 import qualified Control.Monad.Writer.Strict as S (WriterT (..))
-#if __GLASGOW_HASKELL__ >= 806
 import           Control.Monad.Zip (MonadZip (..))
-#endif
 import           Data.Kind (Constraint, Type)
 import           Data.Fix (Fix, cataM)
 import           Data.Functor.Coyoneda (Coyoneda (..), liftCoyoneda)
@@ -216,7 +206,7 @@ foldFree1 = case forget1 :: Proof (AlgebraType0 m f) (m f) of
 
 -- | @'unFoldNatFree'@ is an inverse of @'foldNatFree'@
 --
--- It is uniquelly determined by its universal property (by Yonneda lemma):
+-- It is uniquely determined by its universal property (by Yonneda lemma):
 --
 -- prop> unFoldNatFree id = ruturnFree1
 --
@@ -609,7 +599,6 @@ newtype Free1 (c :: (Type -> Type) -> Constraint)
           runFree1 :: forall g. c g => (forall x. f x -> g x) -> g a
         }
 
-#if __GLASGOW_HASKELL__ >= 806
 --
 -- instances for @'Free1'@ using quantified constraints
 --
@@ -651,10 +640,6 @@ instance (forall h. c h => Monad h, c (Free1 c f))
     Free1 f >>= k = Free1 $ \h ->
         f h >>= (\a -> case k a of Free1 l -> l h)
 
-#if __GLASGOW_HASKELL__ < 808
-    fail s = Free1 $ \_ -> fail s
-#endif
-
 
 instance (forall h. c h => Alternative h, c (Free1 c f))
          => Alternative (Free1 c f) where
@@ -692,8 +677,6 @@ instance (forall f. c (Free1 c f)) => FreeAlgebra1 (Free1 c) where
     liftFree = \fa -> Free1 $ \g -> g fa
 
     foldNatFree nat (Free1 f) = f nat
-
-#endif
 
 -- $monadContT
 --
