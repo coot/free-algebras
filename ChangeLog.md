@@ -1,5 +1,8 @@
 # Changelog for free-algebras
 
+## Version 0.1.0.2
+- Support `GHC-9.0`, `GHC-9.2` and `GHC-9.4`, drop support for `GHC-8.6` or earlier.
+
 ## Version 0.0.8.0
 - Added two properties for each: `foldMapFree`, `foldNatFree` and
   `foldNatFree2`.
