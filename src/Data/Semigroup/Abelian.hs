@@ -17,14 +17,8 @@ import qualified Data.List.NonEmpty as NE
 import           Data.Map (Map)
 import qualified Data.Map as Map
 import           Data.Set (Set)
-#if __GLASGOW_HASKELL__ < 808
 import           Data.Semigroup
-                    ( Semigroup (..),
-#else
-import           Data.Semigroup
-                    (
-#endif
-                      All
+                    ( All
                     , Any
                     , Dual
                     , Max
