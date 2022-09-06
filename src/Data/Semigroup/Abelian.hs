@@ -29,7 +29,9 @@ import           Data.Semigroup
                     , Dual
                     , Max
                     , Min
+#if __GLASGOW_HASKELL__ < 902
                     , Option
+#endif
                     , Product
                     , Sum
                     )
@@ -64,7 +66,9 @@ instance Ord a => AbelianSemigroup (Max a)
 instance Ord a => AbelianSemigroup (Min a)
 
 instance AbelianSemigroup a => AbelianSemigroup (Maybe a)
+#if __GLASGOW_HASKELL__ < 902
 instance AbelianSemigroup a => AbelianSemigroup (Option a)
+#endif
 
 instance Num a => AbelianSemigroup (Product a)
 

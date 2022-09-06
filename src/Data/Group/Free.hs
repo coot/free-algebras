@@ -62,11 +62,11 @@ instance Functor FreeGroup where
     fmap f (FreeGroup as) = FreeGroup $ bimap f f <$> as
 
 instance Applicative FreeGroup where
-    pure  = return
+    pure a = FreeGroup $ DList.singleton (Right a)
     (<*>) = ap
 
 instance Monad FreeGroup where
-    return a           = FreeGroup $ DList.singleton (Right a)
+    return  = pure
     FreeGroup as >>= f = FreeGroup $ as >>= runFreeGroup . either f f
 
 -- | Normalize a @Dlist@, i.e. remove adjacent inverses from a word, i.e.
