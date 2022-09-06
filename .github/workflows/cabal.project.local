@@ -1,0 +1,5 @@
+documentation: True
+tests: True
+
+package free-algebras
+  ghc-options: -j2 -Werror
