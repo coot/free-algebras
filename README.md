@@ -1,6 +1,6 @@
 # Free Algebras
 [![Maintainer: coot](https://img.shields.io/badge/maintainer-coot-lightgrey.svg)](http://github.com/coot)
-[![POSIX](https://github.com/coot/free-algebras/actions/workflows/posix.yml/badge.svg)](https://github.com/coot/free-algebras/actions/workflows/posix.yml)
+[![CI](https://github.com/coot/free-algebras/actions/workflows/ci.yml/badge.svg)](https://github.com/coot/free-algebras/actions/workflows/ci.yml)
 
 Universal algebra approach (which is compatible with categorical approach) to
 free algebras (including higher order structures like functors, applicative
