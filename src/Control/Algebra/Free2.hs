@@ -41,7 +41,7 @@ class FreeAlgebra2 (m :: (k -> k -> Type) -> k -> k -> Type) where
 
     {-# MINIMAL liftFree2, foldNatFree2 #-}
 
-    -- | Lift a graph @f@ satsifying the constraint @'AlgebraType0'@ to a free
+    -- | Lift a graph @f@ satisfying the constraint @'AlgebraType0'@ to a free
     -- its object @m f@.
     --
     liftFree2    :: AlgebraType0 m f
@@ -68,10 +68,10 @@ class FreeAlgebra2 (m :: (k -> k -> Type) -> k -> k -> Type) where
                  -> (m f a b -> d a b)
 
     -- | A proof that for each @f@ satisfying @AlgebraType0 m f@, @m f@
-    -- satisfies @AlgebraType m (m f)@ constrant.  This means that @m@ is
+    -- satisfies @AlgebraType m (m f)@ constraint.  This means that @m@ is
     -- a well defined /functor/ from the full sub-category of types of kind @k
     -- -> k -> Type@ which satisfy the @AlgebraType0 m@ constraint to the full
-    -- subcategory of types of the same kind which satifsfy the constraint
+    -- subcategory of types of the same kind which satisfy the constraint
     -- @AlgebraType m@.
     --
     codom2  :: forall (f :: k -> k -> Type).
@@ -123,7 +123,7 @@ wrapFree2 = join . liftFree2
 -- @
 --
 -- It is the [unit](https://ncatlab.org/nlab/show/unit+of+an+adjunction) of
--- adjuction defined by @'FreeAlgebra1'@ class.
+-- adjunction defined by @'FreeAlgebra1'@ class.
 --
 foldFree2 :: forall k
                     (m :: (k -> k -> Type) -> k -> k -> Type)
@@ -140,7 +140,7 @@ foldFree2 = case forget2 :: Proof (AlgebraType0 m f) (m f) of
 
 -- | Inverse of @'foldNatFree2'@.
 --
--- It is uniquelly determined by its universal property (by Yonneda lemma):
+-- It is uniquely determined by its universal property (by Yoneda lemma):
 --
 -- prop> unFoldNatFree id = liftFree2
 --

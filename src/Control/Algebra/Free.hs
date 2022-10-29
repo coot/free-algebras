@@ -206,7 +206,7 @@ foldFree1 = case forget1 :: Proof (AlgebraType0 m f) (m f) of
 
 -- | @'unFoldNatFree'@ is an inverse of @'foldNatFree'@
 --
--- It is uniquely determined by its universal property (by Yonneda lemma):
+-- It is uniquely determined by its universal property (by Yoneda lemma):
 --
 -- prop> unFoldNatFree id = ruturnFree1
 --
@@ -586,7 +586,7 @@ instance FreeAlgebra1 ListT where
         foldM (\x y -> x `mappend1_` y) empty1 as
 
 -- | Free construction for kinds @'Type' -> 'Type'@.  @'Free1' 'Functor'@ is
--- isomorhpic to @'Coyoneda'@ via @'hoistFreeH'@, and @'Free1' 'Applicative'@
+-- isomorphic to @'Coyoneda'@ via @'hoistFreeH'@, and @'Free1' 'Applicative'@
 -- is isomorphic to @'Ap'@ (also via @'hoistFreeH'@).
 --
 -- Note: useful instance are only provided for ghc-8.6 using quantified
