@@ -24,7 +24,7 @@ import           Data.Algebra.Free ( AlgebraType
                                    )
 import           Data.Semigroup.Abelian (AbelianSemigroup)
 
--- | Class of abelian semigroups in which every element is idempontent, i.e.
+-- | Class of abelian semigroups in which every element is idempotent, i.e.
 -- @a <> a = a@.
 --
 class AbelianSemigroup m => Semilattice m
