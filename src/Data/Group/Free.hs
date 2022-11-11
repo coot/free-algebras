@@ -44,7 +44,7 @@ import           Data.Algebra.Free
 --  inverse (FreeGroup [a]) = FreeGroup [either Right Left a]
 -- @
 --
--- It is a monad on a full subcategory of @Hask@ which constists of types which
+-- It is a monad on a full subcategory of @Hask@ which consists of types which
 -- satisfy the @'Eq'@ constraint.
 --
 -- @'FreeGroup' a@ is isomorphic with @'Free' Group a@ (but the latter does not
@@ -68,7 +68,7 @@ instance Monad FreeGroup where
 
 -- | Normalize a @Dlist@, i.e. remove adjacent inverses from a word, i.e.
 -- @ab⁻¹ba⁻¹c = c@.  Note that this function is implemented using
--- @'normalizeL'@, implemnting it directly on @DList@s would be @O(n^2)@
+-- @'normalizeL'@, implementing it directly on @DList@s would be @O(n^2)@
 -- instead of @O(n)@.
 --
 -- /Complexity:/ @O(n)@
@@ -87,7 +87,7 @@ fromDList = freeGroupFromList . DList.toList
 
 -- | Construct a FreeGroup from a list.
 --
--- /Complextiy:/ @O(n)@
+-- /Complexity:/ @O(n)@
 --
 freeGroupFromList :: Eq a => [Either a a] -> FreeGroup a
 freeGroupFromList = FreeGroup . DList.fromList . normalizeL
