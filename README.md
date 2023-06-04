@@ -1,6 +1,6 @@
 # Free Algebras
 [![Maintainer: coot](https://img.shields.io/badge/maintainer-coot-lightgrey.svg?style=for-the-badge)](http://github.com/coot)
-[![Haskell CI](https://img.shields.io/github/workflow/status/coot/free-algebras/Haskell%20CI?label=Build&style=for-the-badge)](https://github.com/coot/free-algebras/actions/workflows/ci.yaml)
+[![Haskell CI](https://img.shields.io/github/actions/workflow/status/coot/free-algebras/ci.yaml?branch=master&label=Build&style=for-the-badge)](https://github.com/coot/free-algebras/actions/workflows/ci.yaml)
 
 Universal algebra approach (which is compatible with categorical approach) to
 free algebras (including higher order structures like functors, applicative
