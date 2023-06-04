@@ -46,26 +46,34 @@ module Control.Algebra.Free
       -- * Free construction in continuation passing style
     , Free1 (..)
       -- * Various classes (higher algebra types)
+#if !MIN_VERSION_mtl(2,3,0)
     , MonadList (..)
+#endif
     , MonadMaybe (..)
 
     ) where
 
-import           Control.Applicative ( Alternative (..)
-                                     , liftA2
-                                     )
+import           Control.Applicative ( Alternative (..) )
+#if !MIN_VERSION_mtl(2,3,0)
+import           Control.Applicative ( liftA2 )
+#endif
 import           Control.Applicative.Free (Ap)
 import qualified Control.Applicative.Free as Ap
 import qualified Control.Applicative.Free.Fast as Fast
 import qualified Control.Applicative.Free.Final as Final
 import           Control.Alternative.Free (Alt (..))
 import qualified Control.Alternative.Free as Alt
-import           Control.Monad ( MonadPlus (..), foldM, join)
+import           Control.Monad ( MonadPlus (..), join )
+#if !MIN_VERSION_mtl(2,3,0)
+import           Control.Monad ( foldM )
+#endif
 import           Control.Monad.Except (ExceptT (..), MonadError (..))
 import           Control.Monad.Free (Free)
 import qualified Control.Monad.Free as Free
 import qualified Control.Monad.Free.Church as Church
+#if !MIN_VERSION_mtl(2,3,0)
 import           Control.Monad.List (ListT (..))
+#endif
 import           Control.Monad.Reader (MonadReader (..), ReaderT (..))
 import           Control.Monad.RWS.Class (MonadRWS)
 import           Control.Monad.RWS.Lazy as L (RWST (..))
@@ -562,6 +570,7 @@ instance FreeAlgebra1 (S.RWST r w s) where
         tell w
         return a
 
+#if !MIN_VERSION_mtl(2,3,0)
 -- | Algebra type for @'ListT'@ monad transformer.
 --
 class Monad m => MonadList m where
@@ -584,6 +593,7 @@ instance FreeAlgebra1 ListT where
         as <- nat mas
         empty1 <- mempty1
         foldM (\x y -> x `mappend1_` y) empty1 as
+#endif
 
 -- | Free construction for kinds @'Type' -> 'Type'@.  @'Free1' 'Functor'@ is
 -- isomorphic to @'Coyoneda'@ via @'hoistFreeH'@, and @'Free1' 'Applicative'@
