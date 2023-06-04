@@ -1,5 +1,8 @@
 # Changelog for free-algebras
 
+## Version 0.1.1.0
+- Support `GHC-9.6` and `mtl-2.3`, drop support of `GHC-8.8`.
+
 ## Version 0.1.0.2
 - Support `GHC-9.0`, `GHC-9.2` and `GHC-9.4`, drop support for `GHC-8.6` or earlier.
 
