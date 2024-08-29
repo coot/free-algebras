@@ -16,16 +16,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ghc: ["8.10.7", "9.0.2", "9.2.8", "9.4.5", "9.6.2", "9.8.2", "9.10.1"]
+        ghc: ["8.10", "9.0", "9.2", "9.4", "9.6", "9.8", "9.10"]
         os: [ubuntu-latest]
 
     steps:
     - name: Install Haskell
-      uses: haskell/actions/setup@v2
+      uses: haskell-actions/setup@v2
       id: setup-haskell
       with:
         ghc-version: ${{ matrix.ghc }}
-        cabal-version: 3.8.1.0
+        cabal-version: 3.12.1.0
 
     - name: Select build directory
       run: |
@@ -48,7 +48,7 @@ jobs:
         echo "TMPDIR=$RUNNER_TEMP"  >> $GITHUB_ENV
         echo "TMP=$RUNNER_TEMP"     >> $GITHUB_ENV
 
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Record dependencies
       id: record-deps
@@ -57,14 +57,14 @@ jobs:
         cat dist-newstyle/cache/plan.json | jq -r '."install-plan"[].id' | sort | uniq > dependencies.txt
 
     - name: Cache `cabal store`
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ${{ steps.setup-haskell.outputs.cabal-store }}
         key: cabal-store-${{ env.CACHE_VERSION }}-${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('dependencies.txt') }}
         restore-keys: cabal-store-${{ env.CACHE_VERSION }}-${{ runner.os }}-${{ matrix.ghc }}
 
     - name: Cache `dist-newstyle`
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           dist-newstyle
