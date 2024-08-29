@@ -29,7 +29,9 @@ import qualified Data.DList as DList
 import           Data.DList.Unsafe (DList (..))
 #endif
 import           Data.Group (Group (..))
+#if __GLASGOW_HASKELL__ < 910
 import           Data.List (foldl')
+#endif
 
 import           Data.Algebra.Free
                     ( AlgebraType
