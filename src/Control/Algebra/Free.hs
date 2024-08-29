@@ -18,6 +18,7 @@
 
 -- 'ListT' transformer is depreciated
 {-# OPTIONS_GHC -Wno-deprecations       #-}
+{-# OPTIONS_GHC -Wno-orphans            #-}
 
 module Control.Algebra.Free
     ( -- Higher free algebra class

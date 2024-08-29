@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP                   #-}
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE FlexibleContexts      #-}
 {-# LANGUAGE GADTs                 #-}
@@ -51,6 +52,11 @@ import           Prelude
 import           Data.Bifunctor (bimap)
 import           Data.List.NonEmpty (NonEmpty (..))
 import qualified Data.List.NonEmpty as NE
+#if __GLASGOW_HASKELL__ >= 910
+import qualified Data.Functor as X (unzip)
+#else
+import qualified Data.List.NonEmpty as X (unzip)
+#endif
 import           Data.Proxy (Proxy (..))
 import           Data.Kind (Type)
 
@@ -265,7 +271,7 @@ instance {-# OVERLAPPING #-} MAlg NonEmpty (NonEmpty a) where
 -- |
 -- Wrapping an @MAlg@ inside a monad is a 
 instance {-# OVERLAPPABLE #-} (Functor m, MAlg m a, MAlg m b) => MAlg m (a, b) where
-    alg = bimap alg alg . NE.unzip
+    alg = bimap alg alg . X.unzip
 
 -- |
 -- TODO: is this a lawful instance?
